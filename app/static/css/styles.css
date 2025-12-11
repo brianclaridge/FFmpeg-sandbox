@@ -69,35 +69,26 @@ body {
 }
 
 header {
-    text-align: center;
-    margin-bottom: 2rem;
-    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
 }
 
 header h1 {
-    font-size: 2.5rem;
+    font-size: 1.75rem;
     color: var(--accent);
-    margin-bottom: 0.5rem;
-}
-
-.subtitle {
-    color: var(--text-secondary);
+    margin: 0;
 }
 
 /* Theme Selector */
-.theme-selector {
-    position: absolute;
-    top: 0;
-    right: 0;
-}
-
 .theme-selector select {
-    padding: 0.5rem 1rem;
+    padding: 0.4rem 0.75rem;
     background: var(--bg-secondary);
     border: 1px solid var(--accent);
     border-radius: var(--border-radius);
     color: var(--text-primary);
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     cursor: pointer;
 }
 
@@ -112,13 +103,22 @@ header h1 {
     gap: 2rem;
 }
 
-@media (max-width: 900px) {
-    .grid {
-        grid-template-columns: 1fr;
+.grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1.5rem;
+}
+
+@media (max-width: 1200px) {
+    .grid-3 {
+        grid-template-columns: 1fr 1fr;
     }
-    .theme-selector {
-        position: static;
-        margin-bottom: 1rem;
+}
+
+@media (max-width: 900px) {
+    .grid,
+    .grid-3 {
+        grid-template-columns: 1fr;
     }
 }
 
@@ -228,6 +228,12 @@ input[type="range"]:focus::-webkit-slider-thumb {
 .preset-buttons {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+}
+
+.preset-buttons-vertical {
+    display: flex;
+    flex-direction: column;
     gap: 0.5rem;
 }
 
@@ -448,6 +454,12 @@ footer {
 
 .url-input-group {
     display: flex;
+    gap: 0.5rem;
+}
+
+.url-input-group-vertical {
+    display: flex;
+    flex-direction: column;
     gap: 0.5rem;
 }
 

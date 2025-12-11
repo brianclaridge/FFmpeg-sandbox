@@ -11,6 +11,10 @@
         </a>
     </div>
 </div>
+<script>
+    // Refresh history after successful processing
+    htmx.ajax('GET', '/history', {target: '#history-area', swap: 'innerHTML'});
+</script>
 {% else %}
 <div class="preview-error">
     <p>Processing failed</p>

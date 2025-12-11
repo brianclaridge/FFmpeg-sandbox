@@ -14,9 +14,11 @@
                     title="Apply settings">
                 Apply
             </button>
-            <a href="/preview/{{ entry.output_file }}" class="btn-small" title="Play">
+            <button class="btn-small btn-play"
+                    onclick="togglePlay(this, '/preview/{{ entry.output_file }}')"
+                    title="Play">
                 Play
-            </a>
+            </button>
             <button class="btn-small btn-danger"
                     hx-delete="/history/{{ entry.id }}"
                     hx-target="#history-area"
@@ -29,6 +31,30 @@
     </li>
     {% endfor %}
 </ul>
+<audio id="history-player" style="display:none;"></audio>
+<script>
+var currentPlayer = document.getElementById('history-player');
+var currentBtn = null;
+
+function togglePlay(btn, src) {
+    if (currentBtn === btn && !currentPlayer.paused) {
+        currentPlayer.pause();
+        btn.textContent = 'Play';
+        return;
+    }
+    if (currentBtn && currentBtn !== btn) {
+        currentBtn.textContent = 'Play';
+    }
+    currentPlayer.src = src;
+    currentPlayer.play();
+    btn.textContent = 'Stop';
+    currentBtn = btn;
+}
+
+currentPlayer.onended = function() {
+    if (currentBtn) currentBtn.textContent = 'Play';
+};
+</script>
 {% else %}
 <p class="placeholder">No processing history yet</p>
 {% endif %}
