@@ -40,6 +40,7 @@ def update_category_preset(category: str, preset: str, filename: str | None = No
     if not filename:
         # Return default settings with the updated preset (no persistence)
         settings = UserSettings()
+        settings.active_category = category  # Keep accordion expanded on this category
         if category == "volume":
             settings.volume.preset = preset
         elif category == "tunnel":

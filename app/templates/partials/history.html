@@ -4,7 +4,8 @@
     <li class="history-item">
         <div class="history-info">
             <strong>{{ entry.output_file }}</strong>
-            <small>{{ entry.timestamp.strftime('%Y-%m-%d %H:%M') }} | {{ entry.preset }} | {{ entry.start_time }} - {{ entry.end_time }}</small>
+            <small>{{ entry.timestamp.strftime('%Y-%m-%d %H:%M') }} | {{ entry.start_time }} - {{ entry.end_time }}</small>
+            <small>Vol: {{ entry.volume_preset }} | Tunnel: {{ entry.tunnel_preset }} | Freq: {{ entry.frequency_preset }}</small>
         </div>
         <div class="history-actions">
             <button class="btn-small"
@@ -14,7 +15,7 @@
                     title="Apply settings">
                 Apply
             </button>
-            <button class="btn-small btn-play"
+            <button type="button" class="btn-small btn-play"
                     onclick="togglePlay(this, '/preview/{{ entry.output_file }}')"
                     title="Play">
                 Play

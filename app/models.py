@@ -271,3 +271,7 @@ class HistoryEntry(BaseModel):
     lowpass: int
     delays: str
     decays: str
+    # Effect chain preset names
+    volume_preset: str = "2x"
+    tunnel_preset: str = "none"
+    frequency_preset: str = "flat"

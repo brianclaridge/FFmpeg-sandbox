@@ -156,6 +156,9 @@ def add_history_entry(
     lowpass: int,
     delays: str,
     decays: str,
+    volume_preset: str = "2x",
+    tunnel_preset: str = "none",
+    frequency_preset: str = "flat",
 ) -> dict[str, Any]:
     """Add a processing history entry to a file's metadata."""
     metadata = load_file_metadata(filename)
@@ -172,6 +175,9 @@ def add_history_entry(
             "lowpass": lowpass,
             "delays": delays,
             "decays": decays,
+            "volume_preset": volume_preset,
+            "tunnel_preset": tunnel_preset,
+            "frequency_preset": frequency_preset,
         },
     }
 

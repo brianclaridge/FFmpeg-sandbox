@@ -343,6 +343,13 @@ var ClipRangeController = (function() {
 
     function togglePlay() {
         if (!currentFilename) return;
+        // If video modal open, control video instead of audio
+        if (videoModal && videoModal.style.display !== 'none') {
+            if (previewVideo) {
+                previewVideo.paused ? previewVideo.play() : previewVideo.pause();
+            }
+            return;
+        }
         if (isPlaying) {
             previewAudio.pause();
         } else {
@@ -533,6 +540,7 @@ var ClipRangeController = (function() {
         previewVideo.src = previewUrl;
         previewVideo.load();
         videoModal.style.display = 'block';
+        if (videoBtn) videoBtn.classList.add('active');
         previewVideo.play().catch(function(e) {
             console.log('Video autoplay blocked:', e);
         });
@@ -541,6 +549,7 @@ var ClipRangeController = (function() {
     function closeVideoModal() {
         if (!videoModal) return;
         videoModal.style.display = 'none';
+        if (videoBtn) videoBtn.classList.remove('active');
         if (previewVideo) {
             previewVideo.pause();
             previewVideo.src = '';
@@ -699,6 +708,8 @@ var ClipRangeController = (function() {
     }
 
     function triggerPreview() {
+        // Don't play audio if video modal is open - video handles playback
+        if (videoModal && videoModal.style.display !== 'none') return;
         if (!currentFilename) return;
 
         var startTime = startInput.value;

@@ -51,6 +51,11 @@
     color: white;
 }
 
+.btn-video-preview.active {
+    background: var(--accent);
+    color: white;
+}
+
 /* Secondary Button */
 .btn-secondary {
     display: inline-block;
