@@ -1,7 +1,7 @@
 """FastAPI application entry point."""
 
+import logging
 import sys
-from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
@@ -9,10 +9,30 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from loguru import logger
 
-from app.config import INPUT_DIR, OUTPUT_DIR
+from app.config import INPUT_DIR, OUTPUT_DIR, LOGS_DIR
 from app.models import PRESETS, PresetLevel
 from app.routers import audio, history, download
 from app.services.processor import get_input_files
+
+
+class InterceptHandler(logging.Handler):
+    """Intercept standard logging and route to loguru."""
+
+    def emit(self, record: logging.LogRecord) -> None:
+        try:
+            level = logger.level(record.levelname).name
+        except ValueError:
+            level = record.levelno
+
+        frame, depth = logging.currentframe(), 2
+        while frame.f_code.co_filename == logging.__file__:
+            frame = frame.f_back
+            depth += 1
+
+        logger.opt(depth=depth, exception=record.exc_info).log(
+            level, record.getMessage()
+        )
+
 
 # Configure loguru
 logger.remove()
@@ -22,11 +42,21 @@ logger.add(
     level="INFO",
 )
 logger.add(
-    "logs/app.log",
+    LOGS_DIR / "app.log",
     rotation="10 MB",
     retention="7 days",
     level="DEBUG",
+    format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} - {message}",
 )
+
+# Intercept uvicorn and other standard loggers
+logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
+for name in ["uvicorn", "uvicorn.error", "uvicorn.access", "fastapi"]:
+    log = logging.getLogger(name)
+    log.handlers = [InterceptHandler()]
+    log.propagate = False
+
+logger.info("Audio Processor starting up")
 
 app = FastAPI(
     title="Audio Processor",

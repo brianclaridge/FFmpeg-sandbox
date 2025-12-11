@@ -134,7 +134,7 @@ tasks:
   download:test:
     desc: Test yt-dlp installation
     cmds:
-      - uv run python -c "import yt_dlp; print(f'yt-dlp version: {yt_dlp.version.__version__}')"
+      - uv run python -c "import yt_dlp; print(f'yt-dlp version: \{yt_dlp.version.__version__\}')"
 
   # ============================================
   # Utility Tasks

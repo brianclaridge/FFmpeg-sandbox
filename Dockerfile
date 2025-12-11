@@ -12,17 +12,21 @@ RUN apt-get update && \
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
 # Copy project files
-COPY pyproject.toml .
+COPY pyproject.toml uv.lock ./
 COPY app/ app/
 
 # Create data directories
 RUN mkdir -p data/input data/output logs
 
-# Install dependencies
+# Install dependencies (pre-cache for faster startup)
 RUN uv sync --no-dev
+
+# Copy and setup entrypoint
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 # Expose port
 EXPOSE 8000
 
-# Run the application
-CMD ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Use entrypoint for startup tasks
+ENTRYPOINT ["docker-entrypoint.sh"]
