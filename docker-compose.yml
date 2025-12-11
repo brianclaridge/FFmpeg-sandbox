@@ -4,9 +4,9 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ${BASE_HOST_PATH:-.}/.data/input:/app/.data/input
-      - ${BASE_HOST_PATH:-.}/.data/output:/app/.data/output
-      - ${BASE_HOST_PATH:-.}/.data/logs:/app/.data/logs
+      - ${HOST_PWD:-.}/.data/input:/app/.data/input
+      - ${HOST_PWD:-.}/.data/output:/app/.data/output
+      - ${HOST_PWD:-.}/.data/logs:/app/.data/logs
     environment:
       - PYTHONUNBUFFERED=1
     restart: unless-stopped
