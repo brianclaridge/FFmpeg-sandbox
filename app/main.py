@@ -89,6 +89,7 @@ async def index(request: Request):
             "input_files": input_files,
             "presets": presets,
             "default_preset": default_preset,
+            "preset": default_preset,
             "delays": "|".join(str(d) for d in default_preset.delays),
             "decays": "|".join(str(d) for d in default_preset.decays),
         },
