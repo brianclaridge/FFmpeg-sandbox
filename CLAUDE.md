@@ -19,10 +19,11 @@ A Python-based Single Page Application for extracting and processing audio from 
 ```
 config.yml               # Application configuration
 .data/
-├── input/               # Source video/audio files
+├── input/               # Source files + per-file .yml metadata
+│   ├── yt-abc123.mp4    # Downloaded video (anonymized name)
+│   └── yt-abc123.yml    # Settings, history, source info
 ├── output/              # Processed audio files
-├── user_settings.yml    # Persistent user preferences
-└── history.json         # Processing history
+└── logs/                # Application logs
 app/
 ├── main.py              # FastAPI entry point, routes index
 ├── config.py            # Config loader with dataclasses
@@ -34,8 +35,9 @@ app/
 ├── services/
 │   ├── processor.py     # ffmpeg audio processing + file metadata
 │   ├── downloader.py    # yt-dlp video downloading
-│   ├── history.py       # JSON-based history management
-│   └── settings.py      # User settings YAML persistence
+│   ├── file_metadata.py # Per-file YAML metadata service
+│   ├── history.py       # Processing history (per-file)
+│   └── settings.py      # Effect chain settings (per-file)
 ├── templates/
 │   ├── base.html        # Base layout with theme selector
 │   ├── index.html       # Main 3-column interface with ClipRangeController
@@ -138,7 +140,7 @@ The UI organizes processing into three independent categories:
 
 **Frequency** (`FrequencyPreset`): Flat, Bass Cut, Treble Cut, Narrow Band, Voice Clarity
 
-Each category has its own presets and controls. User selections persist to `.data/user_settings.yml`.
+Each category has its own presets and controls. User selections persist per-file in `.data/input/{filename}.yml`.
 
 ## UI Features
 
@@ -147,7 +149,7 @@ Each category has its own presets and controls. User selections persist to `.dat
 - Clicking a box reveals its category control panel
 - Per-category preset pills for quick selection
 - Active category highlighted in the chain
-- Settings persist to `.data/user_settings.yml`
+- Settings persist per-file in companion `.yml` metadata
 
 ### File Metadata Display
 - Shows after file selection below the Process button
@@ -178,8 +180,8 @@ Theme selection via `data-theme` attribute, persisted in localStorage.
 ## Development Notes
 
 - Source files: `.data/input/` (or upload/URL download)
+- Per-file metadata: `.data/input/{filename}.yml` (settings + history)
 - Output files: `.data/output/`
-- History: `.data/history.json` (max configurable)
 - Logs: `.data/logs/app.log` (retention configurable)
 
 ## Common Tasks

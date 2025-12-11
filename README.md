@@ -9,7 +9,7 @@ A web-based audio extraction and processing tool with visual effect chains.
 - Extract audio segments from video files
 - **Visual effect chain** with three processing stages: Volume → Tunnel → Frequency
 - Per-category presets with independent controls
-- **User settings persistence** to `.data/user_settings.yml`
+- **Per-file metadata** storing settings, history, and source info in `.data/input/{filename}.yml`
 - **File metadata display** showing duration, size, codecs, resolution, and bitrate
 - **Dual-handle clip range slider** with millisecond precision (defaults to full file)
 - **Play/pause/stop controls** for clip preview
@@ -75,6 +75,21 @@ cp your-video.mp4 data/input/
 - Paste a YouTube or other supported URL
 - Click "Check URL" to validate
 - Click "Download" to fetch the file
+
+Downloaded files are saved with anonymized names: `{source}-{id}.{ext}`
+
+| Source | Prefix | Example |
+|--------|--------|---------|
+| YouTube | `yt` | `yt-dQw4w9WgXcQ.mp4` |
+| Twitch | `tw` | `tw-1234567890.mp4` |
+| Twitter/X | `x` | `x-1234567890.mp4` |
+| TikTok | `tt` | `tt-7123456789.mp4` |
+| Other | `dl` | `dl-a1b2c3d4e5f6.mp4` |
+
+Each downloaded file gets a companion `.yml` metadata file containing:
+- Original URL, title, uploader, duration
+- Effect chain settings (presets per category)
+- Processing history with timestamps and parameters
 
 ### 2. Start the server
 
@@ -230,10 +245,11 @@ audio:
 ```text
 config.yml               # Application configuration
 .data/
-├── input/               # Source video/audio files
+├── input/               # Source files + per-file .yml metadata
+│   ├── yt-abc123.mp4    # Downloaded video (anonymized name)
+│   └── yt-abc123.yml    # Settings, history, source info
 ├── output/              # Processed audio files
-├── user_settings.yml    # Persistent user preferences
-└── history.json         # Processing history
+└── logs/                # Application logs
 app/
 ├── main.py              # Application entry point
 ├── config.py            # Config loader with dataclasses
@@ -245,8 +261,9 @@ app/
 ├── services/
 │   ├── processor.py     # ffmpeg audio processing + file metadata
 │   ├── downloader.py    # yt-dlp video downloading
-│   ├── history.py       # JSON-based history management
-│   └── settings.py      # User settings YAML persistence
+│   ├── file_metadata.py # Per-file YAML metadata service
+│   ├── history.py       # Processing history (per-file)
+│   └── settings.py      # Effect chain settings (per-file)
 ├── templates/           # Jinja2 HTML templates
 │   ├── base.html        # Base layout with theme selector
 │   ├── index.html       # Main 3-column interface
