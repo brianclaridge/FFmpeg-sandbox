@@ -134,7 +134,7 @@ tasks:
   download:test:
     desc: Test yt-dlp installation
     cmds:
-      - uv run python -c "import yt_dlp; print(f'yt-dlp version: {yt_dlp.version.__version__}')"
+      - pwsh ./scripts/test-ytdlp.ps1
 
   # ============================================
   # Utility Tasks
@@ -164,7 +164,7 @@ tasks:
   health:
     desc: Check if the application is responding
     cmds:
-      - curl -sf http://localhost:8000/ > /dev/null && echo "OK: Application is running" || echo "FAIL: Application not responding"
+      - pwsh ./scripts/health-check.ps1
 
   # ============================================
   # Default Task
