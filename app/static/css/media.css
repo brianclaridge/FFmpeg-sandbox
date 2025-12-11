@@ -1,0 +1,332 @@
+/* Clip Range Slider - Dual Handle */
+.clip-range-container {
+    margin-bottom: 1rem;
+}
+
+.clip-range-track {
+    position: relative;
+    height: 12px;
+    background: var(--slider-track);
+    border: 2px solid var(--slider-border);
+    border-radius: 6px;
+    margin: 1rem 0 0.5rem 0;
+}
+
+.clip-range-fill {
+    position: absolute;
+    height: 100%;
+    background: var(--accent);
+    opacity: 0.4;
+    border-radius: 4px;
+    pointer-events: none;
+    z-index: 1;
+    top: 0;
+}
+
+/* Override base input[type="range"] styles for clip sliders */
+input[type="range"].clip-range-input {
+    position: absolute !important;
+    width: 100% !important;
+    height: 12px !important;
+    top: 0 !important;
+    left: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    pointer-events: none;
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    z-index: 2;
+}
+
+input[type="range"].clip-range-input::-webkit-slider-runnable-track {
+    background: transparent !important;
+    border: none !important;
+    height: 12px !important;
+}
+
+input[type="range"].clip-range-input::-webkit-slider-thumb {
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    width: 18px;
+    height: 18px;
+    background: var(--accent);
+    border-radius: 50%;
+    cursor: pointer;
+    pointer-events: auto;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    margin-top: -3px;
+    z-index: 3;
+    border: 2px solid white;
+}
+
+input[type="range"].clip-range-input::-moz-range-track {
+    background: transparent !important;
+    border: none !important;
+    height: 12px !important;
+}
+
+input[type="range"].clip-range-input::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    background: var(--accent);
+    border-radius: 50%;
+    border: 2px solid white;
+    cursor: pointer;
+    pointer-events: auto;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
+
+/* Different colors for start vs end thumb */
+input[type="range"].clip-range-start::-webkit-slider-thumb {
+    background: var(--success);
+}
+
+input[type="range"].clip-range-end::-webkit-slider-thumb {
+    background: var(--accent);
+}
+
+input[type="range"].clip-range-start::-moz-range-thumb {
+    background: var(--success);
+}
+
+input[type="range"].clip-range-end::-moz-range-thumb {
+    background: var(--accent);
+}
+
+.clip-range-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.clip-range-labels #clip-duration-label {
+    color: var(--accent);
+    font-weight: 500;
+}
+
+/* Clip Header with Controls */
+.clip-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.clip-header label {
+    margin-bottom: 0;
+}
+
+.clip-controls {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.clip-ctrl-btn {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-secondary);
+    border: 1px solid var(--text-secondary);
+    border-radius: 4px;
+    color: var(--text-primary);
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.clip-ctrl-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.clip-ctrl-btn .play-icon,
+.clip-ctrl-btn .pause-icon {
+    font-size: 0.85rem;
+}
+
+/* Loop toggle button styles */
+.loop-btn {
+    font-size: 1.1rem;
+}
+
+.loop-btn.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(233, 69, 96, 0.1);
+}
+
+.clip-ctrl-btn.loop-btn {
+    font-size: 1.1rem;
+}
+
+.video-ctrl-btn.loop-btn {
+    font-size: 1.5rem;
+}
+
+/* Video Preview Modal */
+.video-modal {
+    position: fixed;
+    bottom: 100px;
+    right: 100px;
+    width: 640px;
+    max-width: calc(100vw - 200px);
+    max-height: calc(100vh - 200px);
+    background: var(--bg-card);
+    border-radius: var(--border-radius);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.video-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    background: var(--bg-secondary);
+    cursor: grab;
+    user-select: none;
+}
+
+.video-modal-title {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.video-modal-close {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.video-modal-close:hover {
+    color: var(--error);
+}
+
+.video-modal video {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: calc(100vh - 300px);
+    object-fit: contain;
+    background: #000;
+}
+
+.video-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.video-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: var(--bg-secondary);
+}
+
+.video-ctrl-btn {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-card);
+    border: 1px solid var(--text-secondary);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.video-ctrl-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.video-ctrl-btn .play-icon,
+.video-ctrl-btn .pause-icon {
+    font-size: 1.1rem;
+}
+
+/* File Metadata Section */
+.file-metadata {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: var(--bg-secondary);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--bg-primary);
+}
+
+.metadata-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--bg-primary);
+}
+
+.metadata-icon {
+    font-size: 1.25rem;
+}
+
+.metadata-filename {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    flex: 1;
+}
+
+.metadata-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+}
+
+.metadata-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+}
+
+.metadata-label {
+    font-size: 0.65rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.metadata-value {
+    font-size: 0.8rem;
+    color: var(--text-primary);
+    font-weight: 500;
+}

@@ -1,0 +1,326 @@
+/* Placeholder */
+.placeholder {
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 2rem;
+}
+
+/* Preview States */
+.preview-success {
+    text-align: center;
+}
+
+.preview-success p {
+    color: var(--success);
+    margin-bottom: 1rem;
+}
+
+.preview-success audio {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.preview-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.preview-error {
+    color: var(--error);
+}
+
+.preview-error pre {
+    background: var(--bg-secondary);
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    overflow-x: auto;
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+}
+
+/* History List */
+.history-list {
+    list-style: none;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background: var(--bg-secondary);
+    border-radius: var(--border-radius);
+    margin-bottom: 0.5rem;
+}
+
+.history-info strong {
+    display: block;
+    font-size: 0.85rem;
+}
+
+.history-info small {
+    color: var(--text-secondary);
+    font-size: 0.7rem;
+}
+
+.history-actions {
+    display: flex;
+    gap: 0.25rem;
+}
+
+/* HTMX Indicators */
+.htmx-request .btn-text {
+    display: none;
+}
+
+.htmx-indicator {
+    display: none;
+}
+
+.htmx-request .htmx-indicator {
+    display: inline;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    margin-top: 2rem;
+    margin-bottom: 50px;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+/* URL Download Section */
+.url-section {
+    margin: 1.5rem 0;
+}
+
+.section-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.section-divider::before,
+.section-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid var(--bg-secondary);
+}
+
+.section-divider span {
+    padding: 0 1rem;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.url-input-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.url-input-group-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.url-input {
+    flex: 1;
+}
+
+.btn-download {
+    padding: 0.75rem 1.25rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--accent);
+    border-radius: var(--border-radius);
+    color: var(--accent);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.btn-download:hover {
+    background: var(--accent);
+    color: white;
+}
+
+#download-status {
+    margin-top: 1rem;
+}
+
+.download-error {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background: rgba(255, 107, 107, 0.1);
+    border: 1px solid var(--error);
+    border-radius: var(--border-radius);
+    color: var(--error);
+    font-size: 0.9rem;
+}
+
+.error-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    background: var(--error);
+    color: white;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 0.8rem;
+}
+
+.download-preview {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: var(--border-radius);
+    gap: 1rem;
+}
+
+.video-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.video-info strong {
+    display: block;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.video-meta {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.25rem;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+}
+
+.btn-confirm-download {
+    padding: 0.5rem 1rem;
+    background: var(--accent);
+    border: none;
+    border-radius: var(--border-radius);
+    color: white;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+}
+
+.btn-confirm-download:hover {
+    background: var(--accent-hover);
+}
+
+.download-success {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background: rgba(78, 204, 163, 0.1);
+    border: 1px solid var(--success);
+    border-radius: var(--border-radius);
+    color: var(--success);
+    font-size: 0.9rem;
+}
+
+.success-icon {
+    font-weight: bold;
+}
+
+/* File Upload Section */
+.upload-section {
+    margin: 1.5rem 0;
+}
+
+.upload-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background: var(--bg-secondary);
+    border: 2px dashed var(--text-secondary);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.upload-zone:hover {
+    border-color: var(--accent);
+    background: rgba(233, 69, 96, 0.05);
+}
+
+.upload-zone.drag-over {
+    border-color: var(--accent);
+    background: rgba(233, 69, 96, 0.1);
+    border-style: solid;
+}
+
+.upload-icon {
+    font-size: 2.5rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.upload-zone:hover .upload-icon,
+.upload-zone.drag-over .upload-icon {
+    color: var(--accent);
+}
+
+.upload-text {
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.upload-text strong {
+    color: var(--accent);
+}
+
+.upload-hint {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+#upload-status {
+    margin-top: 1rem;
+}
+
+.upload-error {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background: rgba(255, 107, 107, 0.1);
+    border: 1px solid var(--error);
+    border-radius: var(--border-radius);
+    color: var(--error);
+    font-size: 0.9rem;
+}
+
+.upload-success {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background: rgba(78, 204, 163, 0.1);
+    border: 1px solid var(--success);
+    border-radius: var(--border-radius);
+    color: var(--success);
+    font-size: 0.9rem;
+}

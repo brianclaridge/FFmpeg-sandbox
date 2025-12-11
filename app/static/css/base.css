@@ -1,0 +1,50 @@
+/* Base Variables & Reset */
+:root {
+    --border-radius: 8px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    max-width: none;
+    width: 100%;
+    margin: 0 auto;
+    padding: 2rem 10vw;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    justify-content: center;
+}
+
+/* Only center when content fits viewport */
+@media (min-height: 900px) {
+    .container {
+        justify-content: center;
+    }
+}
+
+/* For smaller viewports, use normal flow */
+@media (max-height: 899px) {
+    .container {
+        justify-content: flex-start;
+    }
+}

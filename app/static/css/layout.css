@@ -1,0 +1,89 @@
+/* Header & Theme Selector */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+header h1 {
+    font-size: 1.75rem;
+    color: var(--accent);
+    margin: 0;
+}
+
+.header-attribution {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-left: 100px;
+}
+
+.header-attribution a {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+.header-attribution a:hover {
+    text-decoration: underline;
+}
+
+.theme-selector select {
+    padding: 0.4rem 0.75rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--accent);
+    border-radius: var(--border-radius);
+    color: var(--text-primary);
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.theme-selector select:focus {
+    outline: none;
+    border-color: var(--accent-hover);
+}
+
+/* Grid Layouts */
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.grid-3 {
+    display: grid;
+    grid-template-columns: minmax(280px, 1fr) minmax(400px, 2fr) minmax(280px, 1fr);
+    gap: 1.5rem;
+}
+
+@media (max-width: 1200px) {
+    .container {
+        padding: 2rem 5vw;
+    }
+    .grid-3 {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 900px) {
+    .container {
+        padding: 1.5rem;
+    }
+    .grid,
+    .grid-3 {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Card */
+.card {
+    background: var(--bg-card);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+}
+
+.card h2 {
+    color: var(--accent);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--bg-secondary);
+}
