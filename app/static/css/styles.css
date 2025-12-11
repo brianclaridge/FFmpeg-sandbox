@@ -645,10 +645,10 @@ footer {
 
 .clip-range-track {
     position: relative;
-    height: 8px;
+    height: 12px;
     background: var(--slider-track);
     border: 2px solid var(--slider-border);
-    border-radius: 4px;
+    border-radius: 6px;
     margin: 1rem 0 0.5rem 0;
 }
 
@@ -656,78 +656,82 @@ footer {
     position: absolute;
     height: 100%;
     background: var(--accent);
-    opacity: 0.5;
-    border-radius: 2px;
+    opacity: 0.4;
+    border-radius: 4px;
     pointer-events: none;
     z-index: 1;
+    top: 0;
 }
 
-.clip-range-input {
-    position: absolute;
-    width: 100%;
-    height: 8px;
-    top: -2px;
-    left: 0;
-    background: transparent;
+/* Override base input[type="range"] styles for clip sliders */
+input[type="range"].clip-range-input {
+    position: absolute !important;
+    width: 100% !important;
+    height: 12px !important;
+    top: 0 !important;
+    left: 0 !important;
+    background: transparent !important;
+    border: none !important;
     pointer-events: none;
-    -webkit-appearance: none;
-    appearance: none;
-    margin: 0;
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
     z-index: 2;
-    border: none;
 }
 
-.clip-range-input::-webkit-slider-runnable-track {
-    background: transparent;
-    border: none;
-    height: 8px;
+input[type="range"].clip-range-input::-webkit-slider-runnable-track {
+    background: transparent !important;
+    border: none !important;
+    height: 12px !important;
 }
 
-.clip-range-input::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 20px;
-    height: 20px;
+input[type="range"].clip-range-input::-webkit-slider-thumb {
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    width: 18px;
+    height: 18px;
     background: var(--accent);
     border-radius: 50%;
     cursor: pointer;
     pointer-events: auto;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    margin-top: -6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    margin-top: -3px;
     z-index: 3;
+    border: 2px solid white;
 }
 
-.clip-range-input::-moz-range-track {
-    background: transparent;
-    border: none;
-    height: 8px;
+input[type="range"].clip-range-input::-moz-range-track {
+    background: transparent !important;
+    border: none !important;
+    height: 12px !important;
 }
 
-.clip-range-input::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
+input[type="range"].clip-range-input::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
     background: var(--accent);
     border-radius: 50%;
-    border: none;
+    border: 2px solid white;
     cursor: pointer;
     pointer-events: auto;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
 }
 
 /* Different colors for start vs end thumb */
-.clip-range-start::-webkit-slider-thumb {
+input[type="range"].clip-range-start::-webkit-slider-thumb {
     background: var(--success);
 }
 
-.clip-range-end::-webkit-slider-thumb {
+input[type="range"].clip-range-end::-webkit-slider-thumb {
     background: var(--accent);
 }
 
-.clip-range-start::-moz-range-thumb {
+input[type="range"].clip-range-start::-moz-range-thumb {
     background: var(--success);
 }
 
-.clip-range-end::-moz-range-thumb {
+input[type="range"].clip-range-end::-moz-range-thumb {
     background: var(--accent);
 }
 
@@ -741,4 +745,102 @@ footer {
 .clip-range-labels #clip-duration-label {
     color: var(--accent);
     font-weight: 500;
+}
+
+/* Clip Header with Controls */
+.clip-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.clip-header label {
+    margin-bottom: 0;
+}
+
+.clip-controls {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.clip-ctrl-btn {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-secondary);
+    border: 1px solid var(--text-secondary);
+    border-radius: 4px;
+    color: var(--text-primary);
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.clip-ctrl-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.clip-ctrl-btn .play-icon,
+.clip-ctrl-btn .pause-icon {
+    font-size: 0.85rem;
+}
+
+/* Video Preview Modal */
+.video-modal {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 640px;
+    background: var(--bg-card);
+    border-radius: var(--border-radius);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.video-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    background: var(--bg-secondary);
+    cursor: grab;
+    user-select: none;
+}
+
+.video-modal-title {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.video-modal-close {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.video-modal-close:hover {
+    color: var(--error);
+}
+
+.video-modal video {
+    display: block;
+    width: 100%;
+    height: auto;
+    background: #000;
 }

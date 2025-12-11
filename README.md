@@ -6,13 +6,17 @@ A web-based audio extraction and processing tool with tunnel/reverb effects.
 
 - Extract audio segments from video files
 - Apply tunnel/cave acoustic effects
-- Four effect presets (Light, Medium, Heavy, Extreme)
+- Five effect presets (No Effect, Light, Medium, Heavy, Extreme)
 - Custom parameter sliders for fine-tuning
+- **Dual-handle clip range slider** with millisecond precision
+- **Play/pause/stop controls** for clip preview
+- **Draggable video preview modal** for video files
 - In-browser audio preview and playback
 - Processing history with one-click reapply
 - **File upload** with drag-and-drop support
 - **URL download** via yt-dlp (YouTube, etc.)
 - **10 dark themes** including Darcula, Dracula, Nord, Tokyo Night, and more
+- **Configurable via `config.yml`**
 
 ## Requirements
 
@@ -118,6 +122,7 @@ Theme preference is saved in localStorage.
 
 | Preset | Effect | Best For |
 |--------|--------|----------|
+| No Effect | Clean audio | Original sound, no processing |
 | Light | Subtle ambience | Natural-sounding reverb |
 | Medium | Noticeable tunnel | Standard tunnel effect |
 | Heavy | Strong cave echo | Dramatic atmosphere |
@@ -158,19 +163,54 @@ curl http://localhost:8000/history
 curl -O http://localhost:8000/preview/processed_20241210_120000.mp3
 ```
 
+## Configuration
+
+The application is configurable via `config.yml`:
+
+```yaml
+server:
+  host: "0.0.0.0"
+  port: 8000
+  version: "0.1.0"
+  reload: true
+
+logging:
+  rotation: "10 MB"
+  retention: "7 days"
+  stderr_level: "INFO"
+  file_level: "DEBUG"
+
+history:
+  max_entries: 50
+
+download:
+  filename_max_length: 50
+  format: "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best"
+
+audio:
+  allowed_extensions: [".mp4", ".mkv", ".avi", ".mov", ".webm", ".mp3", ".wav", ".flac", ".m4a", ".ogg"]
+  preview_timeout: 30
+  mp3_quality: "4"
+  default_preset: "none"
+  default_start_time: "00:00:00"
+  default_end_time: "00:00:06"
+```
+
 ## Project Structure
 
 ```text
+config.yml               # Application configuration
 app/
 ├── main.py              # Application entry point
-├── config.py            # Path configuration
+├── config.py            # Config loader with dataclasses
 ├── models.py            # Data models and presets
 ├── routers/
-│   ├── audio.py         # /process, /preview, /upload
+│   ├── audio.py         # /process, /preview, /upload, /clip-preview
 │   ├── download.py      # /download URL endpoints
 │   └── history.py       # /history endpoints
 ├── services/
 │   ├── processor.py     # ffmpeg audio processing
+│   ├── downloader.py    # yt-dlp video downloading
 │   └── history.py       # JSON-based history management
 ├── templates/           # Jinja2 HTML templates
 │   ├── base.html        # Base layout with theme selector

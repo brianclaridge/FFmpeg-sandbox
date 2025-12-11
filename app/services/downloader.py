@@ -7,7 +7,7 @@ from dataclasses import dataclass
 import yt_dlp
 from loguru import logger
 
-from app.config import INPUT_DIR
+from app.config import INPUT_DIR, config
 
 
 @dataclass
@@ -23,7 +23,7 @@ def sanitize_filename(title: str, video_id: str) -> str:
     """Create a safe filename from video title and ID."""
     safe_title = re.sub(r'[^\w\s\-]', '', title)
     safe_title = re.sub(r'[\s_]+', '_', safe_title)
-    safe_title = safe_title[:50].strip('_')
+    safe_title = safe_title[:config.download.filename_max_length].strip('_')
     return f"{safe_title}_{video_id}"
 
 
@@ -87,7 +87,7 @@ def download_video(url: str) -> DownloadResult:
     output_template = str(INPUT_DIR / f"{safe_name}.%(ext)s")
 
     ydl_opts = {
-        'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
+        'format': config.download.format,
         'outtmpl': output_template,
         'quiet': True,
         'no_warnings': True,

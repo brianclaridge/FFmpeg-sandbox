@@ -7,7 +7,7 @@ from pathlib import Path
 
 from loguru import logger
 
-from app.config import HISTORY_FILE, OUTPUT_DIR
+from app.config import HISTORY_FILE, OUTPUT_DIR, config
 from app.models import HistoryEntry
 
 
@@ -61,8 +61,8 @@ def add_history_entry(
     history = load_history()
     history.insert(0, entry)
 
-    # Keep only last 50 entries
-    history = history[:50]
+    # Keep only last N entries
+    history = history[:config.history.max_entries]
     save_history(history)
 
     logger.info(f"Added history entry: {entry.id}")

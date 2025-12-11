@@ -7,6 +7,7 @@ from datetime import datetime
 
 class PresetLevel(str, Enum):
     """Tunnel effect intensity presets."""
+    NONE = "none"
     LIGHT = "light"
     MEDIUM = "medium"
     HEAVY = "heavy"
@@ -25,6 +26,15 @@ class PresetConfig(BaseModel):
 
 
 PRESETS: dict[PresetLevel, PresetConfig] = {
+    PresetLevel.NONE: PresetConfig(
+        name="No Effect",
+        description="Clean audio, no tunnel processing",
+        volume=1.0,
+        highpass=20,
+        lowpass=20000,
+        delays=[1],
+        decays=[0.0],
+    ),
     PresetLevel.LIGHT: PresetConfig(
         name="Light Tunnel",
         description="Subtle ambience, voice very clear",
@@ -69,7 +79,7 @@ class ProcessRequest(BaseModel):
     input_file: str
     start_time: str = "00:00:00"
     end_time: str = "00:00:06"
-    preset: PresetLevel = PresetLevel.MEDIUM
+    preset: PresetLevel = PresetLevel.NONE
     volume: float = Field(default=2.0, ge=0.5, le=4.0)
     highpass: int = Field(default=100, ge=50, le=500)
     lowpass: int = Field(default=4500, ge=2000, le=8000)

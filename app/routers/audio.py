@@ -12,12 +12,12 @@ from fastapi.templating import Jinja2Templates
 
 from loguru import logger
 
-from app.config import INPUT_DIR, OUTPUT_DIR
+from app.config import INPUT_DIR, OUTPUT_DIR, config
 from app.models import PresetLevel, PRESETS
 from app.services.processor import process_audio, get_input_files, get_file_duration, format_duration_ms
 from app.services.history import add_history_entry
 
-ALLOWED_EXTENSIONS = {".mp4", ".mkv", ".avi", ".mov", ".webm", ".mp3", ".wav", ".flac", ".m4a", ".ogg"}
+ALLOWED_EXTENSIONS = set(config.audio.allowed_extensions)
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -27,9 +27,9 @@ templates = Jinja2Templates(directory="app/templates")
 async def process(
     request: Request,
     input_file: str = Form(...),
-    start_time: str = Form("00:00:00"),
-    end_time: str = Form("00:00:06"),
-    preset: str = Form("medium"),
+    start_time: str = Form(config.audio.default_start_time),
+    end_time: str = Form(config.audio.default_end_time),
+    preset: str = Form(config.audio.default_preset),
     volume: float = Form(2.0),
     highpass: int = Form(100),
     lowpass: int = Form(4500),
@@ -103,22 +103,22 @@ async def preview_audio(filename: str):
 
 
 @router.get("/partials/sliders", response_class=HTMLResponse)
-async def get_sliders(request: Request, preset: str = "medium"):
+async def get_sliders(request: Request, preset: str = config.audio.default_preset):
     """Get slider form populated with preset values."""
     try:
         preset_level = PresetLevel(preset)
-        config = PRESETS[preset_level]
+        preset_config = PRESETS[preset_level]
     except ValueError:
-        preset_level = PresetLevel.MEDIUM
-        config = PRESETS[preset_level]
+        preset_level = PresetLevel.NONE
+        preset_config = PRESETS[preset_level]
 
     return templates.TemplateResponse(
         "partials/slider_form.html",
         {
             "request": request,
-            "preset": config,
-            "delays": "|".join(str(d) for d in config.delays),
-            "decays": "|".join(str(d) for d in config.decays),
+            "preset": preset_config,
+            "delays": "|".join(str(d) for d in preset_config.delays),
+            "decays": "|".join(str(d) for d in preset_config.decays),
         },
     )
 
@@ -213,11 +213,11 @@ async def clip_preview(filename: str, start: str, end: str):
             "-i", str(input_path),
             "-vn",
             "-acodec", "libmp3lame",
-            "-q:a", "4",
+            "-q:a", config.audio.mp3_quality,
             tmp_path,
         ]
 
-        result = subprocess.run(cmd, capture_output=True, timeout=30)
+        result = subprocess.run(cmd, capture_output=True, timeout=config.audio.preview_timeout)
 
         if result.returncode != 0:
             logger.warning(f"Preview generation failed: {result.stderr}")
@@ -243,4 +243,69 @@ async def clip_preview(filename: str, start: str, end: str):
         if os.path.exists(tmp_path):
             os.unlink(tmp_path)
         logger.exception("Preview generation error")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/clip-video-preview")
+async def clip_video_preview(filename: str, start: str, end: str):
+    """
+    Generate a video preview clip on-the-fly for the video modal.
+    """
+    input_path = INPUT_DIR / filename
+
+    if not input_path.exists():
+        raise HTTPException(status_code=404, detail="File not found")
+
+    # Check if it's a video file
+    video_extensions = {".mp4", ".mkv", ".avi", ".mov", ".webm"}
+    ext = input_path.suffix.lower()
+    if ext not in video_extensions:
+        raise HTTPException(status_code=400, detail="Not a video file")
+
+    # Create temporary file for preview
+    with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as tmp:
+        tmp_path = tmp.name
+
+    try:
+        cmd = [
+            "ffmpeg",
+            "-y",
+            "-ss", start,
+            "-to", end,
+            "-i", str(input_path),
+            "-c:v", "libx264",
+            "-preset", "ultrafast",
+            "-crf", "28",
+            "-c:a", "aac",
+            "-b:a", "128k",
+            "-movflags", "+faststart",
+            tmp_path,
+        ]
+
+        result = subprocess.run(cmd, capture_output=True, timeout=config.audio.preview_timeout)
+
+        if result.returncode != 0:
+            logger.warning(f"Video preview generation failed: {result.stderr}")
+            raise HTTPException(status_code=500, detail="Video preview generation failed")
+
+        def iterfile():
+            with open(tmp_path, "rb") as f:
+                yield from f
+            os.unlink(tmp_path)
+
+        return StreamingResponse(
+            iterfile(),
+            media_type="video/mp4",
+            headers={"Content-Disposition": "inline; filename=preview.mp4"}
+        )
+    except subprocess.TimeoutExpired:
+        if os.path.exists(tmp_path):
+            os.unlink(tmp_path)
+        raise HTTPException(status_code=408, detail="Video preview generation timed out")
+    except HTTPException:
+        raise
+    except Exception as e:
+        if os.path.exists(tmp_path):
+            os.unlink(tmp_path)
+        logger.exception("Video preview generation error")
         raise HTTPException(status_code=500, detail=str(e))

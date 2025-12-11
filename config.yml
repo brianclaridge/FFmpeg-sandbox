@@ -1,0 +1,38 @@
+# Audio Processor Configuration
+
+server:
+  host: "0.0.0.0"
+  port: 8000
+  version: "0.1.0"
+  reload: true
+
+logging:
+  rotation: "10 MB"
+  retention: "7 days"
+  stderr_level: "INFO"
+  file_level: "DEBUG"
+
+history:
+  max_entries: 50
+
+download:
+  filename_max_length: 50
+  format: "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best"
+
+audio:
+  allowed_extensions:
+    - ".mp4"
+    - ".mkv"
+    - ".avi"
+    - ".mov"
+    - ".webm"
+    - ".mp3"
+    - ".wav"
+    - ".flac"
+    - ".m4a"
+    - ".ogg"
+  preview_timeout: 30
+  mp3_quality: "4"
+  default_preset: "none"
+  default_start_time: "00:00:00"
+  default_end_time: "00:00:06"
