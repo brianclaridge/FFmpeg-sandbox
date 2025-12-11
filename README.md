@@ -18,6 +18,7 @@ A web-based audio extraction and processing tool with tunnel/reverb effects.
 - uv (Astral package manager)
 
 Or use Docker (recommended):
+
 - Docker
 - Docker Compose
 
@@ -38,8 +39,11 @@ docker compose up -d
 ## Installation
 
 ```bash
-# Clone and navigate to project
-cd .data/src
+# Clone
+git clone git@github.com:brianclaridge/audio-clip-helper.git
+
+# navigate to project
+cd ./audio-clip-helper
 
 # Install dependencies
 uv sync
@@ -119,7 +123,7 @@ curl -O http://localhost:8000/preview/processed_20241210_120000.mp3
 
 ## Project Structure
 
-```
+```text
 src/
 ├── app/
 │   ├── main.py           # Application entry point
