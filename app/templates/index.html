@@ -213,7 +213,7 @@ var ClipRangeController = (function() {
     var playBtn, stopBtn, videoBtn, playIcon, pauseIcon;
     var videoModal, videoModalClose;
     var maxDurationMs = 10000;
-    var currentFilename = null;
+    window.currentFilename = null;
     var debounceTimer = null;
     var MIN_CLIP_MS = 100;
     var isPlaying = false;
@@ -491,7 +491,7 @@ var ClipRangeController = (function() {
         var filename = e.target.value;
         if (!filename) {
             container.style.display = 'none';
-            currentFilename = null;
+            window.currentFilename = null;
             isVideoFile = false;
             if (videoBtn) videoBtn.style.display = 'none';
             stopPreview();
@@ -502,7 +502,7 @@ var ClipRangeController = (function() {
             return;
         }
 
-        currentFilename = filename;
+        window.currentFilename = filename;
         var videoExts = ['.mp4', '.mkv', '.avi', '.mov', '.webm'];
         var ext = filename.toLowerCase().substring(filename.lastIndexOf('.'));
         isVideoFile = videoExts.indexOf(ext) !== -1;
@@ -595,7 +595,7 @@ var ClipRangeController = (function() {
         var videoExts = ['.mp4', '.mkv', '.avi', '.mov', '.webm'];
         var ext = filename.toLowerCase().substring(filename.lastIndexOf('.'));
         isVideoFile = videoExts.indexOf(ext) !== -1;
-        currentFilename = filename;
+        window.currentFilename = filename;
         if (videoBtn) videoBtn.style.display = isVideoFile ? 'inline-block' : 'none';
 
         fetch('/duration/' + encodeURIComponent(filename))

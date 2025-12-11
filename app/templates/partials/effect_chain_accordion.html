@@ -2,9 +2,10 @@
     <!-- Volume Section -->
     <div class="accordion-section {% if user_settings.active_category == 'volume' %}expanded{% endif %}">
         <div class="accordion-header"
-             hx-get="/partials/accordion/volume{% if current_filename %}?filename={{ current_filename }}{% endif %}"
+             hx-get="/partials/accordion/volume"
              hx-target="#effect-chain-accordion"
-             hx-swap="outerHTML">
+             hx-swap="outerHTML"
+             hx-vals="js:{filename: window.currentFilename || ''}">
             <span class="accordion-icon">&#128266;</span>
             <span class="accordion-label">Volume</span>
             <span class="accordion-preset">{{ volume_presets.get(user_settings.volume.preset, {}).name or user_settings.volume.preset }}</span>
@@ -16,9 +17,10 @@
                 {% for preset_key, config in volume_presets.items() %}
                 <button type="button"
                         class="preset-pill {% if user_settings.volume.preset == preset_key %}active{% endif %}"
-                        hx-post="/partials/accordion-preset/volume/{{ preset_key }}{% if current_filename %}?filename={{ current_filename }}{% endif %}"
+                        hx-post="/partials/accordion-preset/volume/{{ preset_key }}"
                         hx-target="#effect-chain-accordion"
-                        hx-swap="outerHTML">
+                        hx-swap="outerHTML"
+                        hx-vals="js:{filename: window.currentFilename || ''}">
                     {{ config.name }}
                 </button>
                 {% endfor %}
@@ -42,9 +44,10 @@
     <!-- Tunnel Section -->
     <div class="accordion-section {% if user_settings.active_category == 'tunnel' %}expanded{% endif %}">
         <div class="accordion-header"
-             hx-get="/partials/accordion/tunnel{% if current_filename %}?filename={{ current_filename }}{% endif %}"
+             hx-get="/partials/accordion/tunnel"
              hx-target="#effect-chain-accordion"
-             hx-swap="outerHTML">
+             hx-swap="outerHTML"
+             hx-vals="js:{filename: window.currentFilename || ''}">
             <span class="accordion-icon">&#127983;</span>
             <span class="accordion-label">Tunnel</span>
             <span class="accordion-preset">{{ tunnel_presets.get(user_settings.tunnel.preset, {}).name or user_settings.tunnel.preset }}</span>
@@ -56,9 +59,10 @@
                 {% for preset_key, config in tunnel_presets.items() %}
                 <button type="button"
                         class="preset-pill {% if user_settings.tunnel.preset == preset_key %}active{% endif %}"
-                        hx-post="/partials/accordion-preset/tunnel/{{ preset_key }}{% if current_filename %}?filename={{ current_filename }}{% endif %}"
+                        hx-post="/partials/accordion-preset/tunnel/{{ preset_key }}"
                         hx-target="#effect-chain-accordion"
-                        hx-swap="outerHTML">
+                        hx-swap="outerHTML"
+                        hx-vals="js:{filename: window.currentFilename || ''}">
                     {{ config.name }}
                 </button>
                 {% endfor %}
@@ -87,9 +91,10 @@
     <!-- Frequency Section -->
     <div class="accordion-section {% if user_settings.active_category == 'frequency' %}expanded{% endif %}">
         <div class="accordion-header"
-             hx-get="/partials/accordion/frequency{% if current_filename %}?filename={{ current_filename }}{% endif %}"
+             hx-get="/partials/accordion/frequency"
              hx-target="#effect-chain-accordion"
-             hx-swap="outerHTML">
+             hx-swap="outerHTML"
+             hx-vals="js:{filename: window.currentFilename || ''}">
             <span class="accordion-icon">&#128200;</span>
             <span class="accordion-label">Frequency</span>
             <span class="accordion-preset">{{ frequency_presets.get(user_settings.frequency.preset, {}).name or user_settings.frequency.preset }}</span>
@@ -101,9 +106,10 @@
                 {% for preset_key, config in frequency_presets.items() %}
                 <button type="button"
                         class="preset-pill {% if user_settings.frequency.preset == preset_key %}active{% endif %}"
-                        hx-post="/partials/accordion-preset/frequency/{{ preset_key }}{% if current_filename %}?filename={{ current_filename }}{% endif %}"
+                        hx-post="/partials/accordion-preset/frequency/{{ preset_key }}"
                         hx-target="#effect-chain-accordion"
-                        hx-swap="outerHTML">
+                        hx-swap="outerHTML"
+                        hx-vals="js:{filename: window.currentFilename || ''}">
                     {{ config.name }}
                 </button>
                 {% endfor %}
