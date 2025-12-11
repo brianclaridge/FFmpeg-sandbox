@@ -21,7 +21,12 @@ tasks:
     desc: Start the application in detached mode
     cmds:
       - docker compose up -d
-    deps: [ensure-dirs]
+    deps: [setup]
+
+  setup:
+    desc: Setup directories for Docker volume mounts
+    cmds:
+      - pwsh ./scripts/setup-dirs.ps1
 
   down:
     desc: Stop and remove containers
