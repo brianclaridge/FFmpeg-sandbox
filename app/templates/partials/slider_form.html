@@ -1,0 +1,41 @@
+<div class="sliders">
+    <h3>Custom Parameters</h3>
+
+    <div class="form-group">
+        <label for="volume">Volume: <span id="volume-value">{{ volume if volume else preset.volume }}</span>x</label>
+        <input type="range" name="volume" id="volume"
+               min="0.5" max="4" step="0.1"
+               value="{{ volume if volume else preset.volume }}"
+               oninput="document.getElementById('volume-value').textContent = this.value">
+    </div>
+
+    <div class="form-group">
+        <label for="highpass">High-pass: <span id="highpass-value">{{ highpass if highpass else preset.highpass }}</span> Hz</label>
+        <input type="range" name="highpass" id="highpass"
+               min="50" max="500" step="10"
+               value="{{ highpass if highpass else preset.highpass }}"
+               oninput="document.getElementById('highpass-value').textContent = this.value">
+    </div>
+
+    <div class="form-group">
+        <label for="lowpass">Low-pass: <span id="lowpass-value">{{ lowpass if lowpass else preset.lowpass }}</span> Hz</label>
+        <input type="range" name="lowpass" id="lowpass"
+               min="2000" max="8000" step="100"
+               value="{{ lowpass if lowpass else preset.lowpass }}"
+               oninput="document.getElementById('lowpass-value').textContent = this.value">
+    </div>
+
+    <div class="form-group">
+        <label for="delays">Echo Delays (ms, pipe-separated)</label>
+        <input type="text" name="delays" id="delays"
+               value="{{ delays }}"
+               placeholder="15|25|35|50">
+    </div>
+
+    <div class="form-group">
+        <label for="decays">Echo Decays (0-1, pipe-separated)</label>
+        <input type="text" name="decays" id="decays"
+               value="{{ decays }}"
+               placeholder="0.35|0.3|0.25|0.2">
+    </div>
+</div>

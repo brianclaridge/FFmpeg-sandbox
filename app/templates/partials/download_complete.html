@@ -1,0 +1,21 @@
+{% if success %}
+<div class="download-success">
+    <span class="success-icon">&#10003;</span>
+    <span>Downloaded: <strong>{{ title }}</strong></span>
+</div>
+
+<!-- OOB swap to update file selector with new file selected -->
+<select name="input_file" id="input_file" hx-swap-oob="true" required>
+    <option value="">Select a file...</option>
+    {% for file in input_files %}
+    <option value="{{ file.name }}" {% if file.name == filename %}selected{% endif %}>
+        {{ file.name }}
+    </option>
+    {% endfor %}
+</select>
+{% else %}
+<div class="download-error">
+    <span class="error-icon">!</span>
+    <span>{{ error }}</span>
+</div>
+{% endif %}

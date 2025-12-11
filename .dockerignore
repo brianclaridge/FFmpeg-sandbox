@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+.git/
+.gitignore
+data/input/*
+data/output/*
+logs/*
+*.md
+plans/
+.uv/

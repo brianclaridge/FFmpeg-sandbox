@@ -1,0 +1,27 @@
+{% if status == "error" %}
+<div class="download-error">
+    <span class="error-icon">!</span>
+    <span>{{ error }}</span>
+</div>
+
+{% elif status == "ready" %}
+<div class="download-preview">
+    <div class="video-info">
+        <strong>{{ video_info.title }}</strong>
+        <div class="video-meta">
+            <span>{{ video_info.source }}</span>
+            <span>{{ video_info.duration }}</span>
+            <span>{{ video_info.uploader }}</span>
+        </div>
+    </div>
+    <button type="button"
+            class="btn-confirm-download"
+            hx-post="/download"
+            hx-vals='{"url": "{{ url }}"}'
+            hx-target="#download-status"
+            hx-swap="innerHTML">
+        <span class="btn-text">Download</span>
+        <span class="htmx-indicator">Downloading...</span>
+    </button>
+</div>
+{% endif %}

@@ -1,0 +1,176 @@
+version: '3'
+
+vars:
+  PROJECT: audio-processor
+  DATA_DIR: ./data
+  INPUT_DIR: ./data/input
+  OUTPUT_DIR: ./data/output
+  LOGS_DIR: ./logs
+
+tasks:
+  # ============================================
+  # Docker Tasks
+  # ============================================
+
+  build:
+    desc: Build the Docker image
+    cmds:
+      - docker compose build
+
+  up:
+    desc: Start the application in detached mode
+    cmds:
+      - docker compose up -d
+    deps: [ensure-dirs]
+
+  down:
+    desc: Stop and remove containers
+    cmds:
+      - docker compose down
+
+  restart:
+    desc: Restart the application
+    cmds:
+      - docker compose restart
+
+  logs:
+    desc: Follow container logs
+    cmds:
+      - docker compose logs -f
+
+  shell:
+    desc: Open a shell in the running container
+    cmds:
+      - docker compose exec audio-processor /bin/bash
+
+  rebuild:
+    desc: Rebuild and restart the application
+    cmds:
+      - docker compose down
+      - docker compose build --no-cache
+      - docker compose up -d
+
+  # ============================================
+  # Local Development (without Docker)
+  # ============================================
+
+  dev:
+    desc: Run locally with hot reload (requires uv)
+    cmds:
+      - uv run python -m app.main
+    deps: [ensure-dirs]
+
+  sync:
+    desc: Install/sync dependencies with uv
+    cmds:
+      - uv sync
+
+  # ============================================
+  # Cleanup Tasks
+  # ============================================
+
+  clean:output:
+    desc: Remove all processed audio files
+    cmds:
+      - rm -f {{.OUTPUT_DIR}}/*.mp3
+      - echo "Cleaned output directory"
+
+  clean:logs:
+    desc: Remove all log files
+    cmds:
+      - rm -f {{.LOGS_DIR}}/*.log
+      - echo "Cleaned logs directory"
+
+  clean:history:
+    desc: Remove processing history
+    cmds:
+      - rm -f {{.DATA_DIR}}/history.json
+      - echo "Cleared processing history"
+
+  clean:all:
+    desc: Remove all generated files (output, logs, history)
+    cmds:
+      - task: clean:output
+      - task: clean:logs
+      - task: clean:history
+
+  clean:docker:
+    desc: Remove Docker containers, images, and volumes
+    cmds:
+      - docker compose down -v --rmi local
+      - echo "Cleaned Docker resources"
+
+  clean:venv:
+    desc: Remove Python virtual environment
+    cmds:
+      - rm -rf .venv
+      - echo "Removed .venv directory"
+
+  clean:pycache:
+    desc: Remove Python cache files
+    cmds:
+      - find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+      - find . -type f -name "*.pyc" -delete 2>/dev/null || true
+      - echo "Cleaned Python cache"
+
+  nuke:
+    desc: Full cleanup (all generated files + Docker + venv)
+    cmds:
+      - task: clean:all
+      - task: clean:docker
+      - task: clean:venv
+      - task: clean:pycache
+
+  # ============================================
+  # Download Tasks
+  # ============================================
+
+  clean:downloads:
+    desc: Remove all downloaded video files from input
+    cmds:
+      - rm -f {{.INPUT_DIR}}/*.mp4 {{.INPUT_DIR}}/*.mkv {{.INPUT_DIR}}/*.webm
+      - echo "Cleaned downloaded videos"
+
+  download:test:
+    desc: Test yt-dlp installation
+    cmds:
+      - uv run python -c "import yt_dlp; print(f'yt-dlp version: {yt_dlp.version.__version__}')"
+
+  # ============================================
+  # Utility Tasks
+  # ============================================
+
+  ensure-dirs:
+    desc: Create required directories
+    cmds:
+      - mkdir -p {{.INPUT_DIR}} {{.OUTPUT_DIR}} {{.LOGS_DIR}}
+    silent: true
+
+  list:input:
+    desc: List files in input directory
+    cmds:
+      - ls -lah {{.INPUT_DIR}}
+
+  list:output:
+    desc: List processed files in output directory
+    cmds:
+      - ls -lah {{.OUTPUT_DIR}}
+
+  status:
+    desc: Show Docker container status
+    cmds:
+      - docker compose ps
+
+  health:
+    desc: Check if the application is responding
+    cmds:
+      - curl -sf http://localhost:8000/ > /dev/null && echo "OK: Application is running" || echo "FAIL: Application not responding"
+
+  # ============================================
+  # Default Task
+  # ============================================
+
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list

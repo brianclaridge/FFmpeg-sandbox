@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Processor</title>
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Audio Processor</h1>
+            <p class="subtitle">Extract and process audio with tunnel effects</p>
+        </header>
+
+        <main>
+            {% block content %}{% endblock %}
+        </main>
+
+        <footer>
+            <p>Built with FastAPI + HTMX</p>
+        </footer>
+    </div>
+</body>
+</html>

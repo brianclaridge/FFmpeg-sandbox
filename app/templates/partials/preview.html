@@ -1,0 +1,19 @@
+{% if success %}
+<div class="preview-success">
+    <p>Processing complete!</p>
+    <audio controls autoplay>
+        <source src="/preview/{{ output_file }}" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    <div class="preview-actions">
+        <a href="/preview/{{ output_file }}" download="{{ output_file }}" class="btn-secondary">
+            Download
+        </a>
+    </div>
+</div>
+{% else %}
+<div class="preview-error">
+    <p>Processing failed</p>
+    <pre>{{ error }}</pre>
+</div>
+{% endif %}

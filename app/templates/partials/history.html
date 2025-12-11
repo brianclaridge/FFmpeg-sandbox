@@ -1,0 +1,34 @@
+{% if history %}
+<ul class="history-list">
+    {% for entry in history %}
+    <li class="history-item">
+        <div class="history-info">
+            <strong>{{ entry.output_file }}</strong>
+            <small>{{ entry.timestamp.strftime('%Y-%m-%d %H:%M') }} | {{ entry.preset }} | {{ entry.start_time }} - {{ entry.end_time }}</small>
+        </div>
+        <div class="history-actions">
+            <button class="btn-small"
+                    hx-get="/history/{{ entry.id }}/apply"
+                    hx-target="#sliders-area"
+                    hx-swap="innerHTML"
+                    title="Apply settings">
+                Apply
+            </button>
+            <a href="/preview/{{ entry.output_file }}" class="btn-small" title="Play">
+                Play
+            </a>
+            <button class="btn-small btn-danger"
+                    hx-delete="/history/{{ entry.id }}"
+                    hx-target="#history-area"
+                    hx-swap="innerHTML"
+                    hx-confirm="Delete this entry and its file?"
+                    title="Delete">
+                X
+            </button>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p class="placeholder">No processing history yet</p>
+{% endif %}
