@@ -15,9 +15,9 @@ templates = Jinja2Templates(directory="app/templates")
 
 
 @router.post("/validate", response_class=HTMLResponse)
-async def validate_download_url(request: Request, url: str = Form(...)):
+async def validate_download_url(request: Request, download_url: str = Form(...)):
     """Validate URL and return video info preview."""
-    url = url.strip()
+    url = download_url.strip()
 
     if not url:
         return templates.TemplateResponse(

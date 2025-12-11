@@ -16,6 +16,32 @@
                 </select>
             </div>
 
+            <!-- File Upload Section -->
+            <div class="upload-section">
+                <div class="section-divider">
+                    <span>or upload a file</span>
+                </div>
+
+                <div id="upload-zone" class="upload-zone" onclick="document.getElementById('file-input').click()">
+                    <input type="file"
+                           id="file-input"
+                           name="file"
+                           accept=".mp4,.mkv,.avi,.mov,.webm,.mp3,.wav,.flac,.m4a,.ogg"
+                           hx-post="/upload"
+                           hx-target="#upload-status"
+                           hx-swap="innerHTML"
+                           hx-encoding="multipart/form-data"
+                           style="display: none;">
+                    <div class="upload-icon">&#8679;</div>
+                    <div class="upload-text">
+                        <strong>Click to upload</strong> or drag and drop
+                    </div>
+                    <div class="upload-hint">MP4, MKV, AVI, MOV, WEBM, MP3, WAV, FLAC, M4A, OGG</div>
+                </div>
+
+                <div id="upload-status"></div>
+            </div>
+
             <!-- URL Download Section -->
             <div class="url-section">
                 <div class="section-divider">
@@ -102,5 +128,38 @@ function selectPreset(btn, preset) {
     btn.classList.add('active');
     document.getElementById('preset').value = preset;
 }
+
+// Drag and drop upload
+(function() {
+    var zone = document.getElementById('upload-zone');
+    var fileInput = document.getElementById('file-input');
+
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(function(eventName) {
+        zone.addEventListener(eventName, function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        });
+    });
+
+    ['dragenter', 'dragover'].forEach(function(eventName) {
+        zone.addEventListener(eventName, function() {
+            zone.classList.add('drag-over');
+        });
+    });
+
+    ['dragleave', 'drop'].forEach(function(eventName) {
+        zone.addEventListener(eventName, function() {
+            zone.classList.remove('drag-over');
+        });
+    });
+
+    zone.addEventListener('drop', function(e) {
+        var files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            htmx.trigger(fileInput, 'change');
+        }
+    });
+})();
 </script>
 {% endblock %}

@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from fastapi import APIRouter, Form, Request, HTTPException
+from fastapi import APIRouter, Form, Request, HTTPException, UploadFile, File
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 
@@ -12,6 +12,8 @@ from app.config import INPUT_DIR, OUTPUT_DIR
 from app.models import PresetLevel, PRESETS
 from app.services.processor import process_audio, get_input_files
 from app.services.history import add_history_entry
+
+ALLOWED_EXTENSIONS = {".mp4", ".mkv", ".avi", ".mov", ".webm", ".mp3", ".wav", ".flac", ".m4a", ".ogg"}
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -115,3 +117,49 @@ async def get_sliders(request: Request, preset: str = "medium"):
             "decays": "|".join(str(d) for d in config.decays),
         },
     )
+
+
+@router.post("/upload", response_class=HTMLResponse)
+async def upload_file(request: Request, file: UploadFile = File(...)):
+    """Upload a file to the input directory."""
+    if not file.filename:
+        return templates.TemplateResponse(
+            "partials/upload_status.html",
+            {"request": request, "error": "No file selected", "success": False},
+        )
+
+    ext = Path(file.filename).suffix.lower()
+    if ext not in ALLOWED_EXTENSIONS:
+        return templates.TemplateResponse(
+            "partials/upload_status.html",
+            {
+                "request": request,
+                "error": f"Invalid file type: {ext}. Allowed: {', '.join(sorted(ALLOWED_EXTENSIONS))}",
+                "success": False,
+            },
+        )
+
+    safe_filename = Path(file.filename).name
+    dest_path = INPUT_DIR / safe_filename
+
+    try:
+        content = await file.read()
+        dest_path.write_bytes(content)
+        logger.info(f"Uploaded file: {safe_filename} ({len(content)} bytes)")
+
+        input_files = get_input_files(INPUT_DIR)
+        return templates.TemplateResponse(
+            "partials/upload_status.html",
+            {
+                "request": request,
+                "success": True,
+                "filename": safe_filename,
+                "input_files": input_files,
+            },
+        )
+    except Exception as e:
+        logger.exception("Upload failed")
+        return templates.TemplateResponse(
+            "partials/upload_status.html",
+            {"request": request, "error": str(e), "success": False},
+        )

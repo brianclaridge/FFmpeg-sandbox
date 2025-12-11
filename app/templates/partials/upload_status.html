@@ -1,0 +1,23 @@
+{% if success %}
+<div class="upload-success">
+    <span class="success-icon">&#10003;</span>
+    Uploaded: {{ filename }}
+</div>
+<script>
+    // Update file select dropdown with new files
+    (function() {
+        var select = document.getElementById('input_file');
+        if (select) {
+            select.innerHTML = '<option value="">Select a file...</option>';
+            {% for file in input_files %}
+            select.innerHTML += '<option value="{{ file.name }}"{% if file.name == filename %} selected{% endif %}>{{ file.name }}</option>';
+            {% endfor %}
+        }
+    })();
+</script>
+{% else %}
+<div class="upload-error">
+    <span class="error-icon">!</span>
+    {{ error }}
+</div>
+{% endif %}
