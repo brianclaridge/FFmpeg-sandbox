@@ -180,18 +180,9 @@
         <section class="card">
             <h2>Effect Chain</h2>
 
-            <!-- Visual Effect Chain (server-rendered) -->
+            <!-- Effect Chain Accordion -->
             <div id="effect-chain-area">
-                <div class="effect-chain">
-                    <div id="effect-chain-boxes">
-                        {% include "partials/effect_chain_boxes.html" %}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Category Control Panel -->
-            <div id="category-panel-area">
-                {% include "partials/panel_volume.html" %}
+                {% include "partials/effect_chain_accordion.html" %}
             </div>
 
             <!-- Hidden preset input for form submission -->

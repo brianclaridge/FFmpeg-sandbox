@@ -1116,6 +1116,93 @@ input[type="range"].clip-range-end::-moz-range-thumb {
     flex-shrink: 0;
 }
 
+/* ===========================================
+   Effect Chain Accordion
+   =========================================== */
+
+.accordion {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.accordion-section {
+    background: var(--bg-card);
+    border: 2px solid transparent;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+.accordion-section.expanded {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.2);
+}
+
+.accordion-header {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    background: var(--bg-card);
+    transition: background 0.2s ease;
+}
+
+.accordion-header:hover {
+    background: var(--bg-secondary);
+}
+
+.accordion-section.expanded .accordion-header {
+    background: var(--bg-primary);
+    border-bottom: 1px solid var(--bg-secondary);
+}
+
+.accordion-icon {
+    font-size: 1.25rem;
+    margin-right: 0.75rem;
+    opacity: 0.8;
+}
+
+.accordion-section.expanded .accordion-icon {
+    opacity: 1;
+}
+
+.accordion-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    flex: 1;
+}
+
+.accordion-preset {
+    font-size: 0.75rem;
+    color: var(--accent);
+    font-weight: 500;
+    padding: 0.15rem 0.5rem;
+    background: var(--bg-secondary);
+    border-radius: 10px;
+    margin-right: 0.75rem;
+}
+
+.accordion-indicator {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    opacity: 0.6;
+}
+
+.accordion-content {
+    padding: 1rem;
+    background: var(--bg-secondary);
+}
+
+.accordion-arrow {
+    text-align: center;
+    font-size: 2.5rem;
+    color: var(--text-secondary);
+    opacity: 0.4;
+    padding: 0.5rem 0;
+}
+
 /* Category Panel */
 .category-panel {
     background: var(--bg-secondary);

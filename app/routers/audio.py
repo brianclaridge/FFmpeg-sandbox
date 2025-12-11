@@ -324,73 +324,87 @@ async def clip_video_preview(filename: str, start: str, end: str):
 
 # ============ EFFECT CHAIN ENDPOINTS ============
 
+def _get_accordion_context(user_settings, filename: str | None = None) -> dict:
+    """Build context dict for accordion template."""
+    # Get current preset configs for each category
+    try:
+        volume_current = VOLUME_PRESETS[VolumePreset(user_settings.volume.preset)]
+    except (ValueError, KeyError):
+        volume_current = VOLUME_PRESETS[VolumePreset("2x")]
+
+    try:
+        tunnel_current = TUNNEL_PRESETS[TunnelPreset(user_settings.tunnel.preset)]
+    except (ValueError, KeyError):
+        tunnel_current = TUNNEL_PRESETS[TunnelPreset("none")]
+
+    try:
+        frequency_current = FREQUENCY_PRESETS[FrequencyPreset(user_settings.frequency.preset)]
+    except (ValueError, KeyError):
+        frequency_current = FREQUENCY_PRESETS[FrequencyPreset("flat")]
+
+    return {
+        "user_settings": user_settings,
+        "volume_presets": VOLUME_PRESETS_BY_STR,
+        "tunnel_presets": TUNNEL_PRESETS_BY_STR,
+        "frequency_presets": FREQUENCY_PRESETS_BY_STR,
+        "volume_current": volume_current,
+        "tunnel_current": tunnel_current,
+        "frequency_current": frequency_current,
+        "current_filename": filename,
+    }
+
+
 @router.get("/partials/effect-chain", response_class=HTMLResponse)
 async def get_effect_chain(request: Request, filename: str | None = None):
-    """Get the full effect chain UI component."""
+    """Get the full effect chain UI component (accordion)."""
     user_settings = load_user_settings(filename)
-    return templates.TemplateResponse(
-        "partials/effect_chain.html",
-        {
-            "request": request,
-            "user_settings": user_settings,
-            "volume_presets": VOLUME_PRESETS_BY_STR,
-            "tunnel_presets": TUNNEL_PRESETS_BY_STR,
-            "frequency_presets": FREQUENCY_PRESETS_BY_STR,
-            "current_filename": filename,
-        },
-    )
+    context = _get_accordion_context(user_settings, filename)
+    context["request"] = request
+    return templates.TemplateResponse("partials/effect_chain_accordion.html", context)
 
 
 @router.get("/partials/category-panel/{category}", response_class=HTMLResponse)
 async def get_category_panel(request: Request, category: str, filename: str | None = None):
-    """Get the control panel for a specific category."""
-    settings = update_active_category(category, filename)
-
-    preset_map = {
-        "volume": (VOLUME_PRESETS, VOLUME_PRESETS_BY_STR, VolumePreset, "2x"),
-        "tunnel": (TUNNEL_PRESETS, TUNNEL_PRESETS_BY_STR, TunnelPreset, "none"),
-        "frequency": (FREQUENCY_PRESETS, FREQUENCY_PRESETS_BY_STR, FrequencyPreset, "flat"),
-    }
-
-    if category not in preset_map:
+    """Get the control panel for a specific category (legacy endpoint - returns accordion)."""
+    if category not in ("volume", "tunnel", "frequency"):
         raise HTTPException(status_code=404, detail="Category not found")
 
-    presets_enum, presets_str, preset_enum, default_preset = preset_map[category]
-
-    # Get current preset config
-    current_preset_name = getattr(settings, category).preset
-    try:
-        current_preset = presets_enum[preset_enum(current_preset_name)]
-    except (ValueError, KeyError):
-        current_preset = presets_enum[preset_enum(default_preset)]
-
-    return templates.TemplateResponse(
-        f"partials/panel_{category}.html",
-        {
-            "request": request,
-            "category": category,
-            "presets": presets_str,
-            "current_preset": current_preset,
-            "settings": getattr(settings, category),
-            "current_filename": filename,
-        },
-    )
+    user_settings = update_active_category(category, filename)
+    context = _get_accordion_context(user_settings, filename)
+    context["request"] = request
+    return templates.TemplateResponse("partials/effect_chain_accordion.html", context)
 
 
 @router.post("/partials/category-preset/{category}/{preset}", response_class=HTMLResponse)
 async def set_category_preset(request: Request, category: str, preset: str, filename: str | None = None):
-    """Update a category's preset selection."""
+    """Update a category's preset selection (legacy endpoint - redirects to accordion)."""
     user_settings = update_category_preset(category, preset, filename)
+    context = _get_accordion_context(user_settings, filename)
+    context["request"] = request
+    return templates.TemplateResponse("partials/effect_chain_accordion.html", context)
 
-    # Return updated chain boxes to reflect new selection
-    return templates.TemplateResponse(
-        "partials/effect_chain_boxes.html",
-        {
-            "request": request,
-            "user_settings": user_settings,
-            "volume_presets": VOLUME_PRESETS_BY_STR,
-            "tunnel_presets": TUNNEL_PRESETS_BY_STR,
-            "frequency_presets": FREQUENCY_PRESETS_BY_STR,
-            "current_filename": filename,
-        },
-    )
+
+@router.get("/partials/accordion/{category}", response_class=HTMLResponse)
+async def get_accordion_section(request: Request, category: str, filename: str | None = None):
+    """Expand an accordion section (collapses others)."""
+    if category not in ("volume", "tunnel", "frequency"):
+        raise HTTPException(status_code=404, detail="Category not found")
+
+    user_settings = update_active_category(category, filename)
+    context = _get_accordion_context(user_settings, filename)
+    context["request"] = request
+
+    return templates.TemplateResponse("partials/effect_chain_accordion.html", context)
+
+
+@router.post("/partials/accordion-preset/{category}/{preset}", response_class=HTMLResponse)
+async def set_accordion_preset(request: Request, category: str, preset: str, filename: str | None = None):
+    """Update a category's preset and return updated accordion."""
+    if category not in ("volume", "tunnel", "frequency"):
+        raise HTTPException(status_code=404, detail="Category not found")
+
+    user_settings = update_category_preset(category, preset, filename)
+    context = _get_accordion_context(user_settings, filename)
+    context["request"] = request
+
+    return templates.TemplateResponse("partials/effect_chain_accordion.html", context)

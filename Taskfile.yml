@@ -1,5 +1,11 @@
 version: '3'
 
+includes:
+  claude:
+    taskfile: .claude/includes
+    optional: true
+    flatten: true
+
 vars:
   PROJECT: audio-processor
   DATA_DIR: ./.data
@@ -96,12 +102,19 @@ tasks:
       - rm -f {{.DATA_DIR}}/history.json
       - echo "Cleared processing history"
 
+  clean:metadata:
+    desc: Remove per-file metadata configs
+    cmds:
+      - rm -f {{.INPUT_DIR}}/*.yml
+      - echo "Cleaned per-file metadata"
+
   clean:all:
-    desc: Remove all generated files (output, logs, history)
+    desc: Remove all generated files (output, logs, history, metadata)
     cmds:
       - task: clean:output
       - task: clean:logs
       - task: clean:history
+      - task: clean:metadata
 
   clean:docker:
     desc: Remove Docker containers, images, and volumes

@@ -1,0 +1,130 @@
+<div id="effect-chain-accordion" class="accordion">
+    <!-- Volume Section -->
+    <div class="accordion-section {% if user_settings.active_category == 'volume' %}expanded{% endif %}">
+        <div class="accordion-header"
+             hx-get="/partials/accordion/volume{% if current_filename %}?filename={{ current_filename }}{% endif %}"
+             hx-target="#effect-chain-accordion"
+             hx-swap="outerHTML">
+            <span class="accordion-icon">&#128266;</span>
+            <span class="accordion-label">Volume</span>
+            <span class="accordion-preset">{{ volume_presets.get(user_settings.volume.preset, {}).name or user_settings.volume.preset }}</span>
+            <span class="accordion-indicator">{% if user_settings.active_category == 'volume' %}&#9660;{% else %}&#9654;{% endif %}</span>
+        </div>
+        {% if user_settings.active_category == 'volume' %}
+        <div class="accordion-content">
+            <div class="preset-pills">
+                {% for preset_key, config in volume_presets.items() %}
+                <button type="button"
+                        class="preset-pill {% if user_settings.volume.preset == preset_key %}active{% endif %}"
+                        hx-post="/partials/accordion-preset/volume/{{ preset_key }}{% if current_filename %}?filename={{ current_filename }}{% endif %}"
+                        hx-target="#effect-chain-accordion"
+                        hx-swap="outerHTML">
+                    {{ config.name }}
+                </button>
+                {% endfor %}
+            </div>
+            <div class="panel-controls">
+                <div class="form-group">
+                    <label for="volume">Volume: <span id="volume-value">{{ volume_current.volume }}</span>x</label>
+                    <input type="range" name="volume" id="volume"
+                           min="0.5" max="4" step="0.1"
+                           value="{{ volume_current.volume }}"
+                           oninput="document.getElementById('volume-value').textContent = this.value">
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Arrow -->
+    <div class="accordion-arrow">&#8595;</div>
+
+    <!-- Tunnel Section -->
+    <div class="accordion-section {% if user_settings.active_category == 'tunnel' %}expanded{% endif %}">
+        <div class="accordion-header"
+             hx-get="/partials/accordion/tunnel{% if current_filename %}?filename={{ current_filename }}{% endif %}"
+             hx-target="#effect-chain-accordion"
+             hx-swap="outerHTML">
+            <span class="accordion-icon">&#127983;</span>
+            <span class="accordion-label">Tunnel</span>
+            <span class="accordion-preset">{{ tunnel_presets.get(user_settings.tunnel.preset, {}).name or user_settings.tunnel.preset }}</span>
+            <span class="accordion-indicator">{% if user_settings.active_category == 'tunnel' %}&#9660;{% else %}&#9654;{% endif %}</span>
+        </div>
+        {% if user_settings.active_category == 'tunnel' %}
+        <div class="accordion-content">
+            <div class="preset-pills">
+                {% for preset_key, config in tunnel_presets.items() %}
+                <button type="button"
+                        class="preset-pill {% if user_settings.tunnel.preset == preset_key %}active{% endif %}"
+                        hx-post="/partials/accordion-preset/tunnel/{{ preset_key }}{% if current_filename %}?filename={{ current_filename }}{% endif %}"
+                        hx-target="#effect-chain-accordion"
+                        hx-swap="outerHTML">
+                    {{ config.name }}
+                </button>
+                {% endfor %}
+            </div>
+            <div class="panel-controls">
+                <div class="form-group">
+                    <label for="delays">Echo Delays (ms, pipe-separated)</label>
+                    <input type="text" name="delays" id="delays"
+                           value="{{ tunnel_current.delays | join('|') }}"
+                           placeholder="15|25|35|50">
+                </div>
+                <div class="form-group">
+                    <label for="decays">Echo Decays (0-1, pipe-separated)</label>
+                    <input type="text" name="decays" id="decays"
+                           value="{{ tunnel_current.decays | join('|') }}"
+                           placeholder="0.35|0.3|0.25|0.2">
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Arrow -->
+    <div class="accordion-arrow">&#8595;</div>
+
+    <!-- Frequency Section -->
+    <div class="accordion-section {% if user_settings.active_category == 'frequency' %}expanded{% endif %}">
+        <div class="accordion-header"
+             hx-get="/partials/accordion/frequency{% if current_filename %}?filename={{ current_filename }}{% endif %}"
+             hx-target="#effect-chain-accordion"
+             hx-swap="outerHTML">
+            <span class="accordion-icon">&#128200;</span>
+            <span class="accordion-label">Frequency</span>
+            <span class="accordion-preset">{{ frequency_presets.get(user_settings.frequency.preset, {}).name or user_settings.frequency.preset }}</span>
+            <span class="accordion-indicator">{% if user_settings.active_category == 'frequency' %}&#9660;{% else %}&#9654;{% endif %}</span>
+        </div>
+        {% if user_settings.active_category == 'frequency' %}
+        <div class="accordion-content">
+            <div class="preset-pills">
+                {% for preset_key, config in frequency_presets.items() %}
+                <button type="button"
+                        class="preset-pill {% if user_settings.frequency.preset == preset_key %}active{% endif %}"
+                        hx-post="/partials/accordion-preset/frequency/{{ preset_key }}{% if current_filename %}?filename={{ current_filename }}{% endif %}"
+                        hx-target="#effect-chain-accordion"
+                        hx-swap="outerHTML">
+                    {{ config.name }}
+                </button>
+                {% endfor %}
+            </div>
+            <div class="panel-controls">
+                <div class="form-group">
+                    <label for="highpass">High-pass: <span id="highpass-value">{{ frequency_current.highpass }}</span> Hz</label>
+                    <input type="range" name="highpass" id="highpass"
+                           min="20" max="500" step="10"
+                           value="{{ frequency_current.highpass }}"
+                           oninput="document.getElementById('highpass-value').textContent = this.value">
+                </div>
+                <div class="form-group">
+                    <label for="lowpass">Low-pass: <span id="lowpass-value">{{ frequency_current.lowpass }}</span> Hz</label>
+                    <input type="range" name="lowpass" id="lowpass"
+                           min="2000" max="20000" step="100"
+                           value="{{ frequency_current.lowpass }}"
+                           oninput="document.getElementById('lowpass-value').textContent = this.value">
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>

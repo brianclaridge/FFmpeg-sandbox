@@ -114,11 +114,10 @@ async def index(request: Request):
             "tunnel_presets": TUNNEL_PRESETS_BY_STR,
             "frequency_presets": FREQUENCY_PRESETS_BY_STR,
             "current_filename": None,  # No file selected on initial load
-            # Initial panel data (for volume panel on load)
-            "category": "volume",
-            "presets": VOLUME_PRESETS_BY_STR,
-            "current_preset": volume_preset,
-            "settings": user_settings.volume,
+            # Accordion: current preset configs for each category
+            "volume_current": volume_preset,
+            "tunnel_current": tunnel_preset,
+            "frequency_current": frequency_preset,
             # Form defaults based on current settings
             "delays": "|".join(str(d) for d in tunnel_preset.delays),
             "decays": "|".join(str(d) for d in tunnel_preset.decays),
