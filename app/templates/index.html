@@ -78,6 +78,7 @@
                             <span class="pause-icon" style="display:none;">&#10074;&#10074;</span>
                         </button>
                         <button type="button" id="clip-stop-btn" class="clip-ctrl-btn" title="Stop">&#9632;</button>
+                        <span class="clip-loop-indicator" title="Looping">&#8734;</span>
                         <button type="button" id="clip-video-btn" class="clip-ctrl-btn" title="Video Preview" style="display:none;">&#128249;</button>
                     </div>
                 </div>
@@ -480,11 +481,19 @@ var ClipRangeController = (function() {
             .then(function(data) {
                 setMaxDuration(data.duration_ms);
                 container.style.display = 'block';
+                // Auto-open video modal for video files
+                if (isVideoFile) {
+                    openVideoModal();
+                }
             })
             .catch(function(err) {
                 console.warn('Could not get duration:', err);
                 setMaxDuration(300000);
                 container.style.display = 'block';
+                // Auto-open video modal for video files even on duration error
+                if (isVideoFile) {
+                    openVideoModal();
+                }
             });
     }
 

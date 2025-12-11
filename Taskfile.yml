@@ -44,6 +44,8 @@ tasks:
 
   rebuild:
     desc: Rebuild and restart the application
+    deps:
+      - clean:all
     cmds:
       - docker compose down
       - docker compose build --no-cache

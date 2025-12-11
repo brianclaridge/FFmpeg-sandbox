@@ -790,6 +790,17 @@ input[type="range"].clip-range-end::-moz-range-thumb {
     font-size: 0.85rem;
 }
 
+.clip-loop-indicator {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    opacity: 0.7;
+}
+
 /* Video Preview Modal */
 .video-modal {
     position: fixed;
