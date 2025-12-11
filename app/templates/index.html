@@ -78,7 +78,7 @@
                             <span class="pause-icon" style="display:none;">&#10074;&#10074;</span>
                         </button>
                         <button type="button" id="clip-stop-btn" class="clip-ctrl-btn" title="Stop">&#9632;</button>
-                        <span class="clip-loop-indicator" title="Looping">&#8734;</span>
+                        <button type="button" id="clip-loop-btn" class="clip-ctrl-btn loop-btn active" title="Toggle Loop">&#8734;</button>
                         <button type="button" id="clip-video-btn" class="clip-ctrl-btn" title="Video Preview" style="display:none;">&#128249;</button>
                     </div>
                 </div>
@@ -127,7 +127,7 @@
                         <span class="pause-icon" style="display:none;">&#10074;&#10074;</span>
                     </button>
                     <button type="button" id="video-stop-btn" class="video-ctrl-btn" title="Stop">&#9632;</button>
-                    <span class="video-loop-indicator" title="Looping">&#8734;</span>
+                    <button type="button" id="video-loop-btn" class="video-ctrl-btn loop-btn active" title="Toggle Loop">&#8734;</button>
                 </div>
             </div>
 
@@ -240,10 +240,21 @@ var ClipRangeController = (function() {
         startInput.addEventListener('blur', validateStartInput);
         endInput.addEventListener('blur', validateEndInput);
 
+        var clipLoopBtn = document.getElementById('clip-loop-btn');
+        var videoLoopBtn = document.getElementById('video-loop-btn');
+
         if (playBtn) playBtn.addEventListener('click', togglePlay);
         if (stopBtn) stopBtn.addEventListener('click', stopPreview);
         if (videoBtn) videoBtn.addEventListener('click', toggleVideoModal);
         if (videoModalClose) videoModalClose.addEventListener('click', closeVideoModal);
+
+        // Clip audio loop toggle
+        if (clipLoopBtn) clipLoopBtn.addEventListener('click', function() {
+            if (previewAudio) {
+                previewAudio.loop = !previewAudio.loop;
+                clipLoopBtn.classList.toggle('active', previewAudio.loop);
+            }
+        });
 
         // Video modal controls
         if (videoPlayBtn) videoPlayBtn.addEventListener('click', function() {
@@ -259,6 +270,13 @@ var ClipRangeController = (function() {
             previewVideo.pause();
             previewVideo.currentTime = 0;
             updateVideoPlayState(false);
+        });
+        // Video loop toggle
+        if (videoLoopBtn) videoLoopBtn.addEventListener('click', function() {
+            if (previewVideo) {
+                previewVideo.loop = !previewVideo.loop;
+                videoLoopBtn.classList.toggle('active', previewVideo.loop);
+            }
         });
         if (previewVideo) {
             previewVideo.addEventListener('play', function() { updateVideoPlayState(true); });

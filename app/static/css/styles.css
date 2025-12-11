@@ -790,15 +790,23 @@ input[type="range"].clip-range-end::-moz-range-thumb {
     font-size: 0.85rem;
 }
 
-.clip-loop-indicator {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    color: var(--text-secondary);
+/* Loop toggle button styles */
+.loop-btn {
     font-size: 1.1rem;
-    opacity: 0.7;
+}
+
+.loop-btn.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(233, 69, 96, 0.1);
+}
+
+.clip-ctrl-btn.loop-btn {
+    font-size: 1.1rem;
+}
+
+.video-ctrl-btn.loop-btn {
+    font-size: 1.5rem;
 }
 
 /* Video Preview Modal */
@@ -891,13 +899,3 @@ input[type="range"].clip-range-end::-moz-range-thumb {
     font-size: 1.1rem;
 }
 
-.video-loop-indicator {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    color: var(--text-secondary);
-    font-size: 1.5rem;
-    opacity: 0.7;
-}
