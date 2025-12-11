@@ -4,7 +4,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ${CLAUDE_PROJECT_SLUG:-.}/.data:/app/.data
+      - ${HOST_PWD:-.}/.data:/app/.data
     environment:
       - PYTHONUNBUFFERED=1
     restart: unless-stopped

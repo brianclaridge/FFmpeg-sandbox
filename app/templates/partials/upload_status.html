@@ -13,6 +13,11 @@
             select.innerHTML += '<option value="{{ file.name }}"{% if file.name == filename %} selected{% endif %}>{{ file.name }}</option>';
             {% endfor %}
         }
+
+        // Trigger duration fetch for new file
+        if (typeof ClipRangeController !== 'undefined') {
+            ClipRangeController.fetchDuration('{{ filename }}');
+        }
     })();
 </script>
 {% else %}

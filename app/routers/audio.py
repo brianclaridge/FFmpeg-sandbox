@@ -2,15 +2,19 @@
 
 from pathlib import Path
 
+import subprocess
+import tempfile
+import os
+
 from fastapi import APIRouter, Form, Request, HTTPException, UploadFile, File
-from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.responses import HTMLResponse, FileResponse, JSONResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
 
 from loguru import logger
 
 from app.config import INPUT_DIR, OUTPUT_DIR
 from app.models import PresetLevel, PRESETS
-from app.services.processor import process_audio, get_input_files
+from app.services.processor import process_audio, get_input_files, get_file_duration, format_duration_ms
 from app.services.history import add_history_entry
 
 ALLOWED_EXTENSIONS = {".mp4", ".mkv", ".avi", ".mov", ".webm", ".mp3", ".wav", ".flac", ".m4a", ".ogg"}
@@ -163,3 +167,80 @@ async def upload_file(request: Request, file: UploadFile = File(...)):
             "partials/upload_status.html",
             {"request": request, "error": str(e), "success": False},
         )
+
+
+@router.get("/duration/{filename}")
+async def get_duration(filename: str):
+    """Get file duration in milliseconds."""
+    file_path = INPUT_DIR / filename
+
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="File not found")
+
+    duration_ms = get_file_duration(file_path)
+
+    if duration_ms is None:
+        raise HTTPException(status_code=500, detail="Could not determine duration")
+
+    return JSONResponse({
+        "filename": filename,
+        "duration_ms": duration_ms,
+        "duration_formatted": format_duration_ms(duration_ms),
+    })
+
+
+@router.get("/clip-preview")
+async def clip_preview(filename: str, start: str, end: str):
+    """
+    Generate a preview clip on-the-fly for the range slider.
+    Uses streamcopy for speed when possible.
+    """
+    input_path = INPUT_DIR / filename
+
+    if not input_path.exists():
+        raise HTTPException(status_code=404, detail="File not found")
+
+    # Create temporary file for preview
+    with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tmp:
+        tmp_path = tmp.name
+
+    try:
+        cmd = [
+            "ffmpeg",
+            "-y",
+            "-ss", start,
+            "-to", end,
+            "-i", str(input_path),
+            "-vn",
+            "-acodec", "libmp3lame",
+            "-q:a", "4",
+            tmp_path,
+        ]
+
+        result = subprocess.run(cmd, capture_output=True, timeout=30)
+
+        if result.returncode != 0:
+            logger.warning(f"Preview generation failed: {result.stderr}")
+            raise HTTPException(status_code=500, detail="Preview generation failed")
+
+        def iterfile():
+            with open(tmp_path, "rb") as f:
+                yield from f
+            os.unlink(tmp_path)
+
+        return StreamingResponse(
+            iterfile(),
+            media_type="audio/mpeg",
+            headers={"Content-Disposition": "inline; filename=preview.mp3"}
+        )
+    except subprocess.TimeoutExpired:
+        if os.path.exists(tmp_path):
+            os.unlink(tmp_path)
+        raise HTTPException(status_code=408, detail="Preview generation timed out")
+    except HTTPException:
+        raise
+    except Exception as e:
+        if os.path.exists(tmp_path):
+            os.unlink(tmp_path)
+        logger.exception("Preview generation error")
+        raise HTTPException(status_code=500, detail=str(e))

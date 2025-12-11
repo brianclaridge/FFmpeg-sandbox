@@ -1,51 +1,6 @@
-/* Default Theme (Neon) */
-:root,
-[data-theme="neon"] {
-    --bg-primary: #1a1a2e;
-    --bg-secondary: #16213e;
-    --bg-card: #0f3460;
-    --bg-input: #0d1b2a;
-    --text-primary: #e6e6e6;
-    --text-secondary: #a0a0a0;
-    --accent: #e94560;
-    --accent-hover: #ff6b6b;
-    --success: #4ecca3;
-    --error: #ff6b6b;
+/* Base border-radius variable */
+:root {
     --border-radius: 8px;
-    --slider-track: #0d1b2a;
-    --slider-border: #4a5568;
-}
-
-/* Darcula Theme */
-[data-theme="darcula"] {
-    --bg-primary: #2b2b2b;
-    --bg-secondary: #3c3f41;
-    --bg-card: #313335;
-    --bg-input: #45494a;
-    --text-primary: #a9b7c6;
-    --text-secondary: #808080;
-    --accent: #cc7832;
-    --accent-hover: #e8a54b;
-    --success: #6a8759;
-    --error: #ff6b68;
-    --slider-track: #45494a;
-    --slider-border: #6b7280;
-}
-
-/* Monokai Theme */
-[data-theme="monokai"] {
-    --bg-primary: #272822;
-    --bg-secondary: #3e3d32;
-    --bg-card: #49483e;
-    --bg-input: #1e1f1c;
-    --text-primary: #f8f8f2;
-    --text-secondary: #75715e;
-    --accent: #f92672;
-    --accent-hover: #ff79a8;
-    --success: #a6e22e;
-    --error: #f92672;
-    --slider-track: #1e1f1c;
-    --slider-border: #75715e;
 }
 
 * {
@@ -54,18 +9,44 @@
     padding: 0;
 }
 
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
     background: var(--bg-primary);
     color: var(--text-primary);
     line-height: 1.6;
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 .container {
     max-width: 1200px;
+    width: 100%;
     margin: 0 auto;
     padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    justify-content: center;
+}
+
+/* Only center when content fits viewport */
+@media (min-height: 900px) {
+    .container {
+        justify-content: center;
+    }
+}
+
+/* For smaller viewports, use normal flow */
+@media (max-height: 899px) {
+    .container {
+        justify-content: flex-start;
+    }
 }
 
 header {
@@ -655,4 +636,109 @@ footer {
     border-radius: var(--border-radius);
     color: var(--success);
     font-size: 0.9rem;
+}
+
+/* Clip Range Slider - Dual Handle */
+.clip-range-container {
+    margin-bottom: 1rem;
+}
+
+.clip-range-track {
+    position: relative;
+    height: 8px;
+    background: var(--slider-track);
+    border: 2px solid var(--slider-border);
+    border-radius: 4px;
+    margin: 1rem 0 0.5rem 0;
+}
+
+.clip-range-fill {
+    position: absolute;
+    height: 100%;
+    background: var(--accent);
+    opacity: 0.5;
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.clip-range-input {
+    position: absolute;
+    width: 100%;
+    height: 8px;
+    top: -2px;
+    left: 0;
+    background: transparent;
+    pointer-events: none;
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+    z-index: 2;
+    border: none;
+}
+
+.clip-range-input::-webkit-slider-runnable-track {
+    background: transparent;
+    border: none;
+    height: 8px;
+}
+
+.clip-range-input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: var(--accent);
+    border-radius: 50%;
+    cursor: pointer;
+    pointer-events: auto;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    margin-top: -6px;
+    z-index: 3;
+}
+
+.clip-range-input::-moz-range-track {
+    background: transparent;
+    border: none;
+    height: 8px;
+}
+
+.clip-range-input::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: var(--accent);
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    pointer-events: auto;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+/* Different colors for start vs end thumb */
+.clip-range-start::-webkit-slider-thumb {
+    background: var(--success);
+}
+
+.clip-range-end::-webkit-slider-thumb {
+    background: var(--accent);
+}
+
+.clip-range-start::-moz-range-thumb {
+    background: var(--success);
+}
+
+.clip-range-end::-moz-range-thumb {
+    background: var(--accent);
+}
+
+.clip-range-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.clip-range-labels #clip-duration-label {
+    color: var(--accent);
+    font-weight: 500;
 }

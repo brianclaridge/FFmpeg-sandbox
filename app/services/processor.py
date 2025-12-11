@@ -73,6 +73,45 @@ def process_audio(
     return output_file
 
 
+def get_file_duration(file_path: Path) -> int | None:
+    """
+    Get duration of audio/video file in milliseconds using ffprobe.
+
+    Args:
+        file_path: Path to the media file
+
+    Returns:
+        Duration in milliseconds, or None if detection fails.
+    """
+    cmd = [
+        "ffprobe",
+        "-v", "error",
+        "-show_entries", "format=duration",
+        "-of", "default=noprint_wrappers=1:nokey=1",
+        str(file_path),
+    ]
+
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
+        if result.returncode == 0 and result.stdout.strip():
+            duration_seconds = float(result.stdout.strip())
+            return int(duration_seconds * 1000)
+    except (subprocess.TimeoutExpired, ValueError) as e:
+        logger.warning(f"Failed to get duration for {file_path}: {e}")
+
+    return None
+
+
+def format_duration_ms(ms: int) -> str:
+    """Format milliseconds as HH:MM:SS.mmm"""
+    total_seconds = ms // 1000
+    milliseconds = ms % 1000
+    hours = total_seconds // 3600
+    minutes = (total_seconds % 3600) // 60
+    seconds = total_seconds % 60
+    return f"{hours:02d}:{minutes:02d}:{seconds:02d}.{milliseconds:03d}"
+
+
 def get_input_files(input_dir: Path) -> list[Path]:
     """Get list of video/audio files in input directory."""
     extensions = {".mp4", ".mkv", ".avi", ".mov", ".mp3", ".wav", ".flac"}

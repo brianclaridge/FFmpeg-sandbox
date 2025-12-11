@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audio Processor</title>
+    <title>FFmpeg-sandbox</title>
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/themes.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', path='/css/styles.css') }}">
     <script>
         // Apply saved theme immediately to prevent flash
@@ -17,11 +18,18 @@
 <body>
     <div class="container">
         <header>
-            <h1>Audio Hacker</h1>
+            <h1>FFmpeg-sandbox</h1>
             <div class="theme-selector">
                 <select id="theme-select" onchange="setTheme(this.value)">
                     <option value="darcula">Darcula</option>
+                    <option value="dracula">Dracula</option>
                     <option value="monokai">Monokai</option>
+                    <option value="nord">Nord</option>
+                    <option value="solarized">Solarized</option>
+                    <option value="gruvbox">Gruvbox</option>
+                    <option value="onedark">One Dark</option>
+                    <option value="tokyo">Tokyo Night</option>
+                    <option value="catppuccin">Catppuccin</option>
                     <option value="neon">Neon</option>
                 </select>
             </div>

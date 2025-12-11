@@ -1,0 +1,165 @@
+/* ===========================================
+   FFmpeg-sandbox - Theme Definitions
+   =========================================== */
+
+/* Default Theme (Neon) */
+:root,
+[data-theme="neon"] {
+    --bg-primary: #1a1a2e;
+    --bg-secondary: #16213e;
+    --bg-card: #0f3460;
+    --bg-input: #0d1b2a;
+    --text-primary: #e6e6e6;
+    --text-secondary: #a0a0a0;
+    --accent: #e94560;
+    --accent-hover: #ff6b6b;
+    --success: #4ecca3;
+    --error: #ff6b6b;
+    --border-radius: 8px;
+    --slider-track: #0d1b2a;
+    --slider-border: #4a5568;
+}
+
+/* Darcula Theme (JetBrains) */
+[data-theme="darcula"] {
+    --bg-primary: #2b2b2b;
+    --bg-secondary: #3c3f41;
+    --bg-card: #313335;
+    --bg-input: #45494a;
+    --text-primary: #a9b7c6;
+    --text-secondary: #808080;
+    --accent: #cc7832;
+    --accent-hover: #e8a54b;
+    --success: #6a8759;
+    --error: #ff6b68;
+    --slider-track: #45494a;
+    --slider-border: #6b7280;
+}
+
+/* Monokai Theme (Sublime Text) */
+[data-theme="monokai"] {
+    --bg-primary: #272822;
+    --bg-secondary: #3e3d32;
+    --bg-card: #49483e;
+    --bg-input: #1e1f1c;
+    --text-primary: #f8f8f2;
+    --text-secondary: #75715e;
+    --accent: #f92672;
+    --accent-hover: #ff79a8;
+    --success: #a6e22e;
+    --error: #f92672;
+    --slider-track: #1e1f1c;
+    --slider-border: #75715e;
+}
+
+/* Dracula Theme */
+[data-theme="dracula"] {
+    --bg-primary: #282a36;
+    --bg-secondary: #44475a;
+    --bg-card: #383a59;
+    --bg-input: #21222c;
+    --text-primary: #f8f8f2;
+    --text-secondary: #6272a4;
+    --accent: #bd93f9;
+    --accent-hover: #ff79c6;
+    --success: #50fa7b;
+    --error: #ff5555;
+    --slider-track: #21222c;
+    --slider-border: #6272a4;
+}
+
+/* Nord Theme */
+[data-theme="nord"] {
+    --bg-primary: #2e3440;
+    --bg-secondary: #3b4252;
+    --bg-card: #434c5e;
+    --bg-input: #2e3440;
+    --text-primary: #eceff4;
+    --text-secondary: #d8dee9;
+    --accent: #88c0d0;
+    --accent-hover: #8fbcbb;
+    --success: #a3be8c;
+    --error: #bf616a;
+    --slider-track: #2e3440;
+    --slider-border: #4c566a;
+}
+
+/* Solarized Dark Theme */
+[data-theme="solarized"] {
+    --bg-primary: #002b36;
+    --bg-secondary: #073642;
+    --bg-card: #073642;
+    --bg-input: #002b36;
+    --text-primary: #839496;
+    --text-secondary: #657b83;
+    --accent: #268bd2;
+    --accent-hover: #2aa198;
+    --success: #859900;
+    --error: #dc322f;
+    --slider-track: #002b36;
+    --slider-border: #586e75;
+}
+
+/* Gruvbox Dark Theme */
+[data-theme="gruvbox"] {
+    --bg-primary: #282828;
+    --bg-secondary: #3c3836;
+    --bg-card: #504945;
+    --bg-input: #1d2021;
+    --text-primary: #ebdbb2;
+    --text-secondary: #a89984;
+    --accent: #fe8019;
+    --accent-hover: #fabd2f;
+    --success: #b8bb26;
+    --error: #fb4934;
+    --slider-track: #1d2021;
+    --slider-border: #665c54;
+}
+
+/* One Dark Theme (Atom) */
+[data-theme="onedark"] {
+    --bg-primary: #282c34;
+    --bg-secondary: #3e4451;
+    --bg-card: #2c313c;
+    --bg-input: #21252b;
+    --text-primary: #abb2bf;
+    --text-secondary: #5c6370;
+    --accent: #61afef;
+    --accent-hover: #528bff;
+    --success: #98c379;
+    --error: #e06c75;
+    --slider-track: #21252b;
+    --slider-border: #4b5263;
+}
+
+/* Tokyo Night Theme */
+[data-theme="tokyo"] {
+    --bg-primary: #1a1b26;
+    --bg-secondary: #24283b;
+    --bg-card: #1f2335;
+    --bg-input: #15161e;
+    --text-primary: #a9b1d6;
+    --text-secondary: #565f89;
+    --accent: #7aa2f7;
+    --accent-hover: #bb9af7;
+    --success: #9ece6a;
+    --error: #f7768e;
+    --slider-track: #15161e;
+    --slider-border: #414868;
+}
+
+/* Catppuccin Mocha Theme */
+[data-theme="catppuccin"] {
+    --bg-primary: #1e1e2e;
+    --bg-secondary: #313244;
+    --bg-card: #45475a;
+    --bg-input: #181825;
+    --text-primary: #cdd6f4;
+    --text-secondary: #a6adc8;
+    --accent: #cba6f7;
+    --accent-hover: #f5c2e7;
+    --success: #a6e3a1;
+    --error: #f38ba8;
+    --slider-track: #181825;
+    --slider-border: #585b70;
+}

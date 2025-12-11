@@ -1,4 +1,4 @@
-# Audio Processor
+# FFmpeg-sandbox
 
 A web-based audio extraction and processing tool with tunnel/reverb effects.
 
@@ -8,13 +8,17 @@ A web-based audio extraction and processing tool with tunnel/reverb effects.
 - Apply tunnel/cave acoustic effects
 - Four effect presets (Light, Medium, Heavy, Extreme)
 - Custom parameter sliders for fine-tuning
-- In-browser audio preview
+- In-browser audio preview and playback
 - Processing history with one-click reapply
+- **File upload** with drag-and-drop support
+- **URL download** via yt-dlp (YouTube, etc.)
+- **10 dark themes** including Darcula, Dracula, Nord, Tokyo Night, and more
 
 ## Requirements
 
 - Python 3.11+
 - ffmpeg (must be in PATH)
+- yt-dlp (for URL downloads)
 - uv (Astral package manager)
 
 Or use Docker (recommended):
@@ -25,15 +29,12 @@ Or use Docker (recommended):
 ## Docker (Recommended)
 
 ```bash
-# Add source files to data/input/
-cp your-video.mp4 data/input/
-
 # Build and run
 docker compose up -d
 
 # Open http://localhost:8000
 
-# Processed files appear in data/output/
+# Processed files appear in .data/output/
 ```
 
 ## Installation
@@ -42,7 +43,7 @@ docker compose up -d
 # Clone
 git clone git@github.com:brianclaridge/audio-clip-helper.git
 
-# navigate to project
+# Navigate to project
 cd ./audio-clip-helper
 
 # Install dependencies
@@ -53,11 +54,20 @@ uv sync
 
 ### 1. Add source files
 
-Place video or audio files in the `data/input/` directory:
+You can add source files in three ways:
 
+**Option A: Copy to input folder**
 ```bash
 cp your-video.mp4 data/input/
 ```
+
+**Option B: Upload via web interface**
+- Click the upload zone or drag-and-drop files
+
+**Option C: Download from URL**
+- Paste a YouTube or other supported URL
+- Click "Check URL" to validate
+- Click "Download" to fetch the file
 
 ### 2. Start the server
 
@@ -77,13 +87,32 @@ Navigate to `http://localhost:8000` in your browser.
 
 ### 4. Process audio
 
-1. Select a source file from the dropdown
+1. Select a source file, upload one, or download from URL
 2. Set start and end times (format: `HH:MM:SS` or `HH:MM:SS.mmm`)
 3. Choose a preset (Light, Medium, Heavy, Extreme)
 4. Optionally adjust sliders for custom parameters
 5. Click "Process Audio"
 6. Preview the result in the browser
 7. Download if satisfied
+
+## Themes
+
+The app includes 10 dark themes selectable from the header dropdown:
+
+| Theme | Description |
+|-------|-------------|
+| Darcula | JetBrains IDE theme (default) |
+| Dracula | Popular purple-accented theme |
+| Monokai | Sublime Text classic |
+| Nord | Arctic blue palette |
+| Solarized | Ethan Schoonover's dark theme |
+| Gruvbox | Retro groove colors |
+| One Dark | Atom editor theme |
+| Tokyo Night | Japanese city lights |
+| Catppuccin | Mocha variant |
+| Neon | Vibrant pink/blue |
+
+Theme preference is saved in localStorage.
 
 ## Effect Presets
 
@@ -114,6 +143,14 @@ curl -X POST http://localhost:8000/process \
   -F "end_time=00:00:06" \
   -F "preset=medium"
 
+# Upload a file
+curl -X POST http://localhost:8000/upload \
+  -F "file=@your-video.mp4"
+
+# Validate a URL
+curl -X POST http://localhost:8000/download/validate \
+  -F "download_url=https://youtube.com/watch?v=..."
+
 # Get processing history
 curl http://localhost:8000/history
 
@@ -124,18 +161,25 @@ curl -O http://localhost:8000/preview/processed_20241210_120000.mp3
 ## Project Structure
 
 ```text
-src/
-├── app/
-│   ├── main.py           # Application entry point
-│   ├── models.py         # Data models and presets
-│   ├── routers/          # API endpoints
-│   ├── services/         # Business logic
-│   ├── templates/        # Jinja2 HTML templates
-│   └── static/           # CSS assets
-├── data/
-│   ├── input/            # Source files
-│   └── output/           # Processed files
-└── logs/                 # Application logs
+app/
+├── main.py              # Application entry point
+├── config.py            # Path configuration
+├── models.py            # Data models and presets
+├── routers/
+│   ├── audio.py         # /process, /preview, /upload
+│   ├── download.py      # /download URL endpoints
+│   └── history.py       # /history endpoints
+├── services/
+│   ├── processor.py     # ffmpeg audio processing
+│   └── history.py       # JSON-based history management
+├── templates/           # Jinja2 HTML templates
+│   ├── base.html        # Base layout with theme selector
+│   ├── index.html       # Main 3-column interface
+│   └── partials/        # HTMX partial templates
+└── static/
+    └── css/
+        ├── themes.css   # 10 dark theme definitions
+        └── styles.css   # Component styles
 ```
 
 ## License
