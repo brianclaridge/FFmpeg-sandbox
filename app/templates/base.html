@@ -19,6 +19,9 @@
     <div class="container">
         <header>
             <h1>FFmpeg-sandbox</h1>
+            <span class="header-attribution">
+                Built with FastAPI + HTMX + <a href="https://github.com/brianclaridge/.claude" target="_blank">.claude</a>
+            </span>
             <div class="theme-selector">
                 <select id="theme-select" onchange="setTheme(this.value)">
                     <option value="darcula">Darcula</option>
@@ -39,9 +42,6 @@
             {% block content %}{% endblock %}
         </main>
 
-        <footer>
-            <p>Built with FastAPI + HTMX</p>
-        </footer>
     </div>
 
     <script>

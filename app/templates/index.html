@@ -119,6 +119,7 @@
                     <span class="video-modal-title">Video Preview</span>
                     <button type="button" class="video-modal-close" id="video-modal-close">&times;</button>
                 </div>
+                <div class="video-loading" id="video-loading">Loading...</div>
                 <video id="clip-preview-video" loop preload="none"></video>
                 <div class="video-modal-footer">
                     <button type="button" id="video-play-btn" class="video-ctrl-btn" title="Play/Pause">
@@ -136,7 +137,7 @@
                     <span class="btn-text">Process</span>
                 </button>
                 <button type="button" id="clip-video-btn" class="btn-video-preview" title="Video Preview" style="display:none;">
-                    <span>&#127902;</span>
+                    <span>🎥</span>
                 </button>
             </div>
 
@@ -179,12 +180,13 @@
         <section class="card">
             <h2>Effect Chain</h2>
 
-            <!-- Visual Effect Chain -->
-            <div id="effect-chain-area"
-                 hx-get="/partials/effect-chain"
-                 hx-trigger="load"
-                 hx-swap="innerHTML">
-                <p class="placeholder">Loading effect chain...</p>
+            <!-- Visual Effect Chain (server-rendered) -->
+            <div id="effect-chain-area">
+                <div class="effect-chain">
+                    <div id="effect-chain-boxes">
+                        {% include "partials/effect_chain_boxes.html" %}
+                    </div>
+                </div>
             </div>
 
             <!-- Category Control Panel -->
@@ -247,6 +249,7 @@ var ClipRangeController = (function() {
 
         videoModal = document.getElementById('video-preview-modal');
         videoModalClose = document.getElementById('video-modal-close');
+        var videoLoading = document.getElementById('video-loading');
 
         var videoPlayBtn = document.getElementById('video-play-btn');
         var videoStopBtn = document.getElementById('video-stop-btn');
@@ -307,6 +310,12 @@ var ClipRangeController = (function() {
             previewVideo.addEventListener('play', function() { updateVideoPlayState(true); });
             previewVideo.addEventListener('pause', function() { updateVideoPlayState(false); });
             previewVideo.addEventListener('ended', function() { updateVideoPlayState(false); });
+            previewVideo.addEventListener('canplay', function() {
+                if (videoLoading) videoLoading.style.display = 'none';
+            });
+            previewVideo.addEventListener('loadstart', function() {
+                if (videoLoading) videoLoading.style.display = 'block';
+            });
         }
 
         function updateVideoPlayState(playing) {
@@ -490,6 +499,8 @@ var ClipRangeController = (function() {
             stopPreview();
             closeVideoModal();
             hideMetadataDisplay();
+            // Reload effect chain with no file (default settings)
+            reloadEffectChain(null);
             return;
         }
 
@@ -499,6 +510,16 @@ var ClipRangeController = (function() {
         isVideoFile = videoExts.indexOf(ext) !== -1;
         if (videoBtn) videoBtn.style.display = isVideoFile ? 'inline-block' : 'none';
         fetchDuration(filename);
+        // Reload effect chain with file-specific settings
+        reloadEffectChain(filename);
+    }
+
+    function reloadEffectChain(filename) {
+        var url = '/partials/effect-chain';
+        if (filename) {
+            url += '?filename=' + encodeURIComponent(filename);
+        }
+        htmx.ajax('GET', url, {target: '#effect-chain-area', swap: 'innerHTML'});
     }
 
     function toggleVideoModal() {
@@ -677,11 +698,11 @@ var ClipRangeController = (function() {
         startSlider.max = durationMs;
         endSlider.max = durationMs;
 
-        var defaultEnd = Math.min(6000, durationMs);
+        // Default to full duration (0 to end)
         startSlider.value = 0;
-        endSlider.value = defaultEnd;
+        endSlider.value = durationMs;
         startInput.value = '00:00:00.000';
-        endInput.value = msToTimestamp(defaultEnd);
+        endInput.value = msToTimestamp(durationMs);
 
         updateFill();
     }

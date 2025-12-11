@@ -2,10 +2,10 @@
     <h3>Frequency/EQ Settings</h3>
 
     <div class="preset-pills">
-        {% for level, config in presets.items() %}
+        {% for preset_key, config in presets.items() %}
         <button type="button"
-                class="preset-pill {% if settings.preset == level.value %}active{% endif %}"
-                hx-post="/partials/category-preset/frequency/{{ level.value }}"
+                class="preset-pill {% if settings.preset == preset_key %}active{% endif %}"
+                hx-post="/partials/category-preset/frequency/{{ preset_key }}{% if current_filename %}?filename={{ current_filename }}{% endif %}"
                 hx-target="#effect-chain-boxes"
                 hx-swap="innerHTML">
             {{ config.name }}

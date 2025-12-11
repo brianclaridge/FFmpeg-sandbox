@@ -223,6 +223,11 @@ FREQUENCY_PRESETS: dict[FrequencyPreset, FrequencyConfig] = {
     ),
 }
 
+# String-keyed dictionaries for Jinja template access
+VOLUME_PRESETS_BY_STR: dict[str, VolumeConfig] = {p.value: c for p, c in VOLUME_PRESETS.items()}
+TUNNEL_PRESETS_BY_STR: dict[str, TunnelConfig] = {p.value: c for p, c in TUNNEL_PRESETS.items()}
+FREQUENCY_PRESETS_BY_STR: dict[str, FrequencyConfig] = {p.value: c for p, c in FREQUENCY_PRESETS.items()}
+
 
 # ============ USER SETTINGS ============
 class CategorySettings(BaseModel):

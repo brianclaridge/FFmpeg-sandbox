@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-A Python-based Single Page Application for extracting and processing audio from video files with tunnel/reverb effects. Built with FastAPI and HTMX for a dynamic, server-rendered experience.
+A Python-based Single Page Application for extracting and processing audio from video files with a visual effect chain (Volume → Tunnel → Frequency). Built with FastAPI and HTMX for a dynamic, server-rendered experience.
 
 ## Tech Stack
 
@@ -17,27 +17,38 @@ A Python-based Single Page Application for extracting and processing audio from 
 ## Project Structure
 
 ```
-config.yml              # Application configuration
+config.yml               # Application configuration
+.data/
+├── input/               # Source video/audio files
+├── output/              # Processed audio files
+├── user_settings.yml    # Persistent user preferences
+└── history.json         # Processing history
 app/
-├── main.py             # FastAPI entry point, routes index
-├── config.py           # Config loader with dataclasses
-├── models.py           # Pydantic models, preset definitions
+├── main.py              # FastAPI entry point, routes index
+├── config.py            # Config loader with dataclasses
+├── models.py            # Pydantic models, category presets, enums
 ├── routers/
-│   ├── audio.py        # /process, /preview, /upload, /clip-preview, /clip-video-preview
-│   ├── download.py     # /download/validate, /download/execute
-│   └── history.py      # /history endpoints
+│   ├── audio.py         # /process, /preview, /upload, effect chain endpoints
+│   ├── download.py      # /download/validate, /download/execute
+│   └── history.py       # /history endpoints
 ├── services/
-│   ├── processor.py    # ffmpeg audio processing
-│   ├── downloader.py   # yt-dlp video downloading
-│   └── history.py      # JSON-based history management
+│   ├── processor.py     # ffmpeg audio processing + file metadata
+│   ├── downloader.py    # yt-dlp video downloading
+│   ├── history.py       # JSON-based history management
+│   └── settings.py      # User settings YAML persistence
 ├── templates/
-│   ├── base.html       # Base layout with theme selector
-│   ├── index.html      # Main 3-column interface with ClipRangeController
-│   └── partials/       # HTMX partial templates
+│   ├── base.html        # Base layout with theme selector
+│   ├── index.html       # Main 3-column interface with ClipRangeController
+│   └── partials/
+│       ├── effect_chain.html       # Effect chain container
+│       ├── effect_chain_boxes.html # Clickable Volume/Tunnel/Frequency boxes
+│       ├── panel_volume.html       # Volume category controls
+│       ├── panel_tunnel.html       # Tunnel/echo category controls
+│       └── panel_frequency.html    # Frequency/EQ category controls
 └── static/
     └── css/
-        ├── themes.css  # 10 dark theme definitions
-        └── styles.css  # Component styles
+        ├── themes.css   # 10 dark theme definitions
+        └── styles.css   # Component styles
 ```
 
 ## Key Commands
@@ -97,10 +108,12 @@ audio:
 | POST | `/process` | Process audio, returns preview partial |
 | POST | `/upload` | Upload file to input directory |
 | GET | `/preview/{filename}` | Serve processed audio file |
-| GET | `/duration/{filename}` | Get file duration in ms |
+| GET | `/duration/{filename}` | Get file metadata (duration, codecs, resolution) |
 | GET | `/clip-preview` | Stream audio clip for range slider |
 | GET | `/clip-video-preview` | Stream video clip for modal preview |
-| GET | `/partials/sliders?preset=` | Get slider form for preset |
+| GET | `/partials/effect-chain` | Get effect chain UI component |
+| GET | `/partials/category-panel/{cat}` | Get category control panel |
+| POST | `/partials/category-preset/{cat}/{preset}` | Set category preset |
 | POST | `/download/validate` | Validate URL via yt-dlp |
 | POST | `/download/execute` | Download from URL |
 | GET | `/history` | Get history partial |
@@ -115,22 +128,38 @@ The processor uses ffmpeg with this filter chain:
 volume={vol},highpass=f={hp},lowpass=f={lp},aecho=0.8:0.85:{delays}:{decays}
 ```
 
-### Presets
+### Effect Chain Categories
 
-| Preset | Description | Highpass | Lowpass | Delays |
-|--------|-------------|----------|---------|--------|
-| none | No effect (default) | 20 Hz | 20000 Hz | none |
-| light | Subtle ambience | 80 Hz | 6000 Hz | 10\|20 ms |
-| medium | Noticeable reverb | 100 Hz | 4500 Hz | 15\|25\|35\|50 ms |
-| heavy | Strong cave effect | 120 Hz | 3500 Hz | 20\|35\|55\|80 ms |
-| extreme | Deep bunker sound | 150 Hz | 2500 Hz | 25\|45\|70\|100\|140 ms |
+The UI organizes processing into three independent categories:
+
+**Volume** (`VolumePreset`): 1x, 1.5x, 2x, 3x, 4x
+
+**Tunnel** (`TunnelPreset`): None, Subtle, Medium, Heavy, Extreme
+
+**Frequency** (`FrequencyPreset`): Flat, Bass Cut, Treble Cut, Narrow Band, Voice Clarity
+
+Each category has its own presets and controls. User selections persist to `.data/user_settings.yml`.
 
 ## UI Features
 
+### Visual Effect Chain
+- Three clickable boxes: Volume → Tunnel → Frequency
+- Clicking a box reveals its category control panel
+- Per-category preset pills for quick selection
+- Active category highlighted in the chain
+- Settings persist to `.data/user_settings.yml`
+
+### File Metadata Display
+- Shows after file selection below the Process button
+- Displays: filename, duration, file size
+- For video: resolution, frame rate, video codec
+- For all: audio codec, sample rate, channels, bitrate
+
 ### Clip Range Slider
 - Dual-handle slider for precise clip selection (millisecond precision)
+- **Defaults to full file duration** (0 to end)
 - Play/pause/stop controls for audio preview
-- Auto-fetches duration when file is selected
+- Auto-fetches duration and metadata when file is selected
 
 ### Video Preview Modal
 - Draggable modal window (defaults to bottom-right)
@@ -155,21 +184,26 @@ Theme selection via `data-theme` attribute, persisted in localStorage.
 
 ## Common Tasks
 
-### Add a new preset
+### Add a new category preset
 
-Edit `app/models.py` and add to the `PRESETS` dictionary:
+Each category has its own enum and preset dictionary in `app/models.py`:
 
 ```python
-PresetLevel.NEW_PRESET: PresetConfig(
+# Add to enum
+class TunnelPreset(str, Enum):
+    # ... existing ...
+    NEW_PRESET = "new_preset"
+
+# Add to dictionary
+TUNNEL_PRESETS[TunnelPreset.NEW_PRESET] = TunnelConfig(
     name="New Preset",
     description="Description here",
-    volume=2.0,
-    highpass=100,
-    lowpass=4000,
     delays=[10, 20, 30],
     decays=[0.3, 0.25, 0.2],
-),
+)
 ```
+
+Don't forget to also add to the `*_BY_STR` dictionary if accessing via string keys in templates.
 
 ### Add a new theme
 

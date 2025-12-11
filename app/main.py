@@ -12,9 +12,9 @@ from loguru import logger
 from app.config import INPUT_DIR, OUTPUT_DIR, LOGS_DIR, config
 from app.models import (
     PRESETS, PresetLevel,
-    VOLUME_PRESETS, VolumePreset,
-    TUNNEL_PRESETS, TunnelPreset,
-    FREQUENCY_PRESETS, FrequencyPreset,
+    VOLUME_PRESETS, VOLUME_PRESETS_BY_STR, VolumePreset,
+    TUNNEL_PRESETS, TUNNEL_PRESETS_BY_STR, TunnelPreset,
+    FREQUENCY_PRESETS, FREQUENCY_PRESETS_BY_STR, FrequencyPreset,
 )
 from app.routers import audio, history, download
 from app.services.processor import get_input_files
@@ -110,12 +110,13 @@ async def index(request: Request):
             "input_files": input_files,
             # Effect chain data
             "user_settings": user_settings,
-            "volume_presets": VOLUME_PRESETS,
-            "tunnel_presets": TUNNEL_PRESETS,
-            "frequency_presets": FREQUENCY_PRESETS,
+            "volume_presets": VOLUME_PRESETS_BY_STR,
+            "tunnel_presets": TUNNEL_PRESETS_BY_STR,
+            "frequency_presets": FREQUENCY_PRESETS_BY_STR,
+            "current_filename": None,  # No file selected on initial load
             # Initial panel data (for volume panel on load)
             "category": "volume",
-            "presets": VOLUME_PRESETS,
+            "presets": VOLUME_PRESETS_BY_STR,
             "current_preset": volume_preset,
             "settings": user_settings.volume,
             # Form defaults based on current settings

@@ -15,9 +15,9 @@ from loguru import logger
 from app.config import INPUT_DIR, OUTPUT_DIR, config
 from app.models import (
     PresetLevel, PRESETS,
-    VolumePreset, VOLUME_PRESETS,
-    TunnelPreset, TUNNEL_PRESETS,
-    FrequencyPreset, FREQUENCY_PRESETS,
+    VolumePreset, VOLUME_PRESETS, VOLUME_PRESETS_BY_STR,
+    TunnelPreset, TUNNEL_PRESETS, TUNNEL_PRESETS_BY_STR,
+    FrequencyPreset, FREQUENCY_PRESETS, FREQUENCY_PRESETS_BY_STR,
 )
 from app.services.settings import (
     load_user_settings,
@@ -325,69 +325,72 @@ async def clip_video_preview(filename: str, start: str, end: str):
 # ============ EFFECT CHAIN ENDPOINTS ============
 
 @router.get("/partials/effect-chain", response_class=HTMLResponse)
-async def get_effect_chain(request: Request):
+async def get_effect_chain(request: Request, filename: str | None = None):
     """Get the full effect chain UI component."""
-    settings = load_user_settings()
+    user_settings = load_user_settings(filename)
     return templates.TemplateResponse(
         "partials/effect_chain.html",
         {
             "request": request,
-            "settings": settings,
-            "volume_presets": VOLUME_PRESETS,
-            "tunnel_presets": TUNNEL_PRESETS,
-            "frequency_presets": FREQUENCY_PRESETS,
+            "user_settings": user_settings,
+            "volume_presets": VOLUME_PRESETS_BY_STR,
+            "tunnel_presets": TUNNEL_PRESETS_BY_STR,
+            "frequency_presets": FREQUENCY_PRESETS_BY_STR,
+            "current_filename": filename,
         },
     )
 
 
 @router.get("/partials/category-panel/{category}", response_class=HTMLResponse)
-async def get_category_panel(request: Request, category: str):
+async def get_category_panel(request: Request, category: str, filename: str | None = None):
     """Get the control panel for a specific category."""
-    settings = update_active_category(category)
+    settings = update_active_category(category, filename)
 
     preset_map = {
-        "volume": (VOLUME_PRESETS, VolumePreset, "2x"),
-        "tunnel": (TUNNEL_PRESETS, TunnelPreset, "none"),
-        "frequency": (FREQUENCY_PRESETS, FrequencyPreset, "flat"),
+        "volume": (VOLUME_PRESETS, VOLUME_PRESETS_BY_STR, VolumePreset, "2x"),
+        "tunnel": (TUNNEL_PRESETS, TUNNEL_PRESETS_BY_STR, TunnelPreset, "none"),
+        "frequency": (FREQUENCY_PRESETS, FREQUENCY_PRESETS_BY_STR, FrequencyPreset, "flat"),
     }
 
     if category not in preset_map:
         raise HTTPException(status_code=404, detail="Category not found")
 
-    presets, preset_enum, default_preset = preset_map[category]
+    presets_enum, presets_str, preset_enum, default_preset = preset_map[category]
 
     # Get current preset config
     current_preset_name = getattr(settings, category).preset
     try:
-        current_preset = presets[preset_enum(current_preset_name)]
+        current_preset = presets_enum[preset_enum(current_preset_name)]
     except (ValueError, KeyError):
-        current_preset = presets[preset_enum(default_preset)]
+        current_preset = presets_enum[preset_enum(default_preset)]
 
     return templates.TemplateResponse(
         f"partials/panel_{category}.html",
         {
             "request": request,
             "category": category,
-            "presets": presets,
+            "presets": presets_str,
             "current_preset": current_preset,
             "settings": getattr(settings, category),
+            "current_filename": filename,
         },
     )
 
 
 @router.post("/partials/category-preset/{category}/{preset}", response_class=HTMLResponse)
-async def set_category_preset(request: Request, category: str, preset: str):
+async def set_category_preset(request: Request, category: str, preset: str, filename: str | None = None):
     """Update a category's preset selection."""
-    settings = update_category_preset(category, preset)
+    user_settings = update_category_preset(category, preset, filename)
 
     # Return updated chain boxes to reflect new selection
     return templates.TemplateResponse(
         "partials/effect_chain_boxes.html",
         {
             "request": request,
-            "settings": settings,
-            "volume_presets": VOLUME_PRESETS,
-            "tunnel_presets": TUNNEL_PRESETS,
-            "frequency_presets": FREQUENCY_PRESETS,
+            "user_settings": user_settings,
+            "volume_presets": VOLUME_PRESETS_BY_STR,
+            "tunnel_presets": TUNNEL_PRESETS_BY_STR,
+            "frequency_presets": FREQUENCY_PRESETS_BY_STR,
+            "current_filename": filename,
         },
     )

@@ -1,16 +1,17 @@
 # FFmpeg-sandbox
 
-> **NOTICE:** This is a sample application created with the assistance of my opinionated [.claude](https://github.com/brianclaridge/.claude) stack. It's not meant to be used in production. Operated for profit, etc. See [LICENSE.md](./LICENSE.md) for more information.
+> **NOTICE:** This is a sample application created with the assistance of my opinionated [.claude](https://github.com/brianclaridge/.claude) stack. It's not meant to be used in production, operated for profit, etc. See [LICENSE.md](./LICENSE.md) for more information.
 
-A web-based audio extraction and processing tool with tunnel/reverb effects.
+A web-based audio extraction and processing tool with visual effect chains.
 
 ## Features
 
 - Extract audio segments from video files
-- Apply tunnel/cave acoustic effects
-- Five effect presets (No Effect, Light, Medium, Heavy, Extreme)
-- Custom parameter sliders for fine-tuning
-- **Dual-handle clip range slider** with millisecond precision
+- **Visual effect chain** with three processing stages: Volume → Tunnel → Frequency
+- Per-category presets with independent controls
+- **User settings persistence** to `.data/user_settings.yml`
+- **File metadata display** showing duration, size, codecs, resolution, and bitrate
+- **Dual-handle clip range slider** with millisecond precision (defaults to full file)
 - **Play/pause/stop controls** for clip preview
 - **Draggable video preview modal** for video files
 - In-browser audio preview and playback
@@ -120,21 +121,47 @@ The app includes 10 dark themes selectable from the header dropdown:
 
 Theme preference is saved in localStorage.
 
-## Effect Presets
+## Effect Chain
 
-| Preset | Effect | Best For |
-|--------|--------|----------|
-| No Effect | Clean audio | Original sound, no processing |
-| Light | Subtle ambience | Natural-sounding reverb |
-| Medium | Noticeable tunnel | Standard tunnel effect |
+The audio processing pipeline consists of three stages, each with independent presets:
+
+### Volume Presets
+
+| Preset | Multiplier | Description |
+|--------|------------|-------------|
+| 1x | 1.0 | Original volume |
+| 1.5x | 1.5 | Slight boost |
+| 2x | 2.0 | Double volume |
+| 3x | 3.0 | Triple volume |
+| 4x | 4.0 | Maximum boost |
+
+### Tunnel Presets
+
+| Preset | Effect | Description |
+|--------|--------|-------------|
+| None | No echo | Clean audio pass-through |
+| Subtle | Light ambience | Gentle room reverb |
+| Medium | Noticeable reverb | Standard tunnel effect |
 | Heavy | Strong cave echo | Dramatic atmosphere |
 | Extreme | Deep bunker | Heavily processed sound |
 
+### Frequency Presets
+
+| Preset | High-pass | Low-pass | Description |
+|--------|-----------|----------|-------------|
+| Flat | 20 Hz | 20 kHz | Full spectrum |
+| Bass Cut | 200 Hz | 20 kHz | Remove low frequencies |
+| Treble Cut | 20 Hz | 4 kHz | Remove high frequencies |
+| Narrow Band | 150 Hz | 3.5 kHz | Voice-focused range |
+| Voice Clarity | 100 Hz | 6 kHz | Optimal for speech |
+
 ## Custom Parameters
 
+Within each category, you can fine-tune:
+
 - **Volume**: 0.5x - 4x amplification
-- **High-pass**: 50-500 Hz (removes low rumble)
-- **Low-pass**: 2000-8000 Hz (controls high frequency cutoff)
+- **High-pass**: 20-500 Hz (removes low rumble)
+- **Low-pass**: 2000-20000 Hz (controls high frequency cutoff)
 - **Delays**: Echo timing in milliseconds (pipe-separated)
 - **Decays**: Echo decay factors 0-1 (pipe-separated)
 
@@ -202,22 +229,33 @@ audio:
 
 ```text
 config.yml               # Application configuration
+.data/
+├── input/               # Source video/audio files
+├── output/              # Processed audio files
+├── user_settings.yml    # Persistent user preferences
+└── history.json         # Processing history
 app/
 ├── main.py              # Application entry point
 ├── config.py            # Config loader with dataclasses
-├── models.py            # Data models and presets
+├── models.py            # Data models, presets, and enums
 ├── routers/
-│   ├── audio.py         # /process, /preview, /upload, /clip-preview
+│   ├── audio.py         # /process, /preview, /upload, effect chain endpoints
 │   ├── download.py      # /download URL endpoints
 │   └── history.py       # /history endpoints
 ├── services/
-│   ├── processor.py     # ffmpeg audio processing
+│   ├── processor.py     # ffmpeg audio processing + file metadata
 │   ├── downloader.py    # yt-dlp video downloading
-│   └── history.py       # JSON-based history management
+│   ├── history.py       # JSON-based history management
+│   └── settings.py      # User settings YAML persistence
 ├── templates/           # Jinja2 HTML templates
 │   ├── base.html        # Base layout with theme selector
 │   ├── index.html       # Main 3-column interface
 │   └── partials/        # HTMX partial templates
+│       ├── effect_chain.html
+│       ├── effect_chain_boxes.html
+│       ├── panel_volume.html
+│       ├── panel_tunnel.html
+│       └── panel_frequency.html
 └── static/
     └── css/
         ├── themes.css   # 10 dark theme definitions
