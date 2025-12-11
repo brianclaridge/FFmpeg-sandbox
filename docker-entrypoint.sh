@@ -1,12 +1,9 @@
 #!/bin/bash
 set -e
 
-# Ensure logs directory exists with correct permissions
-mkdir -p /app/logs
-chmod 755 /app/logs
-
-# Ensure data directories exist
-mkdir -p /app/data/input /app/data/output
+# Ensure data directories exist with correct permissions
+mkdir -p /app/.data/input /app/.data/output /app/.data/logs
+chmod 755 /app/.data/logs
 
 # Sync Python dependencies (handles any missing packages at runtime)
 echo "[entrypoint] Syncing Python dependencies..."

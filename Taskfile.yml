@@ -2,10 +2,10 @@ version: '3'
 
 vars:
   PROJECT: audio-processor
-  DATA_DIR: ./data
-  INPUT_DIR: ./data/input
-  OUTPUT_DIR: ./data/output
-  LOGS_DIR: ./logs
+  DATA_DIR: ./.data
+  INPUT_DIR: ./.data/input
+  OUTPUT_DIR: ./.data/output
+  LOGS_DIR: ./.data/logs
 
 tasks:
   # ============================================

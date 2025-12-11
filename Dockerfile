@@ -16,7 +16,7 @@ COPY pyproject.toml uv.lock ./
 COPY app/ app/
 
 # Create data directories
-RUN mkdir -p data/input data/output logs
+RUN mkdir -p .data/input .data/output .data/logs
 
 # Install dependencies (pre-cache for faster startup)
 RUN uv sync --no-dev

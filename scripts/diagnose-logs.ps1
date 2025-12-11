@@ -17,13 +17,13 @@ Write-Host "Container: $container" -ForegroundColor Green
 # Check logs inside container
 Write-Host ""
 Write-Host "=== Container logs directory ===" -ForegroundColor Cyan
-docker exec $container ls -la /app/logs/
+docker exec $container ls -la /app/.data/logs/
 
 # Check logs on host
 Write-Host ""
 Write-Host "=== Host logs directory ===" -ForegroundColor Cyan
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$logsDir = Join-Path (Split-Path -Parent $scriptDir) "logs"
+$logsDir = Join-Path (Split-Path -Parent $scriptDir) ".data/logs"
 Write-Host "Path: $logsDir"
 
 if (Test-Path $logsDir) {
@@ -35,13 +35,13 @@ if (Test-Path $logsDir) {
 # Check volume mount
 Write-Host ""
 Write-Host "=== Docker volume mount ===" -ForegroundColor Cyan
-docker inspect $container --format '{{range .Mounts}}{{if eq .Destination "/app/logs"}}Source: {{.Source}}{{"\n"}}Destination: {{.Destination}}{{"\n"}}Type: {{.Type}}{{end}}{{end}}'
+docker inspect $container --format '{{range .Mounts}}{{if eq .Destination "/app/.data/logs"}}Source: {{.Source}}{{"\n"}}Destination: {{.Destination}}{{"\n"}}Type: {{.Type}}{{end}}{{end}}'
 
 # Suggestion
 Write-Host ""
 Write-Host "=== Fix attempt ===" -ForegroundColor Yellow
 Write-Host "Copying logs from container to host..."
-docker cp "${container}:/app/logs/app.log" $logsDir/app.log 2>$null
+docker cp "${container}:/app/.data/logs/app.log" $logsDir/app.log 2>$null
 if ($LASTEXITCODE -eq 0) {
     Write-Host "Copied successfully. Check: $logsDir\app.log" -ForegroundColor Green
 } else {

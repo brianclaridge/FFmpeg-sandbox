@@ -9,9 +9,9 @@ Write-Host "Project directory: $projectDir"
 
 # Create directories if they don't exist
 $dirs = @(
-    "data/input",
-    "data/output",
-    "logs"
+    ".data/input",
+    ".data/output",
+    ".data/logs"
 )
 
 foreach ($dir in $dirs) {
@@ -26,7 +26,7 @@ foreach ($dir in $dirs) {
 
 Write-Host ""
 Write-Host "Directory permissions:"
-Get-ChildItem $projectDir -Directory | Where-Object { $_.Name -in @("data", "logs") } | ForEach-Object {
+Get-ChildItem $projectDir -Directory -Force | Where-Object { $_.Name -eq ".data" } | ForEach-Object {
     Write-Host "  $($_.FullName)"
 }
 

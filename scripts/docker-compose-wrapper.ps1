@@ -43,7 +43,7 @@ Write-Host "Docker host path: $env:BASE_HOST_PATH" -ForegroundColor Cyan
 Write-Host ""
 
 # Ensure directories exist on host
-$dirs = @("data/input", "data/output", "logs")
+$dirs = @(".data/input", ".data/output", ".data/logs")
 foreach ($dir in $dirs) {
     $fullPath = Join-Path $projectDir $dir
     if (-not (Test-Path $fullPath)) {
