@@ -13,8 +13,18 @@ from fastapi.templating import Jinja2Templates
 from loguru import logger
 
 from app.config import INPUT_DIR, OUTPUT_DIR, config
-from app.models import PresetLevel, PRESETS
-from app.services.processor import process_audio, get_input_files, get_file_duration, format_duration_ms
+from app.models import (
+    PresetLevel, PRESETS,
+    VolumePreset, VOLUME_PRESETS,
+    TunnelPreset, TUNNEL_PRESETS,
+    FrequencyPreset, FREQUENCY_PRESETS,
+)
+from app.services.settings import (
+    load_user_settings,
+    update_category_preset,
+    update_active_category,
+)
+from app.services.processor import process_audio, get_input_files, get_file_duration, format_duration_ms, get_file_metadata
 from app.services.history import add_history_entry
 
 ALLOWED_EXTENSIONS = set(config.audio.allowed_extensions)
@@ -171,22 +181,23 @@ async def upload_file(request: Request, file: UploadFile = File(...)):
 
 @router.get("/duration/{filename}")
 async def get_duration(filename: str):
-    """Get file duration in milliseconds."""
+    """Get file metadata including duration."""
     file_path = INPUT_DIR / filename
 
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="File not found")
 
-    duration_ms = get_file_duration(file_path)
+    metadata = get_file_metadata(file_path)
 
-    if duration_ms is None:
-        raise HTTPException(status_code=500, detail="Could not determine duration")
+    if "duration_ms" not in metadata:
+        # Fallback to basic duration detection
+        duration_ms = get_file_duration(file_path)
+        if duration_ms is None:
+            raise HTTPException(status_code=500, detail="Could not determine duration")
+        metadata["duration_ms"] = duration_ms
+        metadata["duration_formatted"] = format_duration_ms(duration_ms)
 
-    return JSONResponse({
-        "filename": filename,
-        "duration_ms": duration_ms,
-        "duration_formatted": format_duration_ms(duration_ms),
-    })
+    return JSONResponse(metadata)
 
 
 @router.get("/clip-preview")
@@ -309,3 +320,74 @@ async def clip_video_preview(filename: str, start: str, end: str):
             os.unlink(tmp_path)
         logger.exception("Video preview generation error")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# ============ EFFECT CHAIN ENDPOINTS ============
+
+@router.get("/partials/effect-chain", response_class=HTMLResponse)
+async def get_effect_chain(request: Request):
+    """Get the full effect chain UI component."""
+    settings = load_user_settings()
+    return templates.TemplateResponse(
+        "partials/effect_chain.html",
+        {
+            "request": request,
+            "settings": settings,
+            "volume_presets": VOLUME_PRESETS,
+            "tunnel_presets": TUNNEL_PRESETS,
+            "frequency_presets": FREQUENCY_PRESETS,
+        },
+    )
+
+
+@router.get("/partials/category-panel/{category}", response_class=HTMLResponse)
+async def get_category_panel(request: Request, category: str):
+    """Get the control panel for a specific category."""
+    settings = update_active_category(category)
+
+    preset_map = {
+        "volume": (VOLUME_PRESETS, VolumePreset, "2x"),
+        "tunnel": (TUNNEL_PRESETS, TunnelPreset, "none"),
+        "frequency": (FREQUENCY_PRESETS, FrequencyPreset, "flat"),
+    }
+
+    if category not in preset_map:
+        raise HTTPException(status_code=404, detail="Category not found")
+
+    presets, preset_enum, default_preset = preset_map[category]
+
+    # Get current preset config
+    current_preset_name = getattr(settings, category).preset
+    try:
+        current_preset = presets[preset_enum(current_preset_name)]
+    except (ValueError, KeyError):
+        current_preset = presets[preset_enum(default_preset)]
+
+    return templates.TemplateResponse(
+        f"partials/panel_{category}.html",
+        {
+            "request": request,
+            "category": category,
+            "presets": presets,
+            "current_preset": current_preset,
+            "settings": getattr(settings, category),
+        },
+    )
+
+
+@router.post("/partials/category-preset/{category}/{preset}", response_class=HTMLResponse)
+async def set_category_preset(request: Request, category: str, preset: str):
+    """Update a category's preset selection."""
+    settings = update_category_preset(category, preset)
+
+    # Return updated chain boxes to reflect new selection
+    return templates.TemplateResponse(
+        "partials/effect_chain_boxes.html",
+        {
+            "request": request,
+            "settings": settings,
+            "volume_presets": VOLUME_PRESETS,
+            "tunnel_presets": TUNNEL_PRESETS,
+            "frequency_presets": FREQUENCY_PRESETS,
+        },
+    )

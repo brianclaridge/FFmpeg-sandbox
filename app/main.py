@@ -10,9 +10,15 @@ from fastapi.templating import Jinja2Templates
 from loguru import logger
 
 from app.config import INPUT_DIR, OUTPUT_DIR, LOGS_DIR, config
-from app.models import PRESETS, PresetLevel
+from app.models import (
+    PRESETS, PresetLevel,
+    VOLUME_PRESETS, VolumePreset,
+    TUNNEL_PRESETS, TunnelPreset,
+    FREQUENCY_PRESETS, FrequencyPreset,
+)
 from app.routers import audio, history, download
 from app.services.processor import get_input_files
+from app.services.settings import load_user_settings
 
 
 class InterceptHandler(logging.Handler):
@@ -79,19 +85,42 @@ templates = Jinja2Templates(directory="app/templates")
 async def index(request: Request):
     """Main page with audio processor form."""
     input_files = get_input_files(INPUT_DIR)
-    presets = [(level.value, preset_cfg) for level, preset_cfg in PRESETS.items()]
-    default_preset = PRESETS[PresetLevel.NONE]
+    user_settings = load_user_settings()
+
+    # Get current preset configs for initial panel render
+    try:
+        volume_preset = VOLUME_PRESETS[VolumePreset(user_settings.volume.preset)]
+    except (ValueError, KeyError):
+        volume_preset = VOLUME_PRESETS[VolumePreset.X2]
+
+    try:
+        tunnel_preset = TUNNEL_PRESETS[TunnelPreset(user_settings.tunnel.preset)]
+    except (ValueError, KeyError):
+        tunnel_preset = TUNNEL_PRESETS[TunnelPreset.NONE]
+
+    try:
+        frequency_preset = FREQUENCY_PRESETS[FrequencyPreset(user_settings.frequency.preset)]
+    except (ValueError, KeyError):
+        frequency_preset = FREQUENCY_PRESETS[FrequencyPreset.FLAT]
 
     return templates.TemplateResponse(
         "index.html",
         {
             "request": request,
             "input_files": input_files,
-            "presets": presets,
-            "default_preset": default_preset,
-            "preset": default_preset,
-            "delays": "|".join(str(d) for d in default_preset.delays),
-            "decays": "|".join(str(d) for d in default_preset.decays),
+            # Effect chain data
+            "user_settings": user_settings,
+            "volume_presets": VOLUME_PRESETS,
+            "tunnel_presets": TUNNEL_PRESETS,
+            "frequency_presets": FREQUENCY_PRESETS,
+            # Initial panel data (for volume panel on load)
+            "category": "volume",
+            "presets": VOLUME_PRESETS,
+            "current_preset": volume_preset,
+            "settings": user_settings.volume,
+            # Form defaults based on current settings
+            "delays": "|".join(str(d) for d in tunnel_preset.delays),
+            "decays": "|".join(str(d) for d in tunnel_preset.decays),
         },
     )
 

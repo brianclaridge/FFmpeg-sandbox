@@ -1,0 +1,37 @@
+<div class="chain-container">
+    <!-- Volume Box -->
+    <div class="chain-box {% if settings.active_category == 'volume' %}active{% endif %}"
+         hx-get="/partials/category-panel/volume"
+         hx-target="#category-panel-area"
+         hx-swap="innerHTML">
+        <div class="chain-box-icon">&#128266;</div>
+        <div class="chain-box-label">Volume</div>
+        <div class="chain-box-preset">{{ volume_presets[settings.volume.preset].name if settings.volume.preset in volume_presets else settings.volume.preset }}</div>
+    </div>
+
+    <!-- Arrow -->
+    <div class="chain-arrow">&#10145;</div>
+
+    <!-- Tunnel Box -->
+    <div class="chain-box {% if settings.active_category == 'tunnel' %}active{% endif %}"
+         hx-get="/partials/category-panel/tunnel"
+         hx-target="#category-panel-area"
+         hx-swap="innerHTML">
+        <div class="chain-box-icon">&#127983;</div>
+        <div class="chain-box-label">Tunnel</div>
+        <div class="chain-box-preset">{{ tunnel_presets[settings.tunnel.preset].name if settings.tunnel.preset in tunnel_presets else settings.tunnel.preset }}</div>
+    </div>
+
+    <!-- Arrow -->
+    <div class="chain-arrow">&#10145;</div>
+
+    <!-- Frequency Box -->
+    <div class="chain-box {% if settings.active_category == 'frequency' %}active{% endif %}"
+         hx-get="/partials/category-panel/frequency"
+         hx-target="#category-panel-area"
+         hx-swap="innerHTML">
+        <div class="chain-box-icon">&#128200;</div>
+        <div class="chain-box-label">Frequency</div>
+        <div class="chain-box-preset">{{ frequency_presets[settings.frequency.preset].name if settings.frequency.preset in frequency_presets else settings.frequency.preset }}</div>
+    </div>
+</div>

@@ -1,5 +1,7 @@
 # FFmpeg-sandbox
 
+> **NOTICE:** This is a sample application created with the assistance of my opinionated [.claude](https://github.com/brianclaridge/.claude) stack. It's not meant to be used in production. Operated for profit, etc. See [LICENSE.md](./LICENSE.md) for more information.
+
 A web-based audio extraction and processing tool with tunnel/reverb effects.
 
 ## Features
@@ -224,4 +226,4 @@ app/
 
 ## License
 
-MIT
+See [LICENSE.md](./LICENSE.md)

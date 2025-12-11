@@ -79,7 +79,6 @@
                         </button>
                         <button type="button" id="clip-stop-btn" class="clip-ctrl-btn" title="Stop">&#9632;</button>
                         <button type="button" id="clip-loop-btn" class="clip-ctrl-btn loop-btn active" title="Toggle Loop">&#8734;</button>
-                        <button type="button" id="clip-video-btn" class="clip-ctrl-btn" title="Video Preview" style="display:none;">&#128249;</button>
                     </div>
                 </div>
                 <div class="clip-range-track">
@@ -131,38 +130,70 @@
                 </div>
             </div>
 
-            <button type="submit" class="btn-primary">
-                <span class="htmx-indicator">Processing...</span>
-                <span class="btn-text">Process</span>
-            </button>
+            <div class="process-row">
+                <button type="submit" class="btn-primary">
+                    <span class="htmx-indicator">Processing...</span>
+                    <span class="btn-text">Process</span>
+                </button>
+                <button type="button" id="clip-video-btn" class="btn-video-preview" title="Video Preview" style="display:none;">
+                    <span>&#127902;</span>
+                </button>
+            </div>
+
+            <!-- File Metadata Section -->
+            <div id="file-metadata" class="file-metadata" style="display: none;">
+                <div class="metadata-header">
+                    <span class="metadata-icon" id="metadata-type-icon">&#127909;</span>
+                    <span class="metadata-filename" id="metadata-filename">filename.mp4</span>
+                </div>
+                <div class="metadata-grid">
+                    <div class="metadata-item">
+                        <span class="metadata-label">Duration</span>
+                        <span class="metadata-value" id="metadata-duration">--</span>
+                    </div>
+                    <div class="metadata-item">
+                        <span class="metadata-label">Size</span>
+                        <span class="metadata-value" id="metadata-size">--</span>
+                    </div>
+                    <div class="metadata-item" id="metadata-resolution-item" style="display: none;">
+                        <span class="metadata-label">Resolution</span>
+                        <span class="metadata-value" id="metadata-resolution">--</span>
+                    </div>
+                    <div class="metadata-item" id="metadata-video-codec-item" style="display: none;">
+                        <span class="metadata-label">Video</span>
+                        <span class="metadata-value" id="metadata-video-codec">--</span>
+                    </div>
+                    <div class="metadata-item" id="metadata-audio-codec-item" style="display: none;">
+                        <span class="metadata-label">Audio</span>
+                        <span class="metadata-value" id="metadata-audio-codec">--</span>
+                    </div>
+                    <div class="metadata-item" id="metadata-bitrate-item" style="display: none;">
+                        <span class="metadata-label">Bitrate</span>
+                        <span class="metadata-value" id="metadata-bitrate">--</span>
+                    </div>
+                </div>
+            </div>
         </section>
 
-        <!-- Middle Column: Presets -->
+        <!-- Middle Column: Effect Chain -->
         <section class="card">
-            <h2>Effects</h2>
+            <h2>Effect Chain</h2>
 
-            <div class="form-group">
-                <label>Preset</label>
-                <div class="preset-buttons-vertical">
-                    {% for level, config in presets %}
-                    <button type="button"
-                            class="preset-btn {% if level == 'none' %}active{% endif %}"
-                            data-preset="{{ level }}"
-                            hx-get="/partials/sliders?preset={{ level }}"
-                            hx-target="#sliders-area"
-                            hx-swap="innerHTML"
-                            onclick="selectPreset(this, '{{ level }}')">
-                        <strong>{{ config.name }}</strong>
-                        <small>{{ config.description }}</small>
-                    </button>
-                    {% endfor %}
-                </div>
-                <input type="hidden" name="preset" id="preset" value="none">
+            <!-- Visual Effect Chain -->
+            <div id="effect-chain-area"
+                 hx-get="/partials/effect-chain"
+                 hx-trigger="load"
+                 hx-swap="innerHTML">
+                <p class="placeholder">Loading effect chain...</p>
             </div>
 
-            <div id="sliders-area">
-                {% include "partials/slider_form.html" %}
+            <!-- Category Control Panel -->
+            <div id="category-panel-area">
+                {% include "partials/panel_volume.html" %}
             </div>
+
+            <!-- Hidden preset input for form submission -->
+            <input type="hidden" name="preset" id="preset" value="custom">
         </section>
 
         <!-- Right Column: Preview & History -->
@@ -181,12 +212,6 @@
 </form>
 
 <script>
-function selectPreset(btn, preset) {
-    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('preset').value = preset;
-}
-
 // Clip Range Slider Controller
 var ClipRangeController = (function() {
     var startSlider, endSlider, startInput, endInput;
@@ -393,7 +418,26 @@ var ClipRangeController = (function() {
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(function() {
             triggerPreview();
+            // Also update video preview if modal is open
+            if (isVideoFile && videoModal && videoModal.style.display !== 'none') {
+                updateVideoPreview();
+            }
         }, 300);
+    }
+
+    function updateVideoPreview() {
+        if (!currentFilename || !previewVideo || !isVideoFile) return;
+        var startTime = startInput.value;
+        var endTime = endInput.value;
+        var previewUrl = '/clip-video-preview?' +
+            'filename=' + encodeURIComponent(currentFilename) +
+            '&start=' + encodeURIComponent(startTime) +
+            '&end=' + encodeURIComponent(endTime);
+        previewVideo.src = previewUrl;
+        previewVideo.load();
+        previewVideo.play().catch(function(e) {
+            console.log('Video autoplay blocked:', e);
+        });
     }
 
     function onStartInputChange() {
@@ -445,6 +489,7 @@ var ClipRangeController = (function() {
             if (videoBtn) videoBtn.style.display = 'none';
             stopPreview();
             closeVideoModal();
+            hideMetadataDisplay();
             return;
         }
 
@@ -540,6 +585,7 @@ var ClipRangeController = (function() {
             .then(function(data) {
                 setMaxDuration(data.duration_ms);
                 container.style.display = 'block';
+                updateMetadataDisplay(data);
                 // Auto-open video modal for video files
                 if (isVideoFile) {
                     openVideoModal();
@@ -549,11 +595,81 @@ var ClipRangeController = (function() {
                 console.warn('Could not get duration:', err);
                 setMaxDuration(300000);
                 container.style.display = 'block';
+                hideMetadataDisplay();
                 // Auto-open video modal for video files even on duration error
                 if (isVideoFile) {
                     openVideoModal();
                 }
             });
+    }
+
+    function updateMetadataDisplay(data) {
+        var metadataEl = document.getElementById('file-metadata');
+        if (!metadataEl) return;
+
+        // Update filename and icon
+        var filenameEl = document.getElementById('metadata-filename');
+        var iconEl = document.getElementById('metadata-type-icon');
+        if (filenameEl) filenameEl.textContent = data.filename || '--';
+        if (iconEl) iconEl.innerHTML = data.file_type === 'video' ? '&#127909;' : '&#127925;';
+
+        // Update duration
+        var durationEl = document.getElementById('metadata-duration');
+        if (durationEl) durationEl.textContent = data.duration_formatted || '--';
+
+        // Update size
+        var sizeEl = document.getElementById('metadata-size');
+        if (sizeEl) sizeEl.textContent = data.size_formatted || '--';
+
+        // Resolution (video only)
+        var resItem = document.getElementById('metadata-resolution-item');
+        var resEl = document.getElementById('metadata-resolution');
+        if (data.width && data.height) {
+            if (resEl) resEl.textContent = data.width + 'x' + data.height + (data.frame_rate ? ' @ ' + data.frame_rate + 'fps' : '');
+            if (resItem) resItem.style.display = 'flex';
+        } else {
+            if (resItem) resItem.style.display = 'none';
+        }
+
+        // Video codec (video only)
+        var videoCodecItem = document.getElementById('metadata-video-codec-item');
+        var videoCodecEl = document.getElementById('metadata-video-codec');
+        if (data.video_codec) {
+            if (videoCodecEl) videoCodecEl.textContent = data.video_codec.toUpperCase();
+            if (videoCodecItem) videoCodecItem.style.display = 'flex';
+        } else {
+            if (videoCodecItem) videoCodecItem.style.display = 'none';
+        }
+
+        // Audio codec
+        var audioCodecItem = document.getElementById('metadata-audio-codec-item');
+        var audioCodecEl = document.getElementById('metadata-audio-codec');
+        if (data.audio_codec) {
+            var audioInfo = data.audio_codec.toUpperCase();
+            if (data.sample_rate) audioInfo += ' ' + Math.round(data.sample_rate / 1000) + 'kHz';
+            if (data.channels) audioInfo += ' ' + (data.channels === 1 ? 'Mono' : data.channels === 2 ? 'Stereo' : data.channels + 'ch');
+            if (audioCodecEl) audioCodecEl.textContent = audioInfo;
+            if (audioCodecItem) audioCodecItem.style.display = 'flex';
+        } else {
+            if (audioCodecItem) audioCodecItem.style.display = 'none';
+        }
+
+        // Bitrate
+        var bitrateItem = document.getElementById('metadata-bitrate-item');
+        var bitrateEl = document.getElementById('metadata-bitrate');
+        if (data.bit_rate_formatted) {
+            if (bitrateEl) bitrateEl.textContent = data.bit_rate_formatted;
+            if (bitrateItem) bitrateItem.style.display = 'flex';
+        } else {
+            if (bitrateItem) bitrateItem.style.display = 'none';
+        }
+
+        metadataEl.style.display = 'block';
+    }
+
+    function hideMetadataDisplay() {
+        var metadataEl = document.getElementById('file-metadata');
+        if (metadataEl) metadataEl.style.display = 'none';
     }
 
     function setMaxDuration(durationMs) {
