@@ -15,45 +15,39 @@ tasks:
   build:
     desc: Build the Docker image
     cmds:
-      - docker compose build
+      - pwsh ./scripts/docker-compose-wrapper.ps1 build
 
   up:
     desc: Start the application in detached mode
     cmds:
-      - docker compose up -d
-    deps: [setup]
-
-  setup:
-    desc: Setup directories for Docker volume mounts
-    cmds:
-      - pwsh ./scripts/setup-dirs.ps1
+      - pwsh ./scripts/docker-compose-wrapper.ps1 up -d
 
   down:
     desc: Stop and remove containers
     cmds:
-      - docker compose down
+      - pwsh ./scripts/docker-compose-wrapper.ps1 down
 
   restart:
     desc: Restart the application
     cmds:
-      - docker compose restart
+      - pwsh ./scripts/docker-compose-wrapper.ps1 restart
 
   logs:
     desc: Follow container logs
     cmds:
-      - docker compose logs -f
+      - pwsh ./scripts/docker-compose-wrapper.ps1 logs -f
 
   shell:
     desc: Open a shell in the running container
     cmds:
-      - docker compose exec audio-processor /bin/bash
+      - pwsh ./scripts/docker-compose-wrapper.ps1 exec audio-processor /bin/bash
 
   rebuild:
     desc: Rebuild and restart the application
     cmds:
-      - docker compose down
-      - docker compose build --no-cache
-      - docker compose up -d
+      - pwsh ./scripts/docker-compose-wrapper.ps1 down
+      - pwsh ./scripts/docker-compose-wrapper.ps1 build --no-cache
+      - pwsh ./scripts/docker-compose-wrapper.ps1 up -d
 
   # ============================================
   # Local Development (without Docker)
