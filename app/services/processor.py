@@ -38,12 +38,24 @@ def process_audio(
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     output_file = OUTPUT_DIR / f"processed_{timestamp}.mp3"
 
-    audio_filter = (
-        f"volume={volume},"
-        f"highpass=f={highpass},"
-        f"lowpass=f={lowpass},"
-        f"aecho=0.8:0.85:{delays}:{decays}"
-    )
+    # Check if all decay values are 0 (no echo effect)
+    decay_values = [float(d) for d in decays.split("|") if d.strip()]
+    has_echo = any(d > 0 for d in decay_values)
+
+    if has_echo:
+        audio_filter = (
+            f"volume={volume},"
+            f"highpass=f={highpass},"
+            f"lowpass=f={lowpass},"
+            f"aecho=0.8:0.85:{delays}:{decays}"
+        )
+    else:
+        # Skip aecho filter for "no effect" preset
+        audio_filter = (
+            f"volume={volume},"
+            f"highpass=f={highpass},"
+            f"lowpass=f={lowpass}"
+        )
 
     cmd = [
         "ffmpeg",

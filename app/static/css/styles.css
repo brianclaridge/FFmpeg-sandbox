@@ -855,3 +855,49 @@ input[type="range"].clip-range-end::-moz-range-thumb {
     height: auto;
     background: #000;
 }
+
+.video-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: var(--bg-secondary);
+}
+
+.video-ctrl-btn {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-card);
+    border: 1px solid var(--text-secondary);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.video-ctrl-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.video-ctrl-btn .play-icon,
+.video-ctrl-btn .pause-icon {
+    font-size: 1.1rem;
+}
+
+.video-loop-indicator {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+    opacity: 0.7;
+}

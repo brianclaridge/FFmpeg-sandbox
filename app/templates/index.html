@@ -121,6 +121,14 @@
                     <button type="button" class="video-modal-close" id="video-modal-close">&times;</button>
                 </div>
                 <video id="clip-preview-video" loop preload="none"></video>
+                <div class="video-modal-footer">
+                    <button type="button" id="video-play-btn" class="video-ctrl-btn" title="Play/Pause">
+                        <span class="play-icon">&#9654;</span>
+                        <span class="pause-icon" style="display:none;">&#10074;&#10074;</span>
+                    </button>
+                    <button type="button" id="video-stop-btn" class="video-ctrl-btn" title="Stop">&#9632;</button>
+                    <span class="video-loop-indicator" title="Looping">&#8734;</span>
+                </div>
             </div>
 
             <button type="submit" class="btn-primary">
@@ -215,6 +223,11 @@ var ClipRangeController = (function() {
         videoModal = document.getElementById('video-preview-modal');
         videoModalClose = document.getElementById('video-modal-close');
 
+        var videoPlayBtn = document.getElementById('video-play-btn');
+        var videoStopBtn = document.getElementById('video-stop-btn');
+        var videoPlayIcon = videoPlayBtn ? videoPlayBtn.querySelector('.play-icon') : null;
+        var videoPauseIcon = videoPlayBtn ? videoPlayBtn.querySelector('.pause-icon') : null;
+
         if (!startSlider || !endSlider) return;
 
         startSlider.addEventListener('input', onStartSliderChange);
@@ -231,6 +244,34 @@ var ClipRangeController = (function() {
         if (stopBtn) stopBtn.addEventListener('click', stopPreview);
         if (videoBtn) videoBtn.addEventListener('click', toggleVideoModal);
         if (videoModalClose) videoModalClose.addEventListener('click', closeVideoModal);
+
+        // Video modal controls
+        if (videoPlayBtn) videoPlayBtn.addEventListener('click', function() {
+            if (!previewVideo) return;
+            if (previewVideo.paused) {
+                previewVideo.play();
+            } else {
+                previewVideo.pause();
+            }
+        });
+        if (videoStopBtn) videoStopBtn.addEventListener('click', function() {
+            if (!previewVideo) return;
+            previewVideo.pause();
+            previewVideo.currentTime = 0;
+            updateVideoPlayState(false);
+        });
+        if (previewVideo) {
+            previewVideo.addEventListener('play', function() { updateVideoPlayState(true); });
+            previewVideo.addEventListener('pause', function() { updateVideoPlayState(false); });
+            previewVideo.addEventListener('ended', function() { updateVideoPlayState(false); });
+        }
+
+        function updateVideoPlayState(playing) {
+            if (videoPlayIcon && videoPauseIcon) {
+                videoPlayIcon.style.display = playing ? 'none' : 'inline';
+                videoPauseIcon.style.display = playing ? 'inline' : 'none';
+            }
+        }
 
         if (previewAudio) {
             previewAudio.addEventListener('play', function() { updatePlayState(true); });
