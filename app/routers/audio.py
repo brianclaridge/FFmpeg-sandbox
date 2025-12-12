@@ -45,12 +45,21 @@ async def process(
     lowpass: int = Form(4500),
     delays: str = Form("15|25|35|50"),
     decays: str = Form("0.35|0.3|0.25|0.2"),
+    volume_preset: str = Form("2x"),
+    tunnel_preset: str = Form("none"),
+    frequency_preset: str = Form("flat"),
 ):
     """Process audio and return preview partial."""
     input_path = INPUT_DIR / input_file
 
     if not input_path.exists():
         raise HTTPException(status_code=404, detail="Input file not found")
+
+    # Save preset selections to per-file .yml metadata
+    if input_file:
+        update_category_preset("volume", volume_preset, input_file)
+        update_category_preset("tunnel", tunnel_preset, input_file)
+        update_category_preset("frequency", frequency_preset, input_file)
 
     try:
         output_path = process_audio(
@@ -75,6 +84,9 @@ async def process(
             lowpass=lowpass,
             delays=delays,
             decays=decays,
+            volume_preset=volume_preset,
+            tunnel_preset=tunnel_preset,
+            frequency_preset=frequency_preset,
         )
 
         return templates.TemplateResponse(

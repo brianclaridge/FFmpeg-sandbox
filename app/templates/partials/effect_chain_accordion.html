@@ -20,7 +20,8 @@
                         hx-post="/partials/accordion-preset/volume/{{ preset_key }}"
                         hx-target="#effect-chain-accordion"
                         hx-swap="outerHTML"
-                        hx-vals="js:{filename: window.currentFilename || ''}">
+                        hx-vals="js:{filename: window.currentFilename || ''}"
+                        onclick="document.getElementById('volume_preset').value = '{{ preset_key }}'">
                     {{ config.name }}
                 </button>
                 {% endfor %}
@@ -62,7 +63,8 @@
                         hx-post="/partials/accordion-preset/tunnel/{{ preset_key }}"
                         hx-target="#effect-chain-accordion"
                         hx-swap="outerHTML"
-                        hx-vals="js:{filename: window.currentFilename || ''}">
+                        hx-vals="js:{filename: window.currentFilename || ''}"
+                        onclick="document.getElementById('tunnel_preset').value = '{{ preset_key }}'">
                     {{ config.name }}
                 </button>
                 {% endfor %}
@@ -109,7 +111,8 @@
                         hx-post="/partials/accordion-preset/frequency/{{ preset_key }}"
                         hx-target="#effect-chain-accordion"
                         hx-swap="outerHTML"
-                        hx-vals="js:{filename: window.currentFilename || ''}">
+                        hx-vals="js:{filename: window.currentFilename || ''}"
+                        onclick="document.getElementById('frequency_preset').value = '{{ preset_key }}'">
                     {{ config.name }}
                 </button>
                 {% endfor %}
