@@ -176,13 +176,16 @@ input[type="range"].clip-range-end::-moz-range-thumb {
     border-radius: var(--border-radius);
     overflow: hidden;
     position: relative;
+    width: 100%;
+    max-width: 100%;
 }
 
 .video-preview-container video {
     display: block;
     width: 100%;
+    max-width: 100%;
     height: auto;
-    max-height: 300px;
+    max-height: 250px;
     object-fit: contain;
     background: #000;
 }

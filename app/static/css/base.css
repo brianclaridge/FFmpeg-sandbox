@@ -19,32 +19,17 @@ body {
     background: var(--bg-primary);
     color: var(--text-primary);
     line-height: 1.6;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
 }
 
 .container {
     max-width: none;
     width: 100%;
-    margin: 0 auto;
-    padding: 2rem 10vw;
+    height: 100%;
+    padding: 10px;
     display: flex;
     flex-direction: column;
-    flex: 1;
-    justify-content: center;
+    overflow: hidden;
 }
 
-/* Only center when content fits viewport */
-@media (min-height: 900px) {
-    .container {
-        justify-content: center;
-    }
-}
-
-/* For smaller viewports, use normal flow */
-@media (max-height: 899px) {
-    .container {
-        justify-content: flex-start;
-    }
-}
