@@ -29,33 +29,6 @@
     background: var(--accent-hover);
 }
 
-/* Video Preview Button */
-.btn-video-preview {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 56px;
-    height: 56px;
-    padding: 0;
-    background: var(--bg-secondary);
-    border: 2px solid var(--accent);
-    border-radius: var(--border-radius);
-    color: var(--accent);
-    font-size: 1.75rem;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.btn-video-preview:hover {
-    background: var(--accent);
-    color: white;
-}
-
-.btn-video-preview.active {
-    background: var(--accent);
-    color: white;
-}
-
 /* Secondary Button */
 .btn-secondary {
     display: inline-block;
@@ -109,18 +82,4 @@
 .effect-chain-process {
     margin-top: 0;
     margin-bottom: 2rem;
-}
-
-/* Preview Header with inline video button */
-.preview-header {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.preview-header .btn-video-preview {
-    width: 32px;
-    height: 32px;
-    font-size: 1rem;
-    border-width: 1px;
 }

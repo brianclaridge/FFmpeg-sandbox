@@ -2,8 +2,8 @@
 
 {% block content %}
 <form id="process-form" hx-post="/process" hx-target="#preview-area" hx-swap="innerHTML">
-    <div class="grid-3">
-        <!-- Left Column: Source & Process -->
+    <div class="grid-4">
+        <!-- Column 1: Source -->
         <section class="card">
             <h2>Source</h2>
 
@@ -113,24 +113,6 @@
             <!-- Hidden audio preview for clip loop playback -->
             <audio id="clip-preview-audio" loop preload="none" style="display: none;"></audio>
 
-            <!-- Draggable Video Preview Modal -->
-            <div id="video-preview-modal" class="video-modal" style="display: none;">
-                <div class="video-modal-header">
-                    <span class="video-modal-title">Video Preview</span>
-                    <button type="button" class="video-modal-close" id="video-modal-close">&times;</button>
-                </div>
-                <div class="video-loading" id="video-loading">Loading...</div>
-                <video id="clip-preview-video" loop preload="none"></video>
-                <div class="video-modal-footer">
-                    <button type="button" id="video-play-btn" class="video-ctrl-btn" title="Play/Pause">
-                        <span class="play-icon">&#9654;</span>
-                        <span class="pause-icon" style="display:none;">&#10074;&#10074;</span>
-                    </button>
-                    <button type="button" id="video-stop-btn" class="video-ctrl-btn" title="Stop">&#9632;</button>
-                    <button type="button" id="video-loop-btn" class="video-ctrl-btn loop-btn active" title="Toggle Loop">&#8734;</button>
-                </div>
-            </div>
-
             <div class="process-row">
                 <button type="submit" class="btn-primary btn-extract"
                         hx-post="/extract"
@@ -176,7 +158,15 @@
             </div>
         </section>
 
-        <!-- Middle Column: Effect Chain -->
+        <!-- Column 2: History -->
+        <section class="card">
+            <h2>History</h2>
+            <div id="history-area" hx-get="/history" hx-trigger="load" hx-target="this" hx-swap="innerHTML">
+                <p class="placeholder">Loading history...</p>
+            </div>
+        </section>
+
+        <!-- Column 3: Effect Chain -->
         <section class="card">
             <h2>Effect Chain</h2>
 
@@ -199,21 +189,26 @@
             <input type="hidden" name="frequency_preset" id="frequency_preset" value="{{ user_settings.frequency.preset }}">
         </section>
 
-        <!-- Right Column: Preview & History -->
+        <!-- Column 4: Preview -->
         <section class="card">
-            <h2 class="preview-header">
-                Preview
-                <button type="button" id="clip-video-btn" class="btn-video-preview" title="Video Preview" style="display:none;">
-                    <span>🎥</span>
-                </button>
-            </h2>
-            <div id="preview-area">
-                <p class="placeholder">Processed audio will appear here</p>
+            <h2>Preview</h2>
+
+            <!-- Inline Video Preview (auto-shown for video files) -->
+            <div id="video-preview-container" class="video-preview-container" style="display: none;">
+                <div class="video-loading" id="video-loading">Loading...</div>
+                <video id="clip-preview-video" loop preload="none"></video>
+                <div class="video-controls">
+                    <button type="button" id="video-play-btn" class="video-ctrl-btn" title="Play/Pause">
+                        <span class="play-icon">&#9654;</span>
+                        <span class="pause-icon" style="display:none;">&#10074;&#10074;</span>
+                    </button>
+                    <button type="button" id="video-stop-btn" class="video-ctrl-btn" title="Stop">&#9632;</button>
+                    <button type="button" id="video-loop-btn" class="video-ctrl-btn loop-btn active" title="Toggle Loop">&#8734;</button>
+                </div>
             </div>
 
-            <h2>History</h2>
-            <div id="history-area" hx-get="/history" hx-trigger="load" hx-target="this" hx-swap="innerHTML">
-                <p class="placeholder">Loading history...</p>
+            <div id="preview-area">
+                <p class="placeholder">Processed audio will appear here</p>
             </div>
         </section>
     </div>
@@ -224,9 +219,8 @@
 var ClipRangeController = (function() {
     var startSlider, endSlider, startInput, endInput;
     var startLabel, endLabel, durationLabel, rangeFill;
-    var previewAudio, previewVideo, container;
-    var playBtn, stopBtn, videoBtn, playIcon, pauseIcon;
-    var videoModal, videoModalClose;
+    var previewAudio, previewVideo, container, videoContainer;
+    var playBtn, stopBtn, playIcon, pauseIcon;
     var maxDurationMs = 10000;
     window.currentFilename = null;
     var debounceTimer = null;
@@ -246,17 +240,14 @@ var ClipRangeController = (function() {
         previewAudio = document.getElementById('clip-preview-audio');
         previewVideo = document.getElementById('clip-preview-video');
         container = document.getElementById('clip-range-container');
+        videoContainer = document.getElementById('video-preview-container');
 
         playBtn = document.getElementById('clip-play-btn');
         stopBtn = document.getElementById('clip-stop-btn');
-        videoBtn = document.getElementById('clip-video-btn');
         playIcon = playBtn ? playBtn.querySelector('.play-icon') : null;
         pauseIcon = playBtn ? playBtn.querySelector('.pause-icon') : null;
 
-        videoModal = document.getElementById('video-preview-modal');
-        videoModalClose = document.getElementById('video-modal-close');
         var videoLoading = document.getElementById('video-loading');
-
         var videoPlayBtn = document.getElementById('video-play-btn');
         var videoStopBtn = document.getElementById('video-stop-btn');
         var videoPlayIcon = videoPlayBtn ? videoPlayBtn.querySelector('.play-icon') : null;
@@ -279,8 +270,6 @@ var ClipRangeController = (function() {
 
         if (playBtn) playBtn.addEventListener('click', togglePlay);
         if (stopBtn) stopBtn.addEventListener('click', stopPreview);
-        if (videoBtn) videoBtn.addEventListener('click', toggleVideoModal);
-        if (videoModalClose) videoModalClose.addEventListener('click', closeVideoModal);
 
         // Clip audio loop toggle
         if (clipLoopBtn) clipLoopBtn.addEventListener('click', function() {
@@ -290,7 +279,7 @@ var ClipRangeController = (function() {
             }
         });
 
-        // Video modal controls
+        // Video controls
         if (videoPlayBtn) videoPlayBtn.addEventListener('click', function() {
             if (!previewVideo) return;
             if (previewVideo.paused) {
@@ -344,7 +333,6 @@ var ClipRangeController = (function() {
             }
         });
 
-        initDraggable();
         updateFill();
     }
 
@@ -358,13 +346,6 @@ var ClipRangeController = (function() {
 
     function togglePlay() {
         if (!currentFilename) return;
-        // If video modal open, control video instead of audio
-        if (videoModal && videoModal.style.display !== 'none') {
-            if (previewVideo) {
-                previewVideo.paused ? previewVideo.play() : previewVideo.pause();
-            }
-            return;
-        }
         if (isPlaying) {
             previewAudio.pause();
         } else {
@@ -440,8 +421,8 @@ var ClipRangeController = (function() {
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(function() {
             triggerPreview();
-            // Also update video preview if modal is open
-            if (isVideoFile && videoModal && videoModal.style.display !== 'none') {
+            // Update inline video preview if visible
+            if (isVideoFile && videoContainer && videoContainer.style.display !== 'none') {
                 updateVideoPreview();
             }
         }, 300);
@@ -508,9 +489,8 @@ var ClipRangeController = (function() {
             container.style.display = 'none';
             window.currentFilename = null;
             isVideoFile = false;
-            if (videoBtn) videoBtn.style.display = 'none';
+            hideVideoPreview();
             stopPreview();
-            closeVideoModal();
             hideMetadataDisplay();
             // Reload effect chain with no file (default settings)
             reloadEffectChain(null);
@@ -521,7 +501,6 @@ var ClipRangeController = (function() {
         var videoExts = ['.mp4', '.mkv', '.avi', '.mov', '.webm'];
         var ext = filename.toLowerCase().substring(filename.lastIndexOf('.'));
         isVideoFile = videoExts.indexOf(ext) !== -1;
-        if (videoBtn) videoBtn.style.display = isVideoFile ? 'inline-block' : 'none';
         fetchDuration(filename);
         // Reload effect chain with file-specific settings
         reloadEffectChain(filename);
@@ -535,17 +514,8 @@ var ClipRangeController = (function() {
         htmx.ajax('GET', url, {target: '#effect-chain-area', swap: 'innerHTML'});
     }
 
-    function toggleVideoModal() {
-        if (!videoModal || !isVideoFile) return;
-        if (videoModal.style.display === 'none') {
-            openVideoModal();
-        } else {
-            closeVideoModal();
-        }
-    }
-
-    function openVideoModal() {
-        if (!videoModal || !currentFilename || !isVideoFile) return;
+    function showVideoPreview() {
+        if (!videoContainer || !currentFilename || !isVideoFile) return;
         var startTime = startInput.value;
         var endTime = endInput.value;
         var previewUrl = '/clip-video-preview?' +
@@ -554,55 +524,19 @@ var ClipRangeController = (function() {
             '&end=' + encodeURIComponent(endTime);
         previewVideo.src = previewUrl;
         previewVideo.load();
-        videoModal.style.display = 'block';
-        if (videoBtn) videoBtn.classList.add('active');
+        videoContainer.style.display = 'block';
         previewVideo.play().catch(function(e) {
             console.log('Video autoplay blocked:', e);
         });
     }
 
-    function closeVideoModal() {
-        if (!videoModal) return;
-        videoModal.style.display = 'none';
-        if (videoBtn) videoBtn.classList.remove('active');
+    function hideVideoPreview() {
+        if (!videoContainer) return;
+        videoContainer.style.display = 'none';
         if (previewVideo) {
             previewVideo.pause();
             previewVideo.src = '';
         }
-    }
-
-    function initDraggable() {
-        if (!videoModal) return;
-        var header = videoModal.querySelector('.video-modal-header');
-        if (!header) return;
-
-        var isDragging = false;
-        var offsetX = 0, offsetY = 0;
-
-        header.addEventListener('mousedown', function(e) {
-            if (e.target.classList.contains('video-modal-close')) return;
-            isDragging = true;
-            offsetX = e.clientX - videoModal.offsetLeft;
-            offsetY = e.clientY - videoModal.offsetTop;
-            header.style.cursor = 'grabbing';
-        });
-
-        document.addEventListener('mousemove', function(e) {
-            if (!isDragging) return;
-            var newX = e.clientX - offsetX;
-            var newY = e.clientY - offsetY;
-            newX = Math.max(0, Math.min(newX, window.innerWidth - videoModal.offsetWidth));
-            newY = Math.max(0, Math.min(newY, window.innerHeight - videoModal.offsetHeight));
-            videoModal.style.left = newX + 'px';
-            videoModal.style.top = newY + 'px';
-            videoModal.style.right = 'auto';
-            videoModal.style.bottom = 'auto';
-        });
-
-        document.addEventListener('mouseup', function() {
-            isDragging = false;
-            header.style.cursor = 'grab';
-        });
     }
 
     function fetchDuration(filename) {
@@ -611,7 +545,6 @@ var ClipRangeController = (function() {
         var ext = filename.toLowerCase().substring(filename.lastIndexOf('.'));
         isVideoFile = videoExts.indexOf(ext) !== -1;
         window.currentFilename = filename;
-        if (videoBtn) videoBtn.style.display = isVideoFile ? 'inline-block' : 'none';
 
         fetch('/duration/' + encodeURIComponent(filename))
             .then(function(response) {
@@ -622,9 +555,11 @@ var ClipRangeController = (function() {
                 setMaxDuration(data.duration_ms);
                 container.style.display = 'block';
                 updateMetadataDisplay(data);
-                // Auto-open video modal for video files
+                // Auto-show inline video for video files
                 if (isVideoFile) {
-                    openVideoModal();
+                    showVideoPreview();
+                } else {
+                    hideVideoPreview();
                 }
             })
             .catch(function(err) {
@@ -632,9 +567,11 @@ var ClipRangeController = (function() {
                 setMaxDuration(300000);
                 container.style.display = 'block';
                 hideMetadataDisplay();
-                // Auto-open video modal for video files even on duration error
+                // Auto-show inline video for video files even on duration error
                 if (isVideoFile) {
-                    openVideoModal();
+                    showVideoPreview();
+                } else {
+                    hideVideoPreview();
                 }
             });
     }
@@ -748,7 +685,6 @@ var ClipRangeController = (function() {
             previewAudio.src = '';
         }
         updatePlayState(false);
-        closeVideoModal();
     }
 
     function setRange(startMs, endMs) {
@@ -772,7 +708,7 @@ var ClipRangeController = (function() {
         setMaxDuration: setMaxDuration,
         fetchDuration: fetchDuration,
         stopPreview: stopPreview,
-        closeVideoModal: closeVideoModal,
+        hideVideoPreview: hideVideoPreview,
         setRange: setRange,
         timestampToMs: getTimestampToMs
     };
