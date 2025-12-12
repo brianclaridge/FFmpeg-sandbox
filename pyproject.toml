@@ -1,5 +1,5 @@
 [project]
-name = "audio-processor"
+name = "brianclaridge-ffmpeg-sandbox"
 version = "0.1.0"
 description = "Audio extraction and processing SPA with tunnel/reverb effects"
 requires-python = ">=3.11"
