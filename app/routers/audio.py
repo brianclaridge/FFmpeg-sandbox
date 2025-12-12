@@ -376,7 +376,7 @@ async def get_category_panel(request: Request, category: str, filename: str | No
 
 
 @router.post("/partials/category-preset/{category}/{preset}", response_class=HTMLResponse)
-async def set_category_preset(request: Request, category: str, preset: str, filename: str | None = None):
+async def set_category_preset(request: Request, category: str, preset: str, filename: str = Form("")):
     """Update a category's preset selection (legacy endpoint - redirects to accordion)."""
     user_settings = update_category_preset(category, preset, filename)
     context = _get_accordion_context(user_settings, filename)
@@ -398,7 +398,7 @@ async def get_accordion_section(request: Request, category: str, filename: str |
 
 
 @router.post("/partials/accordion-preset/{category}/{preset}", response_class=HTMLResponse)
-async def set_accordion_preset(request: Request, category: str, preset: str, filename: str | None = None):
+async def set_accordion_preset(request: Request, category: str, preset: str, filename: str = Form("")):
     """Update a category's preset and return updated accordion."""
     if category not in ("volume", "tunnel", "frequency"):
         raise HTTPException(status_code=404, detail="Category not found")
