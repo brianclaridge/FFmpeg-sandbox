@@ -96,3 +96,31 @@
     border-color: var(--error);
     color: var(--error);
 }
+
+/* Extract Button - secondary style but full width like primary */
+.btn-extract {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+/* Effect Chain Process Row - reduced top margin */
+.effect-chain-process {
+    margin-top: 0;
+    margin-bottom: 1rem;
+}
+
+/* Preview Header with inline video button */
+.preview-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.preview-header .btn-video-preview {
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+    border-width: 1px;
+}

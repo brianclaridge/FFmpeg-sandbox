@@ -109,6 +109,68 @@ async def process(
         )
 
 
+@router.post("/extract", response_class=HTMLResponse)
+async def extract(
+    request: Request,
+    input_file: str = Form(...),
+    start_time: str = Form(config.audio.default_start_time),
+    end_time: str = Form(config.audio.default_end_time),
+):
+    """Extract audio from video without applying effects."""
+    input_path = INPUT_DIR / input_file
+
+    if not input_path.exists():
+        raise HTTPException(status_code=404, detail="Input file not found")
+
+    try:
+        # Extract audio with neutral settings (no effects)
+        output_path = process_audio(
+            input_file=input_path,
+            start_time=start_time,
+            end_time=end_time,
+            volume=1.0,        # No volume change
+            highpass=20,       # Minimal high-pass (full bass)
+            lowpass=20000,     # Minimal low-pass (full treble)
+            delays="1",        # Minimal delay
+            decays="0",        # No echo effect
+        )
+
+        add_history_entry(
+            input_file=input_file,
+            output_file=output_path.name,
+            start_time=start_time,
+            end_time=end_time,
+            preset="extract",
+            volume=1.0,
+            highpass=20,
+            lowpass=20000,
+            delays="1",
+            decays="0",
+            volume_preset="1x",
+            tunnel_preset="none",
+            frequency_preset="flat",
+        )
+
+        return templates.TemplateResponse(
+            "partials/preview.html",
+            {
+                "request": request,
+                "output_file": output_path.name,
+                "success": True,
+            },
+        )
+    except Exception as e:
+        logger.exception("Extraction failed")
+        return templates.TemplateResponse(
+            "partials/preview.html",
+            {
+                "request": request,
+                "error": str(e),
+                "success": False,
+            },
+        )
+
+
 @router.get("/preview/{filename}")
 async def preview_audio(filename: str):
     """Serve processed audio file."""

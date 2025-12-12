@@ -132,12 +132,12 @@
             </div>
 
             <div class="process-row">
-                <button type="submit" class="btn-primary">
-                    <span class="htmx-indicator">Processing...</span>
-                    <span class="btn-text">Process</span>
-                </button>
-                <button type="button" id="clip-video-btn" class="btn-video-preview" title="Video Preview" style="display:none;">
-                    <span>🎥</span>
+                <button type="submit" class="btn-secondary btn-extract"
+                        hx-post="/extract"
+                        hx-target="#preview-area"
+                        hx-swap="innerHTML">
+                    <span class="htmx-indicator">Extracting...</span>
+                    <span class="btn-text">Extract MP3</span>
                 </button>
             </div>
 
@@ -180,6 +180,13 @@
         <section class="card">
             <h2>Effect Chain</h2>
 
+            <div class="process-row effect-chain-process">
+                <button type="submit" class="btn-primary">
+                    <span class="htmx-indicator">Processing...</span>
+                    <span class="btn-text">Process</span>
+                </button>
+            </div>
+
             <!-- Effect Chain Accordion -->
             <div id="effect-chain-area">
                 {% include "partials/effect_chain_accordion.html" %}
@@ -194,7 +201,12 @@
 
         <!-- Right Column: Preview & History -->
         <section class="card">
-            <h2>Preview</h2>
+            <h2 class="preview-header">
+                Preview
+                <button type="button" id="clip-video-btn" class="btn-video-preview" title="Video Preview" style="display:none;">
+                    <span>🎥</span>
+                </button>
+            </h2>
             <div id="preview-area">
                 <p class="placeholder">Processed audio will appear here</p>
             </div>
