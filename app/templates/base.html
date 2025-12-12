@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FFmpeg-sandbox</title>
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
-    <link rel="stylesheet" href="{{ url_for('static', path='/css/themes.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', path='/css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/themes.css') }}?v={{ cache_version }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/styles.css') }}?v={{ cache_version }}">
     <script>
         // Apply saved theme immediately to prevent flash
         (function() {

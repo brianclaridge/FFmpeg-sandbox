@@ -1,6 +1,7 @@
 """FastAPI application entry point."""
 
 import logging
+import subprocess
 import sys
 
 from fastapi import FastAPI, Request
@@ -79,6 +80,28 @@ app.include_router(history.router)
 app.include_router(download.router)
 
 templates = Jinja2Templates(directory="app/templates")
+
+
+def get_git_hash() -> str:
+    """Get current git commit short hash for cache busting."""
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "--short", "HEAD"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        if result.returncode == 0:
+            return result.stdout.strip()
+    except Exception:
+        pass
+    return "dev"
+
+
+# Cache bust version (computed once at startup)
+CACHE_VERSION = get_git_hash()
+templates.env.globals["cache_version"] = CACHE_VERSION
+logger.info(f"Cache version: {CACHE_VERSION}")
 
 
 @app.get("/", response_class=HTMLResponse)
