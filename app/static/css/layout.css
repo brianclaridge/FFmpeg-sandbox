@@ -27,6 +27,17 @@ header h1 {
     text-decoration: underline;
 }
 
+.header-attribution .github-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-left: 1rem;
+}
+
+.header-attribution .github-link svg {
+    vertical-align: middle;
+}
+
 .theme-selector select {
     padding: 0.4rem 0.75rem;
     background: var(--bg-secondary);
