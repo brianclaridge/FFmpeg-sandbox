@@ -105,10 +105,10 @@
     font-weight: bold;
 }
 
-/* Effect Chain Process Row - reduced top margin */
+/* Effect Chain Process Row */
 .effect-chain-process {
     margin-top: 0;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
 }
 
 /* Preview Header with inline video button */
