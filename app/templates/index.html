@@ -736,12 +736,30 @@ var ClipRangeController = (function() {
         closeVideoModal();
     }
 
+    function setRange(startMs, endMs) {
+        if (!startSlider || !endSlider) return;
+        startMs = Math.max(0, Math.min(startMs, maxDurationMs - MIN_CLIP_MS));
+        endMs = Math.max(startMs + MIN_CLIP_MS, Math.min(endMs, maxDurationMs));
+
+        startSlider.value = startMs;
+        endSlider.value = endMs;
+        startInput.value = msToTimestamp(startMs);
+        endInput.value = msToTimestamp(endMs);
+        updateFill();
+    }
+
+    function getTimestampToMs() {
+        return timestampToMs;
+    }
+
     return {
         init: init,
         setMaxDuration: setMaxDuration,
         fetchDuration: fetchDuration,
         stopPreview: stopPreview,
-        closeVideoModal: closeVideoModal
+        closeVideoModal: closeVideoModal,
+        setRange: setRange,
+        timestampToMs: getTimestampToMs
     };
 })();
 
@@ -788,6 +806,17 @@ document.addEventListener('DOMContentLoaded', function() {
             ClipRangeController.stopPreview();
         });
     }
+
+    // Handle historyApplied event from Apply button
+    document.body.addEventListener('historyApplied', function(e) {
+        var data = e.detail;
+        if (data && data.startTime && data.endTime) {
+            var timestampToMs = ClipRangeController.timestampToMs();
+            var startMs = timestampToMs(data.startTime);
+            var endMs = timestampToMs(data.endTime);
+            ClipRangeController.setRange(startMs, endMs);
+        }
+    });
 });
 </script>
 {% endblock %}

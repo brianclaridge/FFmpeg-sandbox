@@ -39,6 +39,14 @@
     margin-top: 0.5rem;
 }
 
+.preview-filename {
+    color: var(--text-primary);
+    font-weight: 500;
+    font-size: 0.9rem;
+    word-break: break-all;
+    margin-bottom: 0.75rem;
+}
+
 /* History List */
 .history-list {
     list-style: none;
@@ -69,6 +77,11 @@
 .history-actions {
     display: flex;
     gap: 0.25rem;
+}
+
+.history-item--selected {
+    border-left: 3px solid var(--accent);
+    background-color: var(--bg-input);
 }
 
 /* HTMX Indicators */

@@ -1,0 +1,12 @@
+<div class="preview-success">
+    <p class="preview-filename">{{ entry.output_file }}</p>
+    <audio controls autoplay>
+        <source src="/preview/{{ entry.output_file }}" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    <div class="preview-actions">
+        <a href="/preview/{{ entry.output_file }}" download="{{ entry.output_file }}" class="btn-secondary">
+            Download
+        </a>
+    </div>
+</div>

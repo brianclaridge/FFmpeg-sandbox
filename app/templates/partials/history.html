@@ -1,7 +1,7 @@
 {% if history %}
 <ul class="history-list">
     {% for entry in history %}
-    <li class="history-item">
+    <li class="history-item" data-entry-id="{{ entry.id }}">
         <div class="history-info">
             <strong>{{ entry.output_file }}</strong>
             <small>{{ entry.timestamp.strftime('%Y-%m-%d %H:%M') }} | {{ entry.start_time }} - {{ entry.end_time }}</small>
@@ -10,13 +10,18 @@
         <div class="history-actions">
             <button class="btn-small"
                     hx-get="/history/{{ entry.id }}/apply"
-                    hx-target="#sliders-area"
+                    hx-target="#effect-chain-area"
                     hx-swap="innerHTML"
+                    hx-vals="js:{filename: window.currentFilename || ''}"
+                    onclick="selectHistoryItem(this)"
                     title="Apply settings">
                 Apply
             </button>
-            <button type="button" class="btn-small btn-play"
-                    onclick="togglePlay(this, '/preview/{{ entry.output_file }}')"
+            <button class="btn-small btn-play"
+                    hx-get="/history/{{ entry.id }}/preview"
+                    hx-target="#preview-area"
+                    hx-swap="innerHTML"
+                    onclick="selectHistoryItem(this)"
                     title="Play">
                 Play
             </button>
@@ -32,29 +37,16 @@
     </li>
     {% endfor %}
 </ul>
-<audio id="history-player" style="display:none;"></audio>
 <script>
-var currentPlayer = document.getElementById('history-player');
-var currentBtn = null;
-
-function togglePlay(btn, src) {
-    if (currentBtn === btn && !currentPlayer.paused) {
-        currentPlayer.pause();
-        btn.textContent = 'Play';
-        return;
+function selectHistoryItem(btn) {
+    document.querySelectorAll('.history-item').forEach(function(item) {
+        item.classList.remove('history-item--selected');
+    });
+    var item = btn.closest('.history-item');
+    if (item) {
+        item.classList.add('history-item--selected');
     }
-    if (currentBtn && currentBtn !== btn) {
-        currentBtn.textContent = 'Play';
-    }
-    currentPlayer.src = src;
-    currentPlayer.play();
-    btn.textContent = 'Stop';
-    currentBtn = btn;
 }
-
-currentPlayer.onended = function() {
-    if (currentBtn) currentBtn.textContent = 'Play';
-};
 </script>
 {% else %}
 <p class="placeholder">No processing history yet</p>
