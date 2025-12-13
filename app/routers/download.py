@@ -8,7 +8,7 @@ from loguru import logger
 
 from app.config import INPUT_DIR
 from app.services.downloader import download_video, validate_url, get_video_info
-from app.services.processor import get_input_files
+from app.services import get_input_files
 
 router = APIRouter(prefix="/download")
 templates = Jinja2Templates(directory="app/templates")

@@ -37,7 +37,7 @@ from app.services.settings import (
     update_active_category,
     update_active_tab,
 )
-from app.services.processor import (
+from app.services import (
     process_audio,
     process_audio_with_effects,
     process_video_with_effects,

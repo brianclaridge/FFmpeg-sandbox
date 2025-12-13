@@ -31,7 +31,7 @@ from app.models import (
     TRANSFORM_PRESETS, TRANSFORM_PRESETS_BY_STR, TransformPreset,
 )
 from app.routers import audio, history, download
-from app.services.processor import get_input_files
+from app.services import get_input_files
 from app.services.settings import load_user_settings
 
 
