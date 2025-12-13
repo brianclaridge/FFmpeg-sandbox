@@ -76,7 +76,7 @@ def get_default_settings() -> dict[str, Any]:
     """Return default effect chain settings."""
     return {
         "active_category": "volume",
-        "volume": {"preset": "2x", "custom_values": {}},
+        "volume": {"preset": "none", "custom_values": {}},
         "tunnel": {"preset": "none", "custom_values": {}},
         "frequency": {"preset": "flat", "custom_values": {}},
     }
@@ -87,8 +87,9 @@ def create_file_metadata(
     url: str,
     title: str,
     uploader: str,
-    duration: int,
-    extractor: str,
+    uploader_url: str = "",
+    duration: int = 0,
+    extractor: str = "",
     tags: list[str] | None = None,
 ) -> dict[str, Any]:
     """Create initial metadata for a newly downloaded file."""
@@ -97,6 +98,7 @@ def create_file_metadata(
             "url": url,
             "title": title,
             "uploader": uploader,
+            "uploader_url": uploader_url,
             "duration": duration,
             "extractor": extractor,
             "tags": tags or [],

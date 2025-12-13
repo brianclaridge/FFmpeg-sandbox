@@ -133,6 +133,12 @@ footer {
     letter-spacing: 0.05em;
 }
 
+.section-divider-heading {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--bg-secondary);
+}
+
 .url-input-group {
     display: flex;
     gap: 0.5rem;

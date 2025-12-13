@@ -77,6 +77,7 @@ PRESETS: dict[PresetLevel, PresetConfig] = {
 # ============ CATEGORY: VOLUME ============
 class VolumePreset(str, Enum):
     """Volume/gain presets."""
+    NONE = "none"
     X1 = "1x"
     X1_5 = "1.5x"
     X2 = "2x"
@@ -92,6 +93,11 @@ class VolumeConfig(BaseModel):
 
 
 VOLUME_PRESETS: dict[VolumePreset, VolumeConfig] = {
+    VolumePreset.NONE: VolumeConfig(
+        name="None",
+        description="No effect (original)",
+        volume=1.0,
+    ),
     VolumePreset.X1: VolumeConfig(
         name="1x",
         description="Original volume",
@@ -238,7 +244,7 @@ class CategorySettings(BaseModel):
 
 class UserSettings(BaseModel):
     """Complete user settings for all categories."""
-    volume: CategorySettings = CategorySettings(preset="2x")
+    volume: CategorySettings = CategorySettings(preset="none")
     tunnel: CategorySettings = CategorySettings(preset="none")
     frequency: CategorySettings = CategorySettings(preset="flat")
     active_category: str = "volume"
@@ -250,11 +256,11 @@ class ProcessRequest(BaseModel):
     start_time: str = "00:00:00"
     end_time: str = "00:00:06"
     preset: PresetLevel = PresetLevel.NONE
-    volume: float = Field(default=2.0, ge=0.5, le=4.0)
-    highpass: int = Field(default=100, ge=50, le=500)
-    lowpass: int = Field(default=4500, ge=2000, le=8000)
-    delays: str = "15|25|35|50"
-    decays: str = "0.35|0.3|0.25|0.2"
+    volume: float = Field(default=1.0, ge=0.0, le=4.0)
+    highpass: int = Field(default=20, ge=20, le=500)
+    lowpass: int = Field(default=20000, ge=2000, le=20000)
+    delays: str = "1"
+    decays: str = "0"
 
 
 class HistoryEntry(BaseModel):
@@ -272,6 +278,6 @@ class HistoryEntry(BaseModel):
     delays: str
     decays: str
     # Effect chain preset names
-    volume_preset: str = "2x"
+    volume_preset: str = "none"
     tunnel_preset: str = "none"
     frequency_preset: str = "flat"

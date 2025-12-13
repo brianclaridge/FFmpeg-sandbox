@@ -31,7 +31,7 @@
                 <div class="form-group">
                     <label for="volume">Volume: <span id="volume-value">{{ volume_current.volume }}</span>x</label>
                     <input type="range" name="volume" id="volume"
-                           min="0.5" max="4" step="0.1"
+                           min="0" max="4" step="0.1"
                            value="{{ volume_current.volume }}"
                            oninput="document.getElementById('volume-value').textContent = this.value; updateVolumePresetPills(this.value);">
                 </div>
@@ -40,8 +40,8 @@
         {% endif %}
     </div>
 
-    <!-- Arrow -->
-    <div class="accordion-arrow">&#8595;</div>
+    <!-- Connector Line -->
+    <div class="accordion-connector"></div>
 
     <!-- Tunnel Section -->
     <div class="accordion-section {% if user_settings.active_category == 'tunnel' %}expanded{% endif %}">
@@ -88,8 +88,8 @@
         {% endif %}
     </div>
 
-    <!-- Arrow -->
-    <div class="accordion-arrow">&#8595;</div>
+    <!-- Connector Line -->
+    <div class="accordion-connector"></div>
 
     <!-- Frequency Section -->
     <div class="accordion-section {% if user_settings.active_category == 'frequency' %}expanded{% endif %}">

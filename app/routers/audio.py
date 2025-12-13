@@ -46,7 +46,7 @@ async def process(
     lowpass: int = Form(20000),
     delays: str = Form("1"),
     decays: str = Form("0"),
-    volume_preset: str = Form("1x"),
+    volume_preset: str = Form("none"),
     tunnel_preset: str = Form("none"),
     frequency_preset: str = Form("flat"),
 ):
@@ -278,6 +278,7 @@ async def get_duration(filename: str):
     metadata["title"] = source.get("title", "")
     metadata["tags"] = source.get("tags", [])
     metadata["uploader"] = source.get("uploader", "")
+    metadata["uploader_url"] = source.get("uploader_url", "")
     metadata["source_url"] = source.get("url", "")
 
     return JSONResponse(metadata)

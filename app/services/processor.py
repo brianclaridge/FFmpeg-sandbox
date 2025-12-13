@@ -26,7 +26,7 @@ def process_audio(
         input_file: Path to source video/audio file
         start_time: Start timestamp (HH:MM:SS or HH:MM:SS.mmm)
         end_time: End timestamp (HH:MM:SS or HH:MM:SS.mmm)
-        volume: Volume multiplier (0.5-4.0)
+        volume: Volume multiplier (0.0-4.0, 0=muted, 1=original)
         highpass: High-pass filter frequency in Hz
         lowpass: Low-pass filter frequency in Hz
         delays: Pipe-separated delay values in ms
@@ -42,6 +42,9 @@ def process_audio(
     decay_values = [float(d) for d in decays.split("|") if d.strip()]
     has_echo = any(d > 0 for d in decay_values)
 
+    # Check if volume is muted (0)
+    is_muted = volume < 0.01
+
     # Check if all settings are neutral (no processing needed)
     is_neutral = (
         abs(volume - 1.0) < 0.01 and
@@ -50,7 +53,21 @@ def process_audio(
         not has_echo
     )
 
-    if is_neutral:
+    if is_muted:
+        # Produce silent audio without filter processing
+        cmd = [
+            "ffmpeg",
+            "-y",
+            "-i", str(input_file),
+            "-ss", start_time,
+            "-to", end_time,
+            "-vn",
+            "-af", "volume=0",
+            "-acodec", "libmp3lame",
+            "-q:a", "4",
+            str(output_file),
+        ]
+    elif is_neutral:
         # Pure extraction - no audio filters applied
         cmd = [
             "ffmpeg",

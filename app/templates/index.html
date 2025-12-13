@@ -75,9 +75,15 @@
                     <span class="metadata-filename" id="metadata-filename">filename.mp4</span>
                 </div>
                 <div class="metadata-title-row" id="metadata-title-row" style="display: none;">
-                    <span class="metadata-title" id="metadata-title"></span>
-                    <a href="#" id="metadata-source-link" class="metadata-source-link" target="_blank" title="Open source">
-                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    <a href="#" id="metadata-title-link" class="metadata-title-link" target="_blank">
+                        <span class="metadata-title" id="metadata-title"></span>
+                        <i class="fa-solid fa-arrow-up-right-from-square metadata-link-icon"></i>
+                    </a>
+                </div>
+                <div class="metadata-uploader-row" id="metadata-uploader-row" style="display: none;">
+                    <a href="#" id="metadata-uploader-link" class="metadata-uploader-link" target="_blank">
+                        <span id="metadata-uploader"></span>
+                        <i class="fa-solid fa-arrow-up-right-from-square metadata-link-icon"></i>
                     </a>
                 </div>
                 <div class="metadata-grid">
@@ -111,9 +117,26 @@
                 </div>
             </div>
 
-            <!-- Clip Range Slider -->
+            <!-- Hidden audio preview for clip loop playback -->
+            <audio id="clip-preview-audio" loop preload="none" style="display: none;"></audio>
+
+            <div class="process-row">
+                <button type="submit" class="btn-primary btn-extract"
+                        hx-post="/extract"
+                        hx-target="#preview-area"
+                        hx-swap="innerHTML">
+                    <span class="htmx-indicator">Extracting...</span>
+                    <span class="btn-text">Extract MP3</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Column 2: Clip Selection + Effect Chain -->
+        <section class="card">
+            <!-- Clip Selection Section -->
+            <h2>Clip Selection</h2>
+
             <div class="form-group clip-range-container" id="clip-range-container" style="display: none;">
-                <label>Clip Selection</label>
                 <div class="clip-range-track">
                     <div class="clip-range-fill" id="clip-range-fill"></div>
                     <input type="range"
@@ -143,23 +166,8 @@
                 </div>
             </div>
 
-            <!-- Hidden audio preview for clip loop playback -->
-            <audio id="clip-preview-audio" loop preload="none" style="display: none;"></audio>
-
-            <div class="process-row">
-                <button type="submit" class="btn-primary btn-extract"
-                        hx-post="/extract"
-                        hx-target="#preview-area"
-                        hx-swap="innerHTML">
-                    <span class="htmx-indicator">Extracting...</span>
-                    <span class="btn-text">Extract MP3</span>
-                </button>
-            </div>
-        </section>
-
-        <!-- Column 2: Effect Chain -->
-        <section class="card">
-            <h2>Effect Chain</h2>
+            <!-- Effect Chain Section -->
+            <h2 class="section-divider-heading">Effect Chain</h2>
 
             <div class="process-row effect-chain-process">
                 <button type="submit" class="btn-primary">
@@ -621,23 +629,28 @@ var ClipRangeController = (function() {
             if (bitrateItem) bitrateItem.style.display = 'none';
         }
 
-        // Title and source link (from yt-dlp downloads)
+        // Title link (from yt-dlp downloads)
         var titleRow = document.getElementById('metadata-title-row');
         var titleEl = document.getElementById('metadata-title');
-        var sourceLink = document.getElementById('metadata-source-link');
-        if (data.title && data.title.length > 0) {
+        var titleLink = document.getElementById('metadata-title-link');
+        if (data.title && data.title.length > 0 && data.source_url && data.source_url.length > 0) {
             if (titleEl) titleEl.textContent = data.title;
-            if (sourceLink) {
-                if (data.source_url && data.source_url.length > 0) {
-                    sourceLink.href = data.source_url;
-                    sourceLink.style.display = 'inline';
-                } else {
-                    sourceLink.style.display = 'none';
-                }
-            }
-            if (titleRow) titleRow.style.display = 'flex';
+            if (titleLink) titleLink.href = data.source_url;
+            if (titleRow) titleRow.style.display = 'block';
         } else {
             if (titleRow) titleRow.style.display = 'none';
+        }
+
+        // Uploader/channel link (from yt-dlp downloads)
+        var uploaderRow = document.getElementById('metadata-uploader-row');
+        var uploaderEl = document.getElementById('metadata-uploader');
+        var uploaderLink = document.getElementById('metadata-uploader-link');
+        if (data.uploader && data.uploader.length > 0 && data.uploader_url && data.uploader_url.length > 0) {
+            if (uploaderEl) uploaderEl.textContent = data.uploader;
+            if (uploaderLink) uploaderLink.href = data.uploader_url;
+            if (uploaderRow) uploaderRow.style.display = 'block';
+        } else {
+            if (uploaderRow) uploaderRow.style.display = 'none';
         }
 
         // Tags (from yt-dlp downloads)

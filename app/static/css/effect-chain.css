@@ -154,12 +154,19 @@
     background: var(--bg-secondary);
 }
 
-.accordion-arrow {
-    text-align: center;
-    font-size: 2.5rem;
-    color: var(--text-secondary);
+.accordion-connector {
+    display: flex;
+    justify-content: center;
+    padding: 0.15rem 0;
+}
+
+.accordion-connector::before {
+    content: '';
+    width: 2px;
+    height: 5px;
+    background: var(--text-secondary);
     opacity: 0.4;
-    padding: 0.5rem 0;
+    border-radius: 1px;
 }
 
 /* Category Panel */

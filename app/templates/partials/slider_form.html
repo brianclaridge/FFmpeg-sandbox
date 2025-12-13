@@ -4,7 +4,7 @@
     <div class="form-group">
         <label for="volume">Volume: <span id="volume-value">{{ volume if volume else preset.volume }}</span>x</label>
         <input type="range" name="volume" id="volume"
-               min="0.5" max="4" step="0.1"
+               min="0" max="4" step="0.1"
                value="{{ volume if volume else preset.volume }}"
                oninput="document.getElementById('volume-value').textContent = this.value">
     </div>
