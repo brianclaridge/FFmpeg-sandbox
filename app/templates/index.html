@@ -154,15 +154,7 @@
             <input type="hidden" name="transform_preset" id="transform_preset" value="{{ user_settings.transform.preset }}">
         </section>
 
-        <!-- Column 3: History -->
-        <section class="card">
-            <h2>History</h2>
-            <div id="history-area" hx-get="/history" hx-trigger="load" hx-target="this" hx-swap="innerHTML">
-                <p class="placeholder">Loading history...</p>
-            </div>
-        </section>
-
-        <!-- Column 4: Preview -->
+        <!-- Column 3: Preview -->
         <section class="card">
             <h2>Preview</h2>
 
@@ -182,6 +174,14 @@
 
             <div id="preview-area">
                 <p class="placeholder">Processed audio will appear here</p>
+            </div>
+        </section>
+
+        <!-- Column 4: History -->
+        <section class="card">
+            <h2>History</h2>
+            <div id="history-area" hx-get="/history" hx-trigger="load" hx-target="this" hx-swap="innerHTML">
+                <p class="placeholder">Loading history...</p>
             </div>
         </section>
     </div>

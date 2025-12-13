@@ -78,7 +78,6 @@ PRESETS: dict[PresetLevel, PresetConfig] = {
 class VolumePreset(str, Enum):
     """Volume/gain presets."""
     NONE = "none"
-    X1 = "1x"
     X1_5 = "1.5x"
     X2 = "2x"
     X3 = "3x"
@@ -96,11 +95,6 @@ VOLUME_PRESETS: dict[VolumePreset, VolumeConfig] = {
     VolumePreset.NONE: VolumeConfig(
         name="None",
         description="No effect (original)",
-        volume=1.0,
-    ),
-    VolumePreset.X1: VolumeConfig(
-        name="1x",
-        description="Original volume",
         volume=1.0,
     ),
     VolumePreset.X1_5: VolumeConfig(

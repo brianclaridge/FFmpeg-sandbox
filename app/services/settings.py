@@ -26,7 +26,7 @@ def load_user_settings(filename: str | None = None) -> UserSettings:
         settings_data = get_file_settings(filename)
 
         return UserSettings(
-            volume=CategorySettings(**settings_data.get("volume", {"preset": "2x"})),
+            volume=CategorySettings(**settings_data.get("volume", {"preset": "none"})),
             tunnel=CategorySettings(**settings_data.get("tunnel", {"preset": "none"})),
             frequency=CategorySettings(**settings_data.get("frequency", {"preset": "flat"})),
             speed=CategorySettings(**settings_data.get("speed", {"preset": "none"})),
