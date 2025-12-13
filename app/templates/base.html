@@ -11,7 +11,7 @@
     <script>
         // Apply saved theme immediately to prevent flash
         (function() {
-            var theme = localStorage.getItem('theme') || 'darcula';
+            var theme = localStorage.getItem('theme') || 'nord';
             document.documentElement.setAttribute('data-theme', theme);
         })();
     </script>
@@ -60,7 +60,7 @@
 
         // Set dropdown to current theme on load
         document.addEventListener('DOMContentLoaded', function() {
-            var theme = localStorage.getItem('theme') || 'darcula';
+            var theme = localStorage.getItem('theme') || 'nord';
             document.getElementById('theme-select').value = theme;
         });
     </script>

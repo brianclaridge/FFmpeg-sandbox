@@ -89,6 +89,7 @@ def get_video_info(url: str) -> dict | None:
                 'duration': info.get('duration', 0),
                 'uploader': info.get('uploader', 'Unknown'),
                 'extractor': info.get('extractor', 'unknown'),
+                'tags': info.get('tags', []) or [],
             }
     except Exception as e:
         logger.error(f"Failed to get video info: {e}")
@@ -140,6 +141,7 @@ def download_video(url: str) -> DownloadResult:
                 uploader=info["uploader"],
                 duration=info["duration"],
                 extractor=info["extractor"],
+                tags=info["tags"],
             )
 
             return DownloadResult(

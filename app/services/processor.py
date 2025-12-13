@@ -42,31 +42,52 @@ def process_audio(
     decay_values = [float(d) for d in decays.split("|") if d.strip()]
     has_echo = any(d > 0 for d in decay_values)
 
-    if has_echo:
-        audio_filter = (
-            f"volume={volume},"
-            f"highpass=f={highpass},"
-            f"lowpass=f={lowpass},"
-            f"aecho=0.8:0.85:{delays}:{decays}"
-        )
-    else:
-        # Skip aecho filter for "no effect" preset
-        audio_filter = (
-            f"volume={volume},"
-            f"highpass=f={highpass},"
-            f"lowpass=f={lowpass}"
-        )
+    # Check if all settings are neutral (no processing needed)
+    is_neutral = (
+        abs(volume - 1.0) < 0.01 and
+        highpass <= 20 and
+        lowpass >= 20000 and
+        not has_echo
+    )
 
-    cmd = [
-        "ffmpeg",
-        "-y",
-        "-i", str(input_file),
-        "-ss", start_time,
-        "-to", end_time,
-        "-af", audio_filter,
-        "-vn",
-        str(output_file),
-    ]
+    if is_neutral:
+        # Pure extraction - no audio filters applied
+        cmd = [
+            "ffmpeg",
+            "-y",
+            "-i", str(input_file),
+            "-ss", start_time,
+            "-to", end_time,
+            "-vn",
+            "-acodec", "libmp3lame",
+            "-q:a", "4",
+            str(output_file),
+        ]
+    else:
+        if has_echo:
+            audio_filter = (
+                f"volume={volume},"
+                f"highpass=f={highpass},"
+                f"lowpass=f={lowpass},"
+                f"aecho=0.8:0.85:{delays}:{decays}"
+            )
+        else:
+            audio_filter = (
+                f"volume={volume},"
+                f"highpass=f={highpass},"
+                f"lowpass=f={lowpass}"
+            )
+
+        cmd = [
+            "ffmpeg",
+            "-y",
+            "-i", str(input_file),
+            "-ss", start_time,
+            "-to", end_time,
+            "-af", audio_filter,
+            "-vn",
+            str(output_file),
+        ]
 
     logger.info(f"Processing audio: {input_file.name}")
     logger.debug(f"Command: {' '.join(cmd)}")

@@ -68,6 +68,46 @@
                 <div id="download-status"></div>
             </div>
 
+            <!-- File Metadata Section -->
+            <div id="file-metadata" class="file-metadata" style="display: none;">
+                <div class="metadata-header">
+                    <span class="metadata-icon" id="metadata-type-icon">&#127909;</span>
+                    <span class="metadata-filename" id="metadata-filename">filename.mp4</span>
+                </div>
+                <div class="metadata-title-row" id="metadata-title-row" style="display: none;">
+                    <span class="metadata-title" id="metadata-title"></span>
+                </div>
+                <div class="metadata-grid">
+                    <div class="metadata-item">
+                        <span class="metadata-label">Duration</span>
+                        <span class="metadata-value" id="metadata-duration">--</span>
+                    </div>
+                    <div class="metadata-item">
+                        <span class="metadata-label">Size</span>
+                        <span class="metadata-value" id="metadata-size">--</span>
+                    </div>
+                    <div class="metadata-item" id="metadata-resolution-item" style="display: none;">
+                        <span class="metadata-label">Resolution</span>
+                        <span class="metadata-value" id="metadata-resolution">--</span>
+                    </div>
+                    <div class="metadata-item" id="metadata-video-codec-item" style="display: none;">
+                        <span class="metadata-label">Video</span>
+                        <span class="metadata-value" id="metadata-video-codec">--</span>
+                    </div>
+                    <div class="metadata-item" id="metadata-audio-codec-item" style="display: none;">
+                        <span class="metadata-label">Audio</span>
+                        <span class="metadata-value" id="metadata-audio-codec">--</span>
+                    </div>
+                    <div class="metadata-item" id="metadata-bitrate-item" style="display: none;">
+                        <span class="metadata-label">Bitrate</span>
+                        <span class="metadata-value" id="metadata-bitrate">--</span>
+                    </div>
+                </div>
+                <div class="metadata-tags-row" id="metadata-tags-row" style="display: none;">
+                    <div class="metadata-tags" id="metadata-tags"></div>
+                </div>
+            </div>
+
             <!-- Clip Range Slider -->
             <div class="form-group clip-range-container" id="clip-range-container" style="display: none;">
                 <label>Clip Selection</label>
@@ -112,51 +152,9 @@
                     <span class="btn-text">Extract MP3</span>
                 </button>
             </div>
-
-            <!-- File Metadata Section -->
-            <div id="file-metadata" class="file-metadata" style="display: none;">
-                <div class="metadata-header">
-                    <span class="metadata-icon" id="metadata-type-icon">&#127909;</span>
-                    <span class="metadata-filename" id="metadata-filename">filename.mp4</span>
-                </div>
-                <div class="metadata-grid">
-                    <div class="metadata-item">
-                        <span class="metadata-label">Duration</span>
-                        <span class="metadata-value" id="metadata-duration">--</span>
-                    </div>
-                    <div class="metadata-item">
-                        <span class="metadata-label">Size</span>
-                        <span class="metadata-value" id="metadata-size">--</span>
-                    </div>
-                    <div class="metadata-item" id="metadata-resolution-item" style="display: none;">
-                        <span class="metadata-label">Resolution</span>
-                        <span class="metadata-value" id="metadata-resolution">--</span>
-                    </div>
-                    <div class="metadata-item" id="metadata-video-codec-item" style="display: none;">
-                        <span class="metadata-label">Video</span>
-                        <span class="metadata-value" id="metadata-video-codec">--</span>
-                    </div>
-                    <div class="metadata-item" id="metadata-audio-codec-item" style="display: none;">
-                        <span class="metadata-label">Audio</span>
-                        <span class="metadata-value" id="metadata-audio-codec">--</span>
-                    </div>
-                    <div class="metadata-item" id="metadata-bitrate-item" style="display: none;">
-                        <span class="metadata-label">Bitrate</span>
-                        <span class="metadata-value" id="metadata-bitrate">--</span>
-                    </div>
-                </div>
-            </div>
         </section>
 
-        <!-- Column 2: History -->
-        <section class="card">
-            <h2>History</h2>
-            <div id="history-area" hx-get="/history" hx-trigger="load" hx-target="this" hx-swap="innerHTML">
-                <p class="placeholder">Loading history...</p>
-            </div>
-        </section>
-
-        <!-- Column 3: Effect Chain -->
+        <!-- Column 2: Effect Chain -->
         <section class="card">
             <h2>Effect Chain</h2>
 
@@ -177,6 +175,14 @@
             <input type="hidden" name="volume_preset" id="volume_preset" value="{{ user_settings.volume.preset }}">
             <input type="hidden" name="tunnel_preset" id="tunnel_preset" value="{{ user_settings.tunnel.preset }}">
             <input type="hidden" name="frequency_preset" id="frequency_preset" value="{{ user_settings.frequency.preset }}">
+        </section>
+
+        <!-- Column 3: History -->
+        <section class="card">
+            <h2>History</h2>
+            <div id="history-area" hx-get="/history" hx-trigger="load" hx-target="this" hx-swap="innerHTML">
+                <p class="placeholder">Loading history...</p>
+            </div>
         </section>
 
         <!-- Column 4: Preview -->
@@ -612,6 +618,30 @@ var ClipRangeController = (function() {
             if (bitrateItem) bitrateItem.style.display = 'none';
         }
 
+        // Title (from yt-dlp downloads)
+        var titleRow = document.getElementById('metadata-title-row');
+        var titleEl = document.getElementById('metadata-title');
+        if (data.title && data.title.length > 0) {
+            if (titleEl) titleEl.textContent = data.title;
+            if (titleRow) titleRow.style.display = 'block';
+        } else {
+            if (titleRow) titleRow.style.display = 'none';
+        }
+
+        // Tags (from yt-dlp downloads)
+        var tagsRow = document.getElementById('metadata-tags-row');
+        var tagsEl = document.getElementById('metadata-tags');
+        if (data.tags && data.tags.length > 0) {
+            if (tagsEl) {
+                tagsEl.innerHTML = data.tags.map(function(tag) {
+                    return '<span class="metadata-tag">' + tag + '</span>';
+                }).join('');
+            }
+            if (tagsRow) tagsRow.style.display = 'block';
+        } else {
+            if (tagsRow) tagsRow.style.display = 'none';
+        }
+
         metadataEl.style.display = 'block';
     }
 
@@ -682,6 +712,7 @@ var ClipRangeController = (function() {
         setMaxDuration: setMaxDuration,
         fetchDuration: fetchDuration,
         stopPreview: stopPreview,
+        stopVideoPreview: stopVideoPreview,
         hideVideoPreview: hideVideoPreview,
         setRange: setRange,
         timestampToMs: getTimestampToMs
@@ -744,6 +775,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (form) {
         form.addEventListener('submit', function() {
             ClipRangeController.stopPreview();
+            ClipRangeController.stopVideoPreview();
         });
     }
 

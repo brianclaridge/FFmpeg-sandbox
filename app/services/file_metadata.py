@@ -89,6 +89,7 @@ def create_file_metadata(
     uploader: str,
     duration: int,
     extractor: str,
+    tags: list[str] | None = None,
 ) -> dict[str, Any]:
     """Create initial metadata for a newly downloaded file."""
     metadata = {
@@ -98,6 +99,7 @@ def create_file_metadata(
             "uploader": uploader,
             "duration": duration,
             "extractor": extractor,
+            "tags": tags or [],
             "downloaded_at": datetime.now().isoformat(),
         },
         "settings": get_default_settings(),

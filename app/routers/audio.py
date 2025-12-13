@@ -25,6 +25,7 @@ from app.services.settings import (
     update_active_category,
 )
 from app.services.processor import process_audio, get_input_files, get_file_duration, format_duration_ms, get_file_metadata
+from app.services.file_metadata import load_file_metadata
 from app.services.history import add_history_entry
 
 ALLOWED_EXTENSIONS = set(config.audio.allowed_extensions)
@@ -40,12 +41,12 @@ async def process(
     start_time: str = Form(config.audio.default_start_time),
     end_time: str = Form(config.audio.default_end_time),
     preset: str = Form(config.audio.default_preset),
-    volume: float = Form(2.0),
-    highpass: int = Form(100),
-    lowpass: int = Form(4500),
-    delays: str = Form("15|25|35|50"),
-    decays: str = Form("0.35|0.3|0.25|0.2"),
-    volume_preset: str = Form("2x"),
+    volume: float = Form(1.0),
+    highpass: int = Form(20),
+    lowpass: int = Form(20000),
+    delays: str = Form("1"),
+    decays: str = Form("0"),
+    volume_preset: str = Form("1x"),
     tunnel_preset: str = Form("none"),
     frequency_preset: str = Form("flat"),
 ):
@@ -255,7 +256,7 @@ async def upload_file(request: Request, file: UploadFile = File(...)):
 
 @router.get("/duration/{filename}")
 async def get_duration(filename: str):
-    """Get file metadata including duration."""
+    """Get file metadata including duration, title, and tags."""
     file_path = INPUT_DIR / filename
 
     if not file_path.exists():
@@ -270,6 +271,13 @@ async def get_duration(filename: str):
             raise HTTPException(status_code=500, detail="Could not determine duration")
         metadata["duration_ms"] = duration_ms
         metadata["duration_formatted"] = format_duration_ms(duration_ms)
+
+    # Load per-file YAML metadata for title and tags (from yt-dlp downloads)
+    file_meta = load_file_metadata(filename)
+    source = file_meta.get("source", {})
+    metadata["title"] = source.get("title", "")
+    metadata["tags"] = source.get("tags", [])
+    metadata["uploader"] = source.get("uploader", "")
 
     return JSONResponse(metadata)
 
