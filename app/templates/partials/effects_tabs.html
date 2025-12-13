@@ -3,16 +3,16 @@
         <button type="button"
                 class="effects-tab {% if user_settings.active_tab == 'audio' or not user_settings.active_tab %}active{% endif %}"
                 hx-get="/partials/effects-tab/audio"
-                hx-target="#effects-tab-content"
-                hx-swap="innerHTML"
+                hx-target="#effects-tabs-container"
+                hx-swap="outerHTML"
                 hx-vals="js:{filename: window.currentFilename || ''}">
             <i class="fa-solid fa-music"></i> Audio
         </button>
         <button type="button"
                 class="effects-tab {% if user_settings.active_tab == 'video' %}active{% endif %}"
                 hx-get="/partials/effects-tab/video"
-                hx-target="#effects-tab-content"
-                hx-swap="innerHTML"
+                hx-target="#effects-tabs-container"
+                hx-swap="outerHTML"
                 hx-vals="js:{filename: window.currentFilename || ''}">
             <i class="fa-solid fa-video"></i> Video
         </button>

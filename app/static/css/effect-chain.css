@@ -18,8 +18,9 @@
     flex: 1;
     padding: 0.6rem 1rem;
     background: transparent;
-    border: none;
+    border: 1px solid var(--bg-secondary);
     border-bottom: 2px solid transparent;
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
     color: var(--text-secondary);
     font-size: 0.9rem;
     font-weight: 500;

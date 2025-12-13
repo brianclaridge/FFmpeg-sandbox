@@ -137,9 +137,21 @@
 
             <!-- Hidden preset inputs for form submission -->
             <input type="hidden" name="preset" id="preset" value="custom">
+            <!-- Audio presets -->
             <input type="hidden" name="volume_preset" id="volume_preset" value="{{ user_settings.volume.preset }}">
             <input type="hidden" name="tunnel_preset" id="tunnel_preset" value="{{ user_settings.tunnel.preset }}">
             <input type="hidden" name="frequency_preset" id="frequency_preset" value="{{ user_settings.frequency.preset }}">
+            <input type="hidden" name="speed_preset" id="speed_preset" value="{{ user_settings.speed.preset }}">
+            <input type="hidden" name="pitch_preset" id="pitch_preset" value="{{ user_settings.pitch.preset }}">
+            <input type="hidden" name="noise_reduction_preset" id="noise_reduction_preset" value="{{ user_settings.noise_reduction.preset }}">
+            <input type="hidden" name="compressor_preset" id="compressor_preset" value="{{ user_settings.compressor.preset }}">
+            <!-- Video presets -->
+            <input type="hidden" name="brightness_preset" id="brightness_preset" value="{{ user_settings.brightness.preset }}">
+            <input type="hidden" name="contrast_preset" id="contrast_preset" value="{{ user_settings.contrast.preset }}">
+            <input type="hidden" name="saturation_preset" id="saturation_preset" value="{{ user_settings.saturation.preset }}">
+            <input type="hidden" name="blur_preset" id="blur_preset" value="{{ user_settings.blur.preset }}">
+            <input type="hidden" name="sharpen_preset" id="sharpen_preset" value="{{ user_settings.sharpen.preset }}">
+            <input type="hidden" name="transform_preset" id="transform_preset" value="{{ user_settings.transform.preset }}">
         </section>
 
         <!-- Column 3: History -->
@@ -513,7 +525,7 @@ var ClipRangeController = (function() {
         if (filename) {
             url += '?filename=' + encodeURIComponent(filename);
         }
-        htmx.ajax('GET', url, {target: '#effect-chain-area', swap: 'innerHTML'});
+        htmx.ajax('GET', url, {target: '#effects-area', swap: 'innerHTML'});
     }
 
     function showVideoPreview() {

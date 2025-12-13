@@ -10,7 +10,7 @@
         <div class="history-actions">
             <button class="btn-small"
                     hx-get="/history/{{ entry.id }}/apply"
-                    hx-target="#effect-chain-area"
+                    hx-target="#effects-area"
                     hx-swap="innerHTML"
                     hx-vals="js:{filename: window.currentFilename || ''}"
                     onclick="selectHistoryItem(this)"

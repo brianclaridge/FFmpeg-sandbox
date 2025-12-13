@@ -671,10 +671,8 @@ async def get_effects_tab(request: Request, tab: str, filename: str | None = Non
     context = _get_accordion_context(user_settings, filename)
     context["request"] = request
 
-    if tab == "video":
-        return templates.TemplateResponse("partials/effects_video_accordion.html", context)
-    else:
-        return templates.TemplateResponse("partials/effects_audio_accordion.html", context)
+    # Return full tabs container so tab buttons update their active state
+    return templates.TemplateResponse("partials/effects_tabs.html", context)
 
 
 AUDIO_CATEGORIES = ("volume", "tunnel", "frequency", "speed", "pitch", "noise_reduction", "compressor")
