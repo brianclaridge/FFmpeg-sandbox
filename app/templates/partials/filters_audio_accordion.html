@@ -5,7 +5,7 @@
              hx-get="/partials/accordion/volume"
              hx-target="#filters-audio-accordion"
              hx-swap="outerHTML"
-             hx-vals="js:{filename: window.currentFilename || ''}">
+             hx-vals="js:{filename: window.currentFilename || '', current_category: '{{ user_settings.active_category }}'}">
             <span class="accordion-icon"><i class="fa-solid fa-volume-high"></i></span>
             <span class="accordion-label">Volume</span>
             <span class="accordion-description">Amplify or reduce audio loudness</span>
@@ -23,7 +23,7 @@
                         hx-post="/partials/accordion-preset/volume/{{ preset_key }}"
                         hx-target="#filters-audio-accordion"
                         hx-swap="outerHTML"
-                        hx-vals="js:{filename: window.currentFilename || ''}"
+                        hx-vals="js:{filename: window.currentFilename || '', current_category: '{{ user_settings.active_category }}'}"
                         onclick="document.getElementById('volume_preset').value = '{{ preset_key }}'">
                     {{ config.name }}
                 </button>
@@ -51,7 +51,7 @@
              hx-get="/partials/accordion/tunnel"
              hx-target="#filters-audio-accordion"
              hx-swap="outerHTML"
-             hx-vals="js:{filename: window.currentFilename || ''}">
+             hx-vals="js:{filename: window.currentFilename || '', current_category: '{{ user_settings.active_category }}'}">
             <span class="accordion-icon"><i class="fa-solid fa-dungeon"></i></span>
             <span class="accordion-label">Tunnel</span>
             <span class="accordion-description">Add echo and reverb depth</span>
@@ -70,7 +70,7 @@
                         hx-post="/partials/accordion-preset/tunnel/{{ preset_key }}"
                         hx-target="#filters-audio-accordion"
                         hx-swap="outerHTML"
-                        hx-vals="js:{filename: window.currentFilename || ''}"
+                        hx-vals="js:{filename: window.currentFilename || '', current_category: '{{ user_settings.active_category }}'}"
                         onclick="document.getElementById('tunnel_preset').value = '{{ preset_key }}'">
                     {{ config.name }}
                 </button>
@@ -105,7 +105,7 @@
              hx-get="/partials/accordion/frequency"
              hx-target="#filters-audio-accordion"
              hx-swap="outerHTML"
-             hx-vals="js:{filename: window.currentFilename || ''}">
+             hx-vals="js:{filename: window.currentFilename || '', current_category: '{{ user_settings.active_category }}'}">
             <span class="accordion-icon"><i class="fa-solid fa-wave-square"></i></span>
             <span class="accordion-label">Frequency</span>
             <span class="accordion-description">Filter bass and treble frequencies</span>
@@ -124,7 +124,7 @@
                         hx-post="/partials/accordion-preset/frequency/{{ preset_key }}"
                         hx-target="#filters-audio-accordion"
                         hx-swap="outerHTML"
-                        hx-vals="js:{filename: window.currentFilename || ''}"
+                        hx-vals="js:{filename: window.currentFilename || '', current_category: '{{ user_settings.active_category }}'}"
                         onclick="document.getElementById('frequency_preset').value = '{{ preset_key }}'">
                     {{ config.name }}
                 </button>
@@ -159,7 +159,7 @@
              hx-get="/partials/accordion/speed"
              hx-target="#filters-audio-accordion"
              hx-swap="outerHTML"
-             hx-vals="js:{filename: window.currentFilename || ''}">
+             hx-vals="js:{filename: window.currentFilename || '', current_category: '{{ user_settings.active_category }}'}">
             <span class="accordion-icon"><i class="fa-solid fa-gauge-high"></i></span>
             <span class="accordion-label">Speed</span>
             <span class="accordion-description">Slow down or speed up playback</span>
@@ -177,7 +177,7 @@
                         hx-post="/partials/accordion-preset/speed/{{ preset_key }}"
                         hx-target="#filters-audio-accordion"
                         hx-swap="outerHTML"
-                        hx-vals="js:{filename: window.currentFilename || ''}"
+                        hx-vals="js:{filename: window.currentFilename || '', current_category: '{{ user_settings.active_category }}'}"
                         onclick="document.getElementById('speed_preset').value = '{{ preset_key }}'">
                     {{ config.name }}
                 </button>
@@ -205,7 +205,7 @@
              hx-get="/partials/accordion/pitch"
              hx-target="#filters-audio-accordion"
              hx-swap="outerHTML"
-             hx-vals="js:{filename: window.currentFilename || ''}">
+             hx-vals="js:{filename: window.currentFilename || '', current_category: '{{ user_settings.active_category }}'}">
             <span class="accordion-icon"><i class="fa-solid fa-music"></i></span>
             <span class="accordion-label">Pitch</span>
             <span class="accordion-description">Shift voice higher or lower</span>
@@ -223,7 +223,7 @@
                         hx-post="/partials/accordion-preset/pitch/{{ preset_key }}"
                         hx-target="#filters-audio-accordion"
                         hx-swap="outerHTML"
-                        hx-vals="js:{filename: window.currentFilename || ''}"
+                        hx-vals="js:{filename: window.currentFilename || '', current_category: '{{ user_settings.active_category }}'}"
                         onclick="document.getElementById('pitch_preset').value = '{{ preset_key }}'">
                     {{ config.name }}
                 </button>
@@ -251,7 +251,7 @@
              hx-get="/partials/accordion/noise_reduction"
              hx-target="#filters-audio-accordion"
              hx-swap="outerHTML"
-             hx-vals="js:{filename: window.currentFilename || ''}">
+             hx-vals="js:{filename: window.currentFilename || '', current_category: '{{ user_settings.active_category }}'}">
             <span class="accordion-icon"><i class="fa-solid fa-volume-xmark"></i></span>
             <span class="accordion-label">Noise Reduction</span>
             <span class="accordion-description">Remove background hiss and hum</span>
@@ -269,7 +269,7 @@
                         hx-post="/partials/accordion-preset/noise_reduction/{{ preset_key }}"
                         hx-target="#filters-audio-accordion"
                         hx-swap="outerHTML"
-                        hx-vals="js:{filename: window.currentFilename || ''}"
+                        hx-vals="js:{filename: window.currentFilename || '', current_category: '{{ user_settings.active_category }}'}"
                         onclick="document.getElementById('noise_reduction_preset').value = '{{ preset_key }}'">
                     {{ config.name }}
                 </button>
@@ -297,7 +297,7 @@
              hx-get="/partials/accordion/compressor"
              hx-target="#filters-audio-accordion"
              hx-swap="outerHTML"
-             hx-vals="js:{filename: window.currentFilename || ''}">
+             hx-vals="js:{filename: window.currentFilename || '', current_category: '{{ user_settings.active_category }}'}">
             <span class="accordion-icon"><i class="fa-solid fa-compress"></i></span>
             <span class="accordion-label">Compressor</span>
             <span class="accordion-description">Even out loud and quiet parts</span>
@@ -316,7 +316,7 @@
                         hx-post="/partials/accordion-preset/compressor/{{ preset_key }}"
                         hx-target="#filters-audio-accordion"
                         hx-swap="outerHTML"
-                        hx-vals="js:{filename: window.currentFilename || ''}"
+                        hx-vals="js:{filename: window.currentFilename || '', current_category: '{{ user_settings.active_category }}'}"
                         onclick="document.getElementById('compressor_preset').value = '{{ preset_key }}'">
                     {{ config.name }}
                 </button>

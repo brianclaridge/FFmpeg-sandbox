@@ -88,12 +88,21 @@ def update_category_preset(category: str, preset: str, filename: str | None = No
     return load_user_settings(filename)
 
 
-def update_active_category(category: str, filename: str | None = None) -> UserSettings:
+def update_active_category(
+    category: str,
+    filename: str | None = None,
+    current_category: str | None = None,
+) -> UserSettings:
     """Toggle the active category panel (close if already open)."""
+    # Normalize empty string to None for consistent handling
+    filename = filename if filename else None
     current_settings = load_user_settings(filename) if filename else UserSettings()
 
+    # Use client-provided current_category for toggle when no file persistence
+    active = current_category if current_category is not None else current_settings.active_category
+
     # Toggle: if clicking the already-open category, close it
-    new_category = "" if current_settings.active_category == category else category
+    new_category = "" if active == category else category
 
     if not filename:
         current_settings.active_category = new_category

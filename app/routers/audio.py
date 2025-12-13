@@ -630,12 +630,17 @@ async def set_category_preset(request: Request, category: str, preset: str, file
 
 
 @router.get("/partials/accordion/{category}", response_class=HTMLResponse)
-async def get_accordion_section(request: Request, category: str, filename: str | None = None):
+async def get_accordion_section(
+    request: Request,
+    category: str,
+    filename: str | None = None,
+    current_category: str | None = None,
+):
     """Expand an accordion section (collapses others)."""
     if category not in ALL_CATEGORIES:
         raise HTTPException(status_code=404, detail="Category not found")
 
-    user_settings = update_active_category(category, filename)
+    user_settings = update_active_category(category, filename, current_category)
     context = _get_accordion_context(user_settings, filename)
     context["request"] = request
 
