@@ -34,7 +34,7 @@ wheels = [
 ]
 
 [[package]]
-name = "audio-processor"
+name = "brianclaridge-ffmpeg-sandbox"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [

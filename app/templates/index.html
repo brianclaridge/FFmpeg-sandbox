@@ -70,17 +70,7 @@
 
             <!-- Clip Range Slider -->
             <div class="form-group clip-range-container" id="clip-range-container" style="display: none;">
-                <div class="clip-header">
-                    <label>Clip Selection</label>
-                    <div class="clip-controls">
-                        <button type="button" id="clip-play-btn" class="clip-ctrl-btn" title="Play/Pause">
-                            <span class="play-icon">&#9654;</span>
-                            <span class="pause-icon" style="display:none;">&#10074;&#10074;</span>
-                        </button>
-                        <button type="button" id="clip-stop-btn" class="clip-ctrl-btn" title="Stop">&#9632;</button>
-                        <button type="button" id="clip-loop-btn" class="clip-ctrl-btn loop-btn active" title="Toggle Loop">&#8734;</button>
-                    </div>
-                </div>
+                <label>Clip Selection</label>
                 <div class="clip-range-track">
                     <div class="clip-range-fill" id="clip-range-fill"></div>
                     <input type="range"
@@ -196,7 +186,7 @@
             <!-- Inline Video Preview (auto-shown for video files) -->
             <div id="video-preview-container" class="video-preview-container" style="display: none;">
                 <div class="video-loading" id="video-loading">Loading...</div>
-                <video id="clip-preview-video" loop preload="none"></video>
+                <video id="clip-preview-video" controls loop preload="none"></video>
                 <div class="video-controls">
                     <button type="button" id="video-play-btn" class="video-ctrl-btn" title="Play/Pause">
                         <span class="play-icon">&#9654;</span>
@@ -220,12 +210,11 @@ var ClipRangeController = (function() {
     var startSlider, endSlider, startInput, endInput;
     var startLabel, endLabel, durationLabel, rangeFill;
     var previewAudio, previewVideo, container, videoContainer;
-    var playBtn, stopBtn, playIcon, pauseIcon;
+    var videoPlayBtn, videoStopBtn, videoLoopBtn, videoPlayIcon, videoPauseIcon;
     var maxDurationMs = 10000;
     window.currentFilename = null;
-    var debounceTimer = null;
     var MIN_CLIP_MS = 100;
-    var isPlaying = false;
+    var isVideoPlaying = false;
     var isVideoFile = false;
 
     function init() {
@@ -242,16 +231,14 @@ var ClipRangeController = (function() {
         container = document.getElementById('clip-range-container');
         videoContainer = document.getElementById('video-preview-container');
 
-        playBtn = document.getElementById('clip-play-btn');
-        stopBtn = document.getElementById('clip-stop-btn');
-        playIcon = playBtn ? playBtn.querySelector('.play-icon') : null;
-        pauseIcon = playBtn ? playBtn.querySelector('.pause-icon') : null;
+        // Video control buttons
+        videoPlayBtn = document.getElementById('video-play-btn');
+        videoStopBtn = document.getElementById('video-stop-btn');
+        videoLoopBtn = document.getElementById('video-loop-btn');
+        videoPlayIcon = videoPlayBtn ? videoPlayBtn.querySelector('.play-icon') : null;
+        videoPauseIcon = videoPlayBtn ? videoPlayBtn.querySelector('.pause-icon') : null;
 
         var videoLoading = document.getElementById('video-loading');
-        var videoPlayBtn = document.getElementById('video-play-btn');
-        var videoStopBtn = document.getElementById('video-stop-btn');
-        var videoPlayIcon = videoPlayBtn ? videoPlayBtn.querySelector('.play-icon') : null;
-        var videoPauseIcon = videoPlayBtn ? videoPlayBtn.querySelector('.pause-icon') : null;
 
         if (!startSlider || !endSlider) return;
 
@@ -262,68 +249,30 @@ var ClipRangeController = (function() {
 
         startInput.addEventListener('input', onStartInputChange);
         endInput.addEventListener('input', onEndInputChange);
-        startInput.addEventListener('blur', validateStartInput);
-        endInput.addEventListener('blur', validateEndInput);
+        startInput.addEventListener('blur', onInputBlur);
+        endInput.addEventListener('blur', onInputBlur);
 
-        var clipLoopBtn = document.getElementById('clip-loop-btn');
-        var videoLoopBtn = document.getElementById('video-loop-btn');
-
-        if (playBtn) playBtn.addEventListener('click', togglePlay);
-        if (stopBtn) stopBtn.addEventListener('click', stopPreview);
-
-        // Clip audio loop toggle
-        if (clipLoopBtn) clipLoopBtn.addEventListener('click', function() {
-            if (previewAudio) {
-                previewAudio.loop = !previewAudio.loop;
-                clipLoopBtn.classList.toggle('active', previewAudio.loop);
-            }
-        });
-
-        // Video controls
-        if (videoPlayBtn) videoPlayBtn.addEventListener('click', function() {
-            if (!previewVideo) return;
-            if (previewVideo.paused) {
-                previewVideo.play();
-            } else {
-                previewVideo.pause();
-            }
-        });
-        if (videoStopBtn) videoStopBtn.addEventListener('click', function() {
-            if (!previewVideo) return;
-            previewVideo.pause();
-            previewVideo.currentTime = 0;
-            updateVideoPlayState(false);
-        });
-        // Video loop toggle
+        // Video control button handlers
+        if (videoPlayBtn) videoPlayBtn.addEventListener('click', toggleVideoPlay);
+        if (videoStopBtn) videoStopBtn.addEventListener('click', stopVideoPreview);
         if (videoLoopBtn) videoLoopBtn.addEventListener('click', function() {
             if (previewVideo) {
                 previewVideo.loop = !previewVideo.loop;
                 videoLoopBtn.classList.toggle('active', previewVideo.loop);
             }
         });
+
+        // Video loading indicator and play state
         if (previewVideo) {
-            previewVideo.addEventListener('play', function() { updateVideoPlayState(true); });
-            previewVideo.addEventListener('pause', function() { updateVideoPlayState(false); });
-            previewVideo.addEventListener('ended', function() { updateVideoPlayState(false); });
             previewVideo.addEventListener('canplay', function() {
                 if (videoLoading) videoLoading.style.display = 'none';
             });
             previewVideo.addEventListener('loadstart', function() {
                 if (videoLoading) videoLoading.style.display = 'block';
             });
-        }
-
-        function updateVideoPlayState(playing) {
-            if (videoPlayIcon && videoPauseIcon) {
-                videoPlayIcon.style.display = playing ? 'none' : 'inline';
-                videoPauseIcon.style.display = playing ? 'inline' : 'none';
-            }
-        }
-
-        if (previewAudio) {
-            previewAudio.addEventListener('play', function() { updatePlayState(true); });
-            previewAudio.addEventListener('pause', function() { updatePlayState(false); });
-            previewAudio.addEventListener('ended', function() { updatePlayState(false); });
+            previewVideo.addEventListener('play', function() { updateVideoPlayState(true); });
+            previewVideo.addEventListener('pause', function() { updateVideoPlayState(false); });
+            previewVideo.addEventListener('ended', function() { updateVideoPlayState(false); });
         }
 
         // Use event delegation for file select (survives OOB swaps)
@@ -336,21 +285,31 @@ var ClipRangeController = (function() {
         updateFill();
     }
 
-    function updatePlayState(playing) {
-        isPlaying = playing;
-        if (playIcon && pauseIcon) {
-            playIcon.style.display = playing ? 'none' : 'inline';
-            pauseIcon.style.display = playing ? 'inline' : 'none';
+    function updateVideoPlayState(playing) {
+        isVideoPlaying = playing;
+        if (videoPlayIcon && videoPauseIcon) {
+            videoPlayIcon.style.display = playing ? 'none' : 'inline';
+            videoPauseIcon.style.display = playing ? 'inline' : 'none';
         }
     }
 
-    function togglePlay() {
-        if (!currentFilename) return;
-        if (isPlaying) {
-            previewAudio.pause();
+    function toggleVideoPlay() {
+        if (!currentFilename || !previewVideo) return;
+        if (isVideoPlaying) {
+            previewVideo.pause();
         } else {
-            triggerPreview();
+            previewVideo.play().catch(function(e) {
+                console.log('Video play blocked:', e);
+            });
         }
+    }
+
+    function stopVideoPreview() {
+        if (previewVideo) {
+            previewVideo.pause();
+            previewVideo.currentTime = 0;
+        }
+        updateVideoPlayState(false);
     }
 
     function msToTimestamp(ms) {
@@ -418,14 +377,7 @@ var ClipRangeController = (function() {
     }
 
     function onSliderRelease() {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(function() {
-            triggerPreview();
-            // Update inline video preview if visible
-            if (isVideoFile && videoContainer && videoContainer.style.display !== 'none') {
-                updateVideoPreview();
-            }
-        }, 300);
+        triggerPreviewReplay();
     }
 
     function updateVideoPreview() {
@@ -480,6 +432,29 @@ var ClipRangeController = (function() {
             endInput.value = msToTimestamp(endMs);
             endSlider.value = endMs;
             updateFill();
+        }
+    }
+
+    function onInputBlur(e) {
+        // Validate the input that lost focus
+        if (e.target === startInput) {
+            validateStartInput();
+        } else if (e.target === endInput) {
+            validateEndInput();
+        }
+        // Trigger preview replay after input change
+        triggerPreviewReplay();
+    }
+
+    function triggerPreviewReplay() {
+        if (!currentFilename) return;
+        // Update video preview if visible
+        if (isVideoFile && videoContainer && videoContainer.style.display !== 'none') {
+            updateVideoPreview();
+        }
+        // Always trigger audio preview for audio files, or let video handle it
+        if (!isVideoFile) {
+            triggerPreview();
         }
     }
 
@@ -660,8 +635,8 @@ var ClipRangeController = (function() {
     }
 
     function triggerPreview() {
-        // Don't play audio if video modal is open - video handles playback
-        if (videoModal && videoModal.style.display !== 'none') return;
+        // Don't play audio if video preview is visible - video handles playback
+        if (isVideoFile && videoContainer && videoContainer.style.display !== 'none') return;
         if (!currentFilename) return;
 
         var startTime = startInput.value;
@@ -684,7 +659,6 @@ var ClipRangeController = (function() {
             previewAudio.pause();
             previewAudio.src = '';
         }
-        updatePlayState(false);
     }
 
     function setRange(startMs, endMs) {
@@ -746,6 +720,21 @@ var ClipRangeController = (function() {
         }
     });
 })();
+
+// Update volume preset pills based on slider value
+function updateVolumePresetPills(value) {
+    var pills = document.querySelectorAll('#volume-preset-pills .preset-pill');
+    var sliderValue = parseFloat(value);
+
+    pills.forEach(function(pill) {
+        var presetValue = parseFloat(pill.getAttribute('data-volume'));
+        if (Math.abs(sliderValue - presetValue) < 0.01) {
+            pill.classList.add('active');
+        } else {
+            pill.classList.remove('active');
+        }
+    });
+}
 
 document.addEventListener('DOMContentLoaded', function() {
     ClipRangeController.init();

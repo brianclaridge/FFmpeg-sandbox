@@ -6,17 +6,18 @@
              hx-target="#effect-chain-accordion"
              hx-swap="outerHTML"
              hx-vals="js:{filename: window.currentFilename || ''}">
-            <span class="accordion-icon">&#128266;</span>
+            <span class="accordion-icon"><i class="fa-solid fa-volume-high"></i></span>
             <span class="accordion-label">Volume</span>
             <span class="accordion-preset">{{ volume_presets.get(user_settings.volume.preset, {}).name or user_settings.volume.preset }}</span>
             <span class="accordion-indicator">{% if user_settings.active_category == 'volume' %}&#9660;{% else %}&#9654;{% endif %}</span>
         </div>
         {% if user_settings.active_category == 'volume' %}
         <div class="accordion-content">
-            <div class="preset-pills">
+            <div class="preset-pills" id="volume-preset-pills">
                 {% for preset_key, config in volume_presets.items() %}
                 <button type="button"
                         class="preset-pill {% if user_settings.volume.preset == preset_key %}active{% endif %}"
+                        data-volume="{{ config.volume }}"
                         hx-post="/partials/accordion-preset/volume/{{ preset_key }}"
                         hx-target="#effect-chain-accordion"
                         hx-swap="outerHTML"
@@ -32,7 +33,7 @@
                     <input type="range" name="volume" id="volume"
                            min="0.5" max="4" step="0.1"
                            value="{{ volume_current.volume }}"
-                           oninput="document.getElementById('volume-value').textContent = this.value">
+                           oninput="document.getElementById('volume-value').textContent = this.value; updateVolumePresetPills(this.value);">
                 </div>
             </div>
         </div>
@@ -49,7 +50,7 @@
              hx-target="#effect-chain-accordion"
              hx-swap="outerHTML"
              hx-vals="js:{filename: window.currentFilename || ''}">
-            <span class="accordion-icon">&#127983;</span>
+            <span class="accordion-icon"><i class="fa-solid fa-dungeon"></i></span>
             <span class="accordion-label">Tunnel</span>
             <span class="accordion-preset">{{ tunnel_presets.get(user_settings.tunnel.preset, {}).name or user_settings.tunnel.preset }}</span>
             <span class="accordion-indicator">{% if user_settings.active_category == 'tunnel' %}&#9660;{% else %}&#9654;{% endif %}</span>
@@ -97,7 +98,7 @@
              hx-target="#effect-chain-accordion"
              hx-swap="outerHTML"
              hx-vals="js:{filename: window.currentFilename || ''}">
-            <span class="accordion-icon">&#128200;</span>
+            <span class="accordion-icon"><i class="fa-solid fa-wave-square"></i></span>
             <span class="accordion-label">Frequency</span>
             <span class="accordion-preset">{{ frequency_presets.get(user_settings.frequency.preset, {}).name or user_settings.frequency.preset }}</span>
             <span class="accordion-indicator">{% if user_settings.active_category == 'frequency' %}&#9660;{% else %}&#9654;{% endif %}</span>

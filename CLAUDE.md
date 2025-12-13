@@ -1,5 +1,15 @@
 # CLAUDE.md - FFmpeg-sandbox
 
+## Important: After Every Change
+
+Run `task rebuild` after making any code changes to rebuild and restart the Docker container:
+
+```bash
+task rebuild
+```
+
+This cleans output/logs/metadata, rebuilds the Docker image, and restarts the container.
+
 ## Project Overview
 
 A Python-based Single Page Application for extracting and processing audio from video files with a visual effect chain (Volume → Tunnel → Frequency). Built with FastAPI and HTMX for a dynamic, server-rendered experience.

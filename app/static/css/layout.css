@@ -47,12 +47,12 @@ header h1 .title-link:hover {
 
 
 .theme-selector select {
-    padding: 0.4rem 0.75rem;
+    padding: 0.68rem 1.28rem;
     background: var(--bg-secondary);
     border: 1px solid var(--accent);
     border-radius: var(--border-radius);
     color: var(--text-primary);
-    font-size: 0.8rem;
+    font-size: 1.36rem;
     cursor: pointer;
 }
 
