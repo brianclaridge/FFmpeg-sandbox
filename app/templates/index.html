@@ -124,6 +124,21 @@
             <h2 class="section-divider-heading">Filters</h2>
 
             <div class="process-row filter-chain-process">
+                <div class="format-selection" id="format-selection">
+                    <label for="output_format">Format:</label>
+                    <select name="output_format" id="output_format">
+                        <optgroup label="Audio" id="format-audio-group">
+                            <option value="mp3" selected>MP3</option>
+                            <option value="wav">WAV</option>
+                            <option value="flac">FLAC</option>
+                        </optgroup>
+                        <optgroup label="Video" id="format-video-group">
+                            <option value="mp4">MP4</option>
+                            <option value="webm">WebM</option>
+                            <option value="mkv">MKV</option>
+                        </optgroup>
+                    </select>
+                </div>
                 <button type="submit" class="btn-primary">
                     <span class="htmx-indicator">Processing...</span>
                     <span class="btn-text">Process</span>
@@ -503,6 +518,7 @@ var ClipRangeController = (function() {
             container.style.display = 'none';
             window.currentFilename = null;
             isVideoFile = false;
+            FormatSelector.setVideoFile(false);
             hideVideoPreview();
             stopPreview();
             hideMetadataDisplay();
@@ -515,6 +531,7 @@ var ClipRangeController = (function() {
         var videoExts = ['.mp4', '.mkv', '.avi', '.mov', '.webm'];
         var ext = filename.toLowerCase().substring(filename.lastIndexOf('.'));
         isVideoFile = videoExts.indexOf(ext) !== -1;
+        FormatSelector.setVideoFile(isVideoFile);
         fetchDuration(filename);
         // Reload filter chain with file-specific settings
         reloadFilterChain(filename);
@@ -558,6 +575,7 @@ var ClipRangeController = (function() {
         var videoExts = ['.mp4', '.mkv', '.avi', '.mov', '.webm'];
         var ext = filename.toLowerCase().substring(filename.lastIndexOf('.'));
         isVideoFile = videoExts.indexOf(ext) !== -1;
+        FormatSelector.setVideoFile(isVideoFile);
         window.currentFilename = filename;
 
         fetch('/duration/' + encodeURIComponent(filename))
@@ -799,6 +817,51 @@ var ClipRangeController = (function() {
     });
 })();
 
+// Format selector controller
+var FormatSelector = (function() {
+    var formatSelect, audioGroup, videoGroup;
+    var isVideoFile = false;
+
+    function init() {
+        formatSelect = document.getElementById('output_format');
+        audioGroup = document.getElementById('format-audio-group');
+        videoGroup = document.getElementById('format-video-group');
+    }
+
+    function setVideoFile(isVideo) {
+        isVideoFile = isVideo;
+        updateOptions();
+    }
+
+    function updateOptions() {
+        if (!formatSelect) return;
+
+        // If video file, default to MP4; otherwise default to MP3
+        if (isVideoFile) {
+            // Select MP4 as default for video files
+            if (formatSelect.value === 'mp3' || formatSelect.value === 'wav' || formatSelect.value === 'flac') {
+                formatSelect.value = 'mp4';
+            }
+        } else {
+            // Select MP3 as default for audio files
+            if (formatSelect.value === 'mp4' || formatSelect.value === 'webm' || formatSelect.value === 'mkv') {
+                formatSelect.value = 'mp3';
+            }
+        }
+    }
+
+    function getFormat() {
+        return formatSelect ? formatSelect.value : 'mp3';
+    }
+
+    return {
+        init: init,
+        setVideoFile: setVideoFile,
+        updateOptions: updateOptions,
+        getFormat: getFormat
+    };
+})();
+
 // Generic function to update preset label and pill highlighting
 // category: string name of filter (e.g., 'volume', 'frequency', 'brightness')
 // values: object with current values (e.g., {volume: 1.5} or {highpass: 100, lowpass: 8000})
@@ -858,6 +921,7 @@ function updatePresetLabel(category, values) {
 
 document.addEventListener('DOMContentLoaded', function() {
     ClipRangeController.init();
+    FormatSelector.init();
 
     // Stop clip preview when form is submitted
     var form = document.getElementById('process-form');

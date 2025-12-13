@@ -14,7 +14,7 @@
     {% endif %}
     <div class="preview-actions">
         <a href="/preview/{{ output_file }}" download="{{ output_file }}" class="btn-secondary">
-            <i class="fas fa-download"></i> Download {{ "Video" if is_video else "Audio" }}
+            <i class="fas fa-download"></i> Download {{ output_format or ("Video" if is_video else "Audio") }}
         </a>
     </div>
 </div>

@@ -168,6 +168,14 @@ def process_video_with_filters(
             "-c:a", "libopus",
             "-b:a", "128k",
         ])
+    elif output_format == "mkv":
+        cmd.extend([
+            "-c:v", "libx264",
+            "-preset", "fast",
+            "-crf", "23",
+            "-c:a", "aac",
+            "-b:a", "192k",
+        ])
 
     cmd.append(str(output_file))
 

@@ -80,6 +80,10 @@
 
 /* Filter Chain Process Row */
 .filter-chain-process {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
     margin-top: 0;
     margin-bottom: 2rem;
 }

@@ -55,12 +55,17 @@ router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
 
+AUDIO_FORMATS = {"mp3", "wav", "flac"}
+VIDEO_FORMATS = {"mp4", "webm", "mkv"}
+
+
 @router.post("/process", response_class=HTMLResponse)
 async def process(
     request: Request,
     input_file: str = Form(...),
     start_time: str = Form(config.audio.default_start_time),
     end_time: str = Form(config.audio.default_end_time),
+    output_format: str = Form("mp3"),
 ):
     """Process audio/video and return preview partial."""
     input_path = INPUT_DIR / input_file
@@ -140,7 +145,20 @@ async def process(
     )
 
     try:
-        if is_video and video_filters_active:
+        # Determine output type based on user-selected format
+        wants_video_output = output_format in VIDEO_FORMATS
+
+        # Validate format: can only output video if input is video
+        if wants_video_output and not is_video:
+            # Input is audio-only, fall back to audio format
+            output_format = "mp3"
+            wants_video_output = False
+
+        # If audio format selected but no valid audio format, use mp3
+        if not wants_video_output and output_format not in AUDIO_FORMATS:
+            output_format = "mp3"
+
+        if wants_video_output and is_video:
             # Build video filter chain (with same speed for sync)
             video_filter = build_video_filter_chain(
                 brightness=brightness_config.brightness,
@@ -158,7 +176,7 @@ async def process(
                 end_time=end_time,
                 audio_filter=audio_filter,
                 video_filter=video_filter,
-                output_format="mp4",
+                output_format=output_format,
             )
         else:
             # Audio-only output with full filter chain (all 7 audio filters)
@@ -167,7 +185,7 @@ async def process(
                 start_time=start_time,
                 end_time=end_time,
                 audio_filter=audio_filter,
-                output_format="mp3",
+                output_format=output_format,
             )
 
         add_history_entry(
@@ -192,6 +210,7 @@ async def process(
                 "request": request,
                 "output_file": output_path.name,
                 "is_video": output_path.suffix.lower() in {".mp4", ".webm", ".mkv"},
+                "output_format": output_format.upper(),
                 "success": True,
             },
         )
