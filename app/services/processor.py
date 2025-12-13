@@ -514,3 +514,86 @@ def build_video_filter_chain(
         filters.append(f"setpts={pts_factor}*PTS")
 
     return ",".join(filters) if filters else None
+
+
+def process_video_with_effects(
+    input_file: Path,
+    start_time: str,
+    end_time: str,
+    audio_filter: str | None = None,
+    video_filter: str | None = None,
+    output_format: str = "mp4",
+) -> Path:
+    """
+    Process video with both audio and video filter chains.
+
+    Applies audio effects (-af) and video effects (-vf) simultaneously,
+    ensuring A/V synchronization when speed changes are involved.
+
+    Args:
+        input_file: Path to source video file
+        start_time: Start timestamp (HH:MM:SS or HH:MM:SS.mmm)
+        end_time: End timestamp (HH:MM:SS or HH:MM:SS.mmm)
+        audio_filter: Complete audio filter chain string or None
+        video_filter: Complete video filter chain string or None
+        output_format: Output format (mp4, mkv, webm)
+
+    Returns:
+        Path to the processed output file
+    """
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    output_file = OUTPUT_DIR / f"processed_{timestamp}.{output_format}"
+
+    cmd = [
+        "ffmpeg",
+        "-y",
+        "-i", str(input_file),
+        "-ss", start_time,
+        "-to", end_time,
+    ]
+
+    # Add audio filter chain if present
+    if audio_filter:
+        cmd.extend(["-af", audio_filter])
+
+    # Add video filter chain if present
+    if video_filter:
+        cmd.extend(["-vf", video_filter])
+
+    # Output settings based on format
+    if output_format == "mp4":
+        cmd.extend([
+            "-c:v", "libx264",
+            "-preset", "fast",
+            "-crf", "23",
+            "-c:a", "aac",
+            "-b:a", "192k",
+        ])
+    elif output_format == "webm":
+        cmd.extend([
+            "-c:v", "libvpx-vp9",
+            "-crf", "30",
+            "-b:v", "0",
+            "-c:a", "libopus",
+            "-b:a", "128k",
+        ])
+
+    cmd.append(str(output_file))
+
+    logger.info(f"Processing video with effects: {input_file.name}")
+    logger.debug(f"Audio filter: {audio_filter}")
+    logger.debug(f"Video filter: {video_filter}")
+    logger.debug(f"Command: {' '.join(cmd)}")
+
+    result = subprocess.run(
+        cmd,
+        capture_output=True,
+        text=True,
+    )
+
+    if result.returncode != 0:
+        logger.error(f"ffmpeg error: {result.stderr}")
+        raise RuntimeError(f"ffmpeg failed: {result.stderr}")
+
+    logger.info(f"Video output saved: {output_file.name}")
+    return output_file

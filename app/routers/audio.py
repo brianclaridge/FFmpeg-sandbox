@@ -37,7 +37,16 @@ from app.services.settings import (
     update_active_category,
     update_active_tab,
 )
-from app.services.processor import process_audio, get_input_files, get_file_duration, format_duration_ms, get_file_metadata
+from app.services.processor import (
+    process_audio,
+    process_video_with_effects,
+    get_input_files,
+    get_file_duration,
+    format_duration_ms,
+    get_file_metadata,
+    build_audio_filter_chain,
+    build_video_filter_chain,
+)
 from app.services.file_metadata import load_file_metadata
 from app.services.history import add_history_entry
 
@@ -53,54 +62,167 @@ async def process(
     input_file: str = Form(...),
     start_time: str = Form(config.audio.default_start_time),
     end_time: str = Form(config.audio.default_end_time),
-    preset: str = Form(config.audio.default_preset),
-    volume: float = Form(1.0),
-    highpass: int = Form(20),
-    lowpass: int = Form(20000),
-    delays: str = Form("1"),
-    decays: str = Form("0"),
-    volume_preset: str = Form("none"),
-    tunnel_preset: str = Form("none"),
-    frequency_preset: str = Form("flat"),
 ):
-    """Process audio and return preview partial."""
+    """Process audio/video and return preview partial."""
     input_path = INPUT_DIR / input_file
 
     if not input_path.exists():
         raise HTTPException(status_code=404, detail="Input file not found")
 
-    # Save preset selections to per-file .yml metadata
-    if input_file:
-        update_category_preset("volume", volume_preset, input_file)
-        update_category_preset("tunnel", tunnel_preset, input_file)
-        update_category_preset("frequency", frequency_preset, input_file)
+    # Load user settings from per-file YAML
+    user_settings = load_user_settings(input_file)
+
+    # Lookup all preset configurations from user settings
+    try:
+        volume_config = VOLUME_PRESETS[VolumePreset(user_settings.volume.preset)]
+    except (ValueError, KeyError):
+        volume_config = VOLUME_PRESETS[VolumePreset.X2]
 
     try:
-        output_path = process_audio(
-            input_file=input_path,
-            start_time=start_time,
-            end_time=end_time,
-            volume=volume,
-            highpass=highpass,
-            lowpass=lowpass,
-            delays=delays,
-            decays=decays,
-        )
+        tunnel_config = TUNNEL_PRESETS[TunnelPreset(user_settings.tunnel.preset)]
+    except (ValueError, KeyError):
+        tunnel_config = TUNNEL_PRESETS[TunnelPreset.NONE]
+
+    try:
+        frequency_config = FREQUENCY_PRESETS[FrequencyPreset(user_settings.frequency.preset)]
+    except (ValueError, KeyError):
+        frequency_config = FREQUENCY_PRESETS[FrequencyPreset.FLAT]
+
+    try:
+        speed_config = SPEED_PRESETS[SpeedPreset(user_settings.speed.preset)]
+    except (ValueError, KeyError):
+        speed_config = SPEED_PRESETS[SpeedPreset.NONE]
+
+    try:
+        pitch_config = PITCH_PRESETS[PitchPreset(user_settings.pitch.preset)]
+    except (ValueError, KeyError):
+        pitch_config = PITCH_PRESETS[PitchPreset.NONE]
+
+    try:
+        noise_config = NOISE_REDUCTION_PRESETS[NoiseReductionPreset(user_settings.noise_reduction.preset)]
+    except (ValueError, KeyError):
+        noise_config = NOISE_REDUCTION_PRESETS[NoiseReductionPreset.NONE]
+
+    try:
+        comp_config = COMPRESSOR_PRESETS[CompressorPreset(user_settings.compressor.preset)]
+    except (ValueError, KeyError):
+        comp_config = COMPRESSOR_PRESETS[CompressorPreset.NONE]
+
+    # Video effect presets
+    try:
+        brightness_config = BRIGHTNESS_PRESETS[BrightnessPreset(user_settings.brightness.preset)]
+    except (ValueError, KeyError):
+        brightness_config = BRIGHTNESS_PRESETS[BrightnessPreset.NONE]
+
+    try:
+        contrast_config = CONTRAST_PRESETS[ContrastPreset(user_settings.contrast.preset)]
+    except (ValueError, KeyError):
+        contrast_config = CONTRAST_PRESETS[ContrastPreset.NONE]
+
+    try:
+        saturation_config = SATURATION_PRESETS[SaturationPreset(user_settings.saturation.preset)]
+    except (ValueError, KeyError):
+        saturation_config = SATURATION_PRESETS[SaturationPreset.NONE]
+
+    try:
+        blur_config = BLUR_PRESETS[BlurPreset(user_settings.blur.preset)]
+    except (ValueError, KeyError):
+        blur_config = BLUR_PRESETS[BlurPreset.NONE]
+
+    try:
+        sharpen_config = SHARPEN_PRESETS[SharpenPreset(user_settings.sharpen.preset)]
+    except (ValueError, KeyError):
+        sharpen_config = SHARPEN_PRESETS[SharpenPreset.NONE]
+
+    try:
+        transform_config = TRANSFORM_PRESETS[TransformPreset(user_settings.transform.preset)]
+    except (ValueError, KeyError):
+        transform_config = TRANSFORM_PRESETS[TransformPreset.NONE]
+
+    # Build audio filter chain with all effects (speed is linked)
+    delays_str = "|".join(str(d) for d in tunnel_config.delays)
+    decays_str = "|".join(str(d) for d in tunnel_config.decays)
+
+    audio_filter = build_audio_filter_chain(
+        volume=volume_config.volume,
+        highpass=frequency_config.highpass,
+        lowpass=frequency_config.lowpass,
+        delays=delays_str,
+        decays=decays_str,
+        speed=speed_config.speed,
+        pitch_semitones=pitch_config.semitones,
+        noise_floor=noise_config.noise_floor,
+        noise_reduction=noise_config.noise_reduction,
+        comp_threshold=comp_config.threshold,
+        comp_ratio=comp_config.ratio,
+        comp_attack=comp_config.attack,
+        comp_release=comp_config.release,
+        comp_makeup=comp_config.makeup,
+    )
+
+    # Check if input is a video file
+    video_extensions = {".mp4", ".mkv", ".avi", ".mov", ".webm"}
+    is_video = input_path.suffix.lower() in video_extensions
+
+    # Check if any video effects are active
+    video_effects_active = (
+        brightness_config.brightness != 0.0 or
+        contrast_config.contrast != 1.0 or
+        saturation_config.saturation != 1.0 or
+        blur_config.sigma > 0 or
+        sharpen_config.amount > 0 or
+        transform_config.filter != "" or
+        speed_config.speed != 1.0  # Speed affects video PTS too
+    )
+
+    try:
+        if is_video and video_effects_active:
+            # Build video filter chain (with same speed for sync)
+            video_filter = build_video_filter_chain(
+                brightness=brightness_config.brightness,
+                contrast=contrast_config.contrast,
+                saturation=saturation_config.saturation,
+                blur_sigma=blur_config.sigma,
+                sharpen_amount=sharpen_config.amount,
+                transform=transform_config.filter,
+                speed=speed_config.speed,
+            )
+
+            output_path = process_video_with_effects(
+                input_file=input_path,
+                start_time=start_time,
+                end_time=end_time,
+                audio_filter=audio_filter,
+                video_filter=video_filter,
+                output_format="mp4",
+            )
+        else:
+            # Audio-only extraction (uses legacy process_audio for MP3 output)
+            output_path = process_audio(
+                input_file=input_path,
+                start_time=start_time,
+                end_time=end_time,
+                volume=volume_config.volume,
+                highpass=frequency_config.highpass,
+                lowpass=frequency_config.lowpass,
+                delays=delays_str,
+                decays=decays_str,
+            )
 
         add_history_entry(
             input_file=input_file,
             output_file=output_path.name,
             start_time=start_time,
             end_time=end_time,
-            preset=preset,
-            volume=volume,
-            highpass=highpass,
-            lowpass=lowpass,
-            delays=delays,
-            decays=decays,
-            volume_preset=volume_preset,
-            tunnel_preset=tunnel_preset,
-            frequency_preset=frequency_preset,
+            preset=user_settings.tunnel.preset,
+            volume=volume_config.volume,
+            highpass=frequency_config.highpass,
+            lowpass=frequency_config.lowpass,
+            delays=delays_str,
+            decays=decays_str,
+            volume_preset=user_settings.volume.preset,
+            tunnel_preset=user_settings.tunnel.preset,
+            frequency_preset=user_settings.frequency.preset,
         )
 
         return templates.TemplateResponse(
