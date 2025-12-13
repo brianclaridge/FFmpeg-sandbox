@@ -272,3 +272,245 @@ def format_bitrate(bitrate: int) -> str:
     elif bitrate >= 1000:
         return f"{bitrate / 1000:.0f} kbps"
     return f"{bitrate} bps"
+
+
+# ============ AUDIO FILTER BUILDERS ============
+
+def build_speed_filter(speed: float) -> str:
+    """
+    Build atempo filter for speed adjustment.
+
+    FFmpeg atempo only supports 0.5-2.0 range, so we chain multiple
+    filters for values outside this range.
+    """
+    if speed == 1.0:
+        return ""
+
+    filters = []
+    remaining = speed
+
+    # Chain atempo filters to achieve desired speed
+    while remaining > 2.0:
+        filters.append("atempo=2.0")
+        remaining /= 2.0
+    while remaining < 0.5:
+        filters.append("atempo=0.5")
+        remaining /= 0.5
+
+    # Add final atempo for remaining adjustment
+    if 0.5 <= remaining <= 2.0 and remaining != 1.0:
+        filters.append(f"atempo={remaining}")
+
+    return ",".join(filters)
+
+
+def build_pitch_filter(semitones: float, sample_rate: int = 44100) -> str:
+    """
+    Build pitch shift filter using asetrate + atempo.
+
+    This shifts pitch without changing playback speed by:
+    1. Changing sample rate to shift pitch
+    2. Using atempo to compensate for speed change
+    """
+    if semitones == 0.0:
+        return ""
+
+    # Calculate the pitch ratio (2^(semitones/12))
+    import math
+    ratio = math.pow(2, semitones / 12)
+
+    # asetrate changes pitch, atempo compensates speed
+    new_rate = int(sample_rate * ratio)
+    tempo_compensation = 1 / ratio
+
+    return f"asetrate={new_rate},atempo={tempo_compensation:.6f},aresample={sample_rate}"
+
+
+def build_noise_reduction_filter(noise_floor: float, noise_reduction: float) -> str:
+    """
+    Build afftdn (FFT-based denoiser) filter.
+
+    Args:
+        noise_floor: Noise floor in dB (-20 to -80)
+        noise_reduction: Reduction amount (0.0 to 1.0)
+    """
+    if noise_reduction == 0.0:
+        return ""
+
+    return f"afftdn=nf={noise_floor}:nr={noise_reduction * 100}"
+
+
+def build_compressor_filter(
+    threshold: float,
+    ratio: float,
+    attack: float,
+    release: float,
+    makeup: float,
+) -> str:
+    """
+    Build acompressor filter for dynamic range compression.
+
+    Args:
+        threshold: dB level where compression starts
+        ratio: Compression ratio (e.g., 4 = 4:1)
+        attack: Attack time in ms
+        release: Release time in ms
+        makeup: Makeup gain in dB
+    """
+    if ratio <= 1.0:
+        return ""
+
+    return (
+        f"acompressor=threshold={threshold}dB:ratio={ratio}:"
+        f"attack={attack}:release={release}:makeup={makeup}dB"
+    )
+
+
+# ============ VIDEO FILTER BUILDERS ============
+
+def build_eq_filter(brightness: float, contrast: float, saturation: float) -> str:
+    """
+    Build eq filter for brightness/contrast/saturation adjustment.
+
+    All values have "no effect" defaults: brightness=0, contrast=1, saturation=1
+    """
+    # Check if any adjustments needed
+    if brightness == 0.0 and contrast == 1.0 and saturation == 1.0:
+        return ""
+
+    return f"eq=brightness={brightness}:contrast={contrast}:saturation={saturation}"
+
+
+def build_blur_filter(sigma: float) -> str:
+    """Build gblur (Gaussian blur) filter."""
+    if sigma <= 0:
+        return ""
+
+    return f"gblur=sigma={sigma}"
+
+
+def build_sharpen_filter(amount: float) -> str:
+    """
+    Build unsharp filter for sharpening.
+
+    Uses 5x5 luma matrix with specified amount.
+    """
+    if amount <= 0:
+        return ""
+
+    return f"unsharp=5:5:{amount}:5:5:0"
+
+
+def build_transform_filter(filter_str: str) -> str:
+    """Return transform filter string directly (hflip, vflip, transpose, etc.)."""
+    return filter_str if filter_str else ""
+
+
+# ============ FILTER CHAIN BUILDERS ============
+
+def build_audio_filter_chain(
+    volume: float = 1.0,
+    highpass: int = 20,
+    lowpass: int = 20000,
+    delays: str = "",
+    decays: str = "",
+    speed: float = 1.0,
+    pitch_semitones: float = 0.0,
+    noise_floor: float = -25.0,
+    noise_reduction: float = 0.0,
+    comp_threshold: float = 0.0,
+    comp_ratio: float = 1.0,
+    comp_attack: float = 20.0,
+    comp_release: float = 250.0,
+    comp_makeup: float = 0.0,
+) -> str | None:
+    """
+    Build complete audio filter chain from all audio effect settings.
+
+    Returns None if no effects are active.
+    """
+    filters = []
+
+    # Volume
+    if volume != 1.0:
+        filters.append(f"volume={volume}")
+
+    # Frequency (highpass/lowpass)
+    if highpass > 20:
+        filters.append(f"highpass=f={highpass}")
+    if lowpass < 20000:
+        filters.append(f"lowpass=f={lowpass}")
+
+    # Tunnel/echo
+    if delays and decays:
+        decay_values = [float(d) for d in decays.split("|") if d.strip()]
+        if any(d > 0 for d in decay_values):
+            filters.append(f"aecho=0.8:0.85:{delays}:{decays}")
+
+    # Speed
+    speed_filter = build_speed_filter(speed)
+    if speed_filter:
+        filters.append(speed_filter)
+
+    # Pitch
+    pitch_filter = build_pitch_filter(pitch_semitones)
+    if pitch_filter:
+        filters.append(pitch_filter)
+
+    # Noise reduction
+    nr_filter = build_noise_reduction_filter(noise_floor, noise_reduction)
+    if nr_filter:
+        filters.append(nr_filter)
+
+    # Compressor
+    comp_filter = build_compressor_filter(
+        comp_threshold, comp_ratio, comp_attack, comp_release, comp_makeup
+    )
+    if comp_filter:
+        filters.append(comp_filter)
+
+    return ",".join(filters) if filters else None
+
+
+def build_video_filter_chain(
+    brightness: float = 0.0,
+    contrast: float = 1.0,
+    saturation: float = 1.0,
+    blur_sigma: float = 0.0,
+    sharpen_amount: float = 0.0,
+    transform: str = "",
+    speed: float = 1.0,
+) -> str | None:
+    """
+    Build complete video filter chain from all video effect settings.
+
+    Returns None if no effects are active.
+    """
+    filters = []
+
+    # EQ (brightness/contrast/saturation)
+    eq_filter = build_eq_filter(brightness, contrast, saturation)
+    if eq_filter:
+        filters.append(eq_filter)
+
+    # Blur
+    blur_filter = build_blur_filter(blur_sigma)
+    if blur_filter:
+        filters.append(blur_filter)
+
+    # Sharpen
+    sharpen_filter = build_sharpen_filter(sharpen_amount)
+    if sharpen_filter:
+        filters.append(sharpen_filter)
+
+    # Transform
+    transform_filter = build_transform_filter(transform)
+    if transform_filter:
+        filters.append(transform_filter)
+
+    # Speed (video uses setpts)
+    if speed != 1.0:
+        pts_factor = 1 / speed
+        filters.append(f"setpts={pts_factor}*PTS")
+
+    return ",".join(filters) if filters else None
