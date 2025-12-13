@@ -1,9 +1,9 @@
-<div id="effects-video-accordion" class="accordion">
+<div id="filters-video-accordion" class="accordion">
     <!-- Brightness Section -->
     <div class="accordion-section {% if user_settings.active_category == 'brightness' %}expanded{% endif %}">
         <div class="accordion-header"
              hx-get="/partials/accordion/brightness"
-             hx-target="#effects-video-accordion"
+             hx-target="#filters-video-accordion"
              hx-swap="outerHTML"
              hx-vals="js:{filename: window.currentFilename || ''}">
             <span class="accordion-icon"><i class="fa-solid fa-sun"></i></span>
@@ -21,7 +21,7 @@
                         data-brightness="{{ config.brightness }}"
                         data-name="{{ config.name }}"
                         hx-post="/partials/accordion-preset/brightness/{{ preset_key }}"
-                        hx-target="#effects-video-accordion"
+                        hx-target="#filters-video-accordion"
                         hx-swap="outerHTML"
                         hx-vals="js:{filename: window.currentFilename || ''}"
                         onclick="document.getElementById('brightness_preset').value = '{{ preset_key }}'">
@@ -49,7 +49,7 @@
     <div class="accordion-section {% if user_settings.active_category == 'contrast' %}expanded{% endif %}">
         <div class="accordion-header"
              hx-get="/partials/accordion/contrast"
-             hx-target="#effects-video-accordion"
+             hx-target="#filters-video-accordion"
              hx-swap="outerHTML"
              hx-vals="js:{filename: window.currentFilename || ''}">
             <span class="accordion-icon"><i class="fa-solid fa-circle-half-stroke"></i></span>
@@ -67,7 +67,7 @@
                         data-contrast="{{ config.contrast }}"
                         data-name="{{ config.name }}"
                         hx-post="/partials/accordion-preset/contrast/{{ preset_key }}"
-                        hx-target="#effects-video-accordion"
+                        hx-target="#filters-video-accordion"
                         hx-swap="outerHTML"
                         hx-vals="js:{filename: window.currentFilename || ''}"
                         onclick="document.getElementById('contrast_preset').value = '{{ preset_key }}'">
@@ -95,7 +95,7 @@
     <div class="accordion-section {% if user_settings.active_category == 'saturation' %}expanded{% endif %}">
         <div class="accordion-header"
              hx-get="/partials/accordion/saturation"
-             hx-target="#effects-video-accordion"
+             hx-target="#filters-video-accordion"
              hx-swap="outerHTML"
              hx-vals="js:{filename: window.currentFilename || ''}">
             <span class="accordion-icon"><i class="fa-solid fa-palette"></i></span>
@@ -113,7 +113,7 @@
                         data-saturation="{{ config.saturation }}"
                         data-name="{{ config.name }}"
                         hx-post="/partials/accordion-preset/saturation/{{ preset_key }}"
-                        hx-target="#effects-video-accordion"
+                        hx-target="#filters-video-accordion"
                         hx-swap="outerHTML"
                         hx-vals="js:{filename: window.currentFilename || ''}"
                         onclick="document.getElementById('saturation_preset').value = '{{ preset_key }}'">
@@ -141,7 +141,7 @@
     <div class="accordion-section {% if user_settings.active_category == 'blur' %}expanded{% endif %}">
         <div class="accordion-header"
              hx-get="/partials/accordion/blur"
-             hx-target="#effects-video-accordion"
+             hx-target="#filters-video-accordion"
              hx-swap="outerHTML"
              hx-vals="js:{filename: window.currentFilename || ''}">
             <span class="accordion-icon"><i class="fa-solid fa-water"></i></span>
@@ -159,7 +159,7 @@
                         data-sigma="{{ config.sigma }}"
                         data-name="{{ config.name }}"
                         hx-post="/partials/accordion-preset/blur/{{ preset_key }}"
-                        hx-target="#effects-video-accordion"
+                        hx-target="#filters-video-accordion"
                         hx-swap="outerHTML"
                         hx-vals="js:{filename: window.currentFilename || ''}"
                         onclick="document.getElementById('blur_preset').value = '{{ preset_key }}'">
@@ -187,7 +187,7 @@
     <div class="accordion-section {% if user_settings.active_category == 'sharpen' %}expanded{% endif %}">
         <div class="accordion-header"
              hx-get="/partials/accordion/sharpen"
-             hx-target="#effects-video-accordion"
+             hx-target="#filters-video-accordion"
              hx-swap="outerHTML"
              hx-vals="js:{filename: window.currentFilename || ''}">
             <span class="accordion-icon"><i class="fa-solid fa-knife"></i></span>
@@ -205,7 +205,7 @@
                         data-amount="{{ config.amount }}"
                         data-name="{{ config.name }}"
                         hx-post="/partials/accordion-preset/sharpen/{{ preset_key }}"
-                        hx-target="#effects-video-accordion"
+                        hx-target="#filters-video-accordion"
                         hx-swap="outerHTML"
                         hx-vals="js:{filename: window.currentFilename || ''}"
                         onclick="document.getElementById('sharpen_preset').value = '{{ preset_key }}'">
@@ -233,7 +233,7 @@
     <div class="accordion-section {% if user_settings.active_category == 'transform' %}expanded{% endif %}">
         <div class="accordion-header"
              hx-get="/partials/accordion/transform"
-             hx-target="#effects-video-accordion"
+             hx-target="#filters-video-accordion"
              hx-swap="outerHTML"
              hx-vals="js:{filename: window.currentFilename || ''}">
             <span class="accordion-icon"><i class="fa-solid fa-rotate"></i></span>
@@ -249,7 +249,7 @@
                 <button type="button"
                         class="preset-pill {% if user_settings.transform.preset == preset_key %}active{% endif %}"
                         hx-post="/partials/accordion-preset/transform/{{ preset_key }}"
-                        hx-target="#effects-video-accordion"
+                        hx-target="#filters-video-accordion"
                         hx-swap="outerHTML"
                         hx-vals="js:{filename: window.currentFilename || ''}"
                         onclick="document.getElementById('transform_preset').value = '{{ preset_key }}'">

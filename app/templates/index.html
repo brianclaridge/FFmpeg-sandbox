@@ -85,7 +85,7 @@
             </div>
         </section>
 
-        <!-- Column 2: Clip Selection + Effect Chain -->
+        <!-- Column 2: Clip Selection + Filter Chain -->
         <section class="card">
             <!-- Clip Selection Section -->
             <h2>Clip Selection</h2>
@@ -120,19 +120,19 @@
                 </div>
             </div>
 
-            <!-- Effects Section -->
-            <h2 class="section-divider-heading">Effects</h2>
+            <!-- Filters Section -->
+            <h2 class="section-divider-heading">Filters</h2>
 
-            <div class="process-row effect-chain-process">
+            <div class="process-row filter-chain-process">
                 <button type="submit" class="btn-primary">
                     <span class="htmx-indicator">Processing...</span>
                     <span class="btn-text">Process</span>
                 </button>
             </div>
 
-            <!-- Effects Tabs and Accordion -->
-            <div id="effects-area">
-                {% include "partials/effects_tabs.html" %}
+            <!-- Filters Tabs and Accordion -->
+            <div id="filters-area">
+                {% include "partials/filters_tabs.html" %}
             </div>
 
             <!-- Hidden preset inputs for form submission -->
@@ -506,8 +506,8 @@ var ClipRangeController = (function() {
             hideVideoPreview();
             stopPreview();
             hideMetadataDisplay();
-            // Reload effect chain with no file (default settings)
-            reloadEffectChain(null);
+            // Reload filter chain with no file (default settings)
+            reloadFilterChain(null);
             return;
         }
 
@@ -516,16 +516,16 @@ var ClipRangeController = (function() {
         var ext = filename.toLowerCase().substring(filename.lastIndexOf('.'));
         isVideoFile = videoExts.indexOf(ext) !== -1;
         fetchDuration(filename);
-        // Reload effect chain with file-specific settings
-        reloadEffectChain(filename);
+        // Reload filter chain with file-specific settings
+        reloadFilterChain(filename);
     }
 
-    function reloadEffectChain(filename) {
-        var url = '/partials/effect-chain';
+    function reloadFilterChain(filename) {
+        var url = '/partials/filter-chain';
         if (filename) {
             url += '?filename=' + encodeURIComponent(filename);
         }
-        htmx.ajax('GET', url, {target: '#effects-area', swap: 'innerHTML'});
+        htmx.ajax('GET', url, {target: '#filters-area', swap: 'innerHTML'});
     }
 
     function showVideoPreview() {
@@ -800,7 +800,7 @@ var ClipRangeController = (function() {
 })();
 
 // Generic function to update preset label and pill highlighting
-// category: string name of effect (e.g., 'volume', 'frequency', 'brightness')
+// category: string name of filter (e.g., 'volume', 'frequency', 'brightness')
 // values: object with current values (e.g., {volume: 1.5} or {highpass: 100, lowpass: 8000})
 function updatePresetLabel(category, values) {
     var pillsContainer = document.getElementById(category + '-preset-pills');

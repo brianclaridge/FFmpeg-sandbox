@@ -107,7 +107,7 @@ def process_audio(
     return output_file
 
 
-def process_video_with_effects(
+def process_video_with_filters(
     input_file: Path,
     start_time: str,
     end_time: str,
@@ -118,7 +118,7 @@ def process_video_with_effects(
     """
     Process video with both audio and video filter chains.
 
-    Applies audio effects (-af) and video effects (-vf) simultaneously,
+    Applies audio filters (-af) and video filters (-vf) simultaneously,
     ensuring A/V synchronization when speed changes are involved.
 
     Args:
@@ -171,7 +171,7 @@ def process_video_with_effects(
 
     cmd.append(str(output_file))
 
-    logger.info(f"Processing video with effects: {input_file.name}")
+    logger.info(f"Processing video with filters: {input_file.name}")
     logger.debug(f"Audio filter: {audio_filter}")
     logger.debug(f"Video filter: {video_filter}")
     logger.debug(f"Command: {' '.join(cmd)}")
@@ -190,7 +190,7 @@ def process_video_with_effects(
     return output_file
 
 
-def process_audio_with_effects(
+def process_audio_with_filters(
     input_file: Path,
     start_time: str,
     end_time: str,
@@ -200,9 +200,9 @@ def process_audio_with_effects(
     """
     Process audio with the full filter chain.
 
-    Extracts audio from input file and applies all audio effects.
+    Extracts audio from input file and applies all audio filters.
     This function should be used instead of process_audio() when
-    the full effect chain (including speed, pitch, noise reduction,
+    the full filter chain (including speed, pitch, noise reduction,
     compressor) needs to be applied.
 
     Args:

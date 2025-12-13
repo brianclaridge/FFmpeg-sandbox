@@ -10,7 +10,7 @@ Cleans output/logs/metadata, rebuilds Docker image, restarts container.
 
 ## Project Overview
 
-FastAPI + HTMX single-page app for processing audio/video with visual effect chains. 13 effect categories (7 audio, 6 video) with YAML-driven presets.
+FastAPI + HTMX single-page app for processing audio/video with visual filter chains. 13 filter categories (7 audio, 6 video) with YAML-driven presets.
 
 ## Tech Stack
 
@@ -24,7 +24,7 @@ FastAPI + HTMX single-page app for processing audio/video with visual effect cha
 
 ```
 config.yml               # App configuration
-presets.yml              # Effect presets (66 presets, 13 categories)
+presets.yml              # Filter presets (66 presets, 13 categories)
 .data/
 ├── input/               # Source files + per-file .yml metadata
 ├── output/              # Processed files
@@ -34,7 +34,7 @@ app/
 ├── config.py            # Config loader
 ├── models.py            # Pydantic schemas (241 lines)
 ├── routers/
-│   ├── audio.py         # /process, /preview, effect chain endpoints
+│   ├── audio.py         # /process, /preview, filter chain endpoints
 │   ├── download.py      # yt-dlp download endpoints
 │   └── history.py       # History endpoints
 ├── services/
@@ -67,7 +67,7 @@ uv run python -m app.main  # Dev server
 docker compose up -d     # Docker
 ```
 
-## Effect Categories
+## Filter Categories
 
 **Audio (7):** Volume, Tunnel, Frequency, Speed, Pitch, Noise Reduction, Compressor
 
@@ -107,7 +107,7 @@ Add option to `templates/base.html` theme selector.
 
 ### Modify filter chain
 
-Edit `app/services/filter_chain.py` for chain logic, or individual `filters_audio.py`/`filters_video.py` for specific effects.
+Edit `app/services/filter_chain.py` for chain logic, or individual `filters_audio.py`/`filters_video.py` for specific filters.
 
 ---
 
@@ -121,7 +121,7 @@ Missing:
 - Audio vs video export selection
 - Format selection (MP4, WebM, MKV)
 
-### Phase 13: Audio Effect QA
+### Phase 13: Audio Filter QA
 **Priority:** Medium | **Status:** Backend ready
 
 - Validate pitch + speed interaction

@@ -1,9 +1,9 @@
-<div id="effects-audio-accordion" class="accordion">
+<div id="filters-audio-accordion" class="accordion">
     <!-- Volume Section -->
     <div class="accordion-section {% if user_settings.active_category == 'volume' %}expanded{% endif %}">
         <div class="accordion-header"
              hx-get="/partials/accordion/volume"
-             hx-target="#effects-audio-accordion"
+             hx-target="#filters-audio-accordion"
              hx-swap="outerHTML"
              hx-vals="js:{filename: window.currentFilename || ''}">
             <span class="accordion-icon"><i class="fa-solid fa-volume-high"></i></span>
@@ -21,7 +21,7 @@
                         data-volume="{{ config.volume }}"
                         data-name="{{ config.name }}"
                         hx-post="/partials/accordion-preset/volume/{{ preset_key }}"
-                        hx-target="#effects-audio-accordion"
+                        hx-target="#filters-audio-accordion"
                         hx-swap="outerHTML"
                         hx-vals="js:{filename: window.currentFilename || ''}"
                         onclick="document.getElementById('volume_preset').value = '{{ preset_key }}'">
@@ -49,7 +49,7 @@
     <div class="accordion-section {% if user_settings.active_category == 'tunnel' %}expanded{% endif %}">
         <div class="accordion-header"
              hx-get="/partials/accordion/tunnel"
-             hx-target="#effects-audio-accordion"
+             hx-target="#filters-audio-accordion"
              hx-swap="outerHTML"
              hx-vals="js:{filename: window.currentFilename || ''}">
             <span class="accordion-icon"><i class="fa-solid fa-dungeon"></i></span>
@@ -68,7 +68,7 @@
                         data-decays="{{ config.decays | join('|') }}"
                         data-name="{{ config.name }}"
                         hx-post="/partials/accordion-preset/tunnel/{{ preset_key }}"
-                        hx-target="#effects-audio-accordion"
+                        hx-target="#filters-audio-accordion"
                         hx-swap="outerHTML"
                         hx-vals="js:{filename: window.currentFilename || ''}"
                         onclick="document.getElementById('tunnel_preset').value = '{{ preset_key }}'">
@@ -103,7 +103,7 @@
     <div class="accordion-section {% if user_settings.active_category == 'frequency' %}expanded{% endif %}">
         <div class="accordion-header"
              hx-get="/partials/accordion/frequency"
-             hx-target="#effects-audio-accordion"
+             hx-target="#filters-audio-accordion"
              hx-swap="outerHTML"
              hx-vals="js:{filename: window.currentFilename || ''}">
             <span class="accordion-icon"><i class="fa-solid fa-wave-square"></i></span>
@@ -122,7 +122,7 @@
                         data-lowpass="{{ config.lowpass }}"
                         data-name="{{ config.name }}"
                         hx-post="/partials/accordion-preset/frequency/{{ preset_key }}"
-                        hx-target="#effects-audio-accordion"
+                        hx-target="#filters-audio-accordion"
                         hx-swap="outerHTML"
                         hx-vals="js:{filename: window.currentFilename || ''}"
                         onclick="document.getElementById('frequency_preset').value = '{{ preset_key }}'">
@@ -157,7 +157,7 @@
     <div class="accordion-section {% if user_settings.active_category == 'speed' %}expanded{% endif %}">
         <div class="accordion-header"
              hx-get="/partials/accordion/speed"
-             hx-target="#effects-audio-accordion"
+             hx-target="#filters-audio-accordion"
              hx-swap="outerHTML"
              hx-vals="js:{filename: window.currentFilename || ''}">
             <span class="accordion-icon"><i class="fa-solid fa-gauge-high"></i></span>
@@ -175,7 +175,7 @@
                         data-speed="{{ config.speed }}"
                         data-name="{{ config.name }}"
                         hx-post="/partials/accordion-preset/speed/{{ preset_key }}"
-                        hx-target="#effects-audio-accordion"
+                        hx-target="#filters-audio-accordion"
                         hx-swap="outerHTML"
                         hx-vals="js:{filename: window.currentFilename || ''}"
                         onclick="document.getElementById('speed_preset').value = '{{ preset_key }}'">
@@ -203,7 +203,7 @@
     <div class="accordion-section {% if user_settings.active_category == 'pitch' %}expanded{% endif %}">
         <div class="accordion-header"
              hx-get="/partials/accordion/pitch"
-             hx-target="#effects-audio-accordion"
+             hx-target="#filters-audio-accordion"
              hx-swap="outerHTML"
              hx-vals="js:{filename: window.currentFilename || ''}">
             <span class="accordion-icon"><i class="fa-solid fa-music"></i></span>
@@ -221,7 +221,7 @@
                         data-semitones="{{ config.semitones }}"
                         data-name="{{ config.name }}"
                         hx-post="/partials/accordion-preset/pitch/{{ preset_key }}"
-                        hx-target="#effects-audio-accordion"
+                        hx-target="#filters-audio-accordion"
                         hx-swap="outerHTML"
                         hx-vals="js:{filename: window.currentFilename || ''}"
                         onclick="document.getElementById('pitch_preset').value = '{{ preset_key }}'">
@@ -249,7 +249,7 @@
     <div class="accordion-section {% if user_settings.active_category == 'noise_reduction' %}expanded{% endif %}">
         <div class="accordion-header"
              hx-get="/partials/accordion/noise_reduction"
-             hx-target="#effects-audio-accordion"
+             hx-target="#filters-audio-accordion"
              hx-swap="outerHTML"
              hx-vals="js:{filename: window.currentFilename || ''}">
             <span class="accordion-icon"><i class="fa-solid fa-volume-xmark"></i></span>
@@ -267,7 +267,7 @@
                         data-noise-floor="{{ config.noise_floor }}"
                         data-name="{{ config.name }}"
                         hx-post="/partials/accordion-preset/noise_reduction/{{ preset_key }}"
-                        hx-target="#effects-audio-accordion"
+                        hx-target="#filters-audio-accordion"
                         hx-swap="outerHTML"
                         hx-vals="js:{filename: window.currentFilename || ''}"
                         onclick="document.getElementById('noise_reduction_preset').value = '{{ preset_key }}'">
@@ -295,7 +295,7 @@
     <div class="accordion-section {% if user_settings.active_category == 'compressor' %}expanded{% endif %}">
         <div class="accordion-header"
              hx-get="/partials/accordion/compressor"
-             hx-target="#effects-audio-accordion"
+             hx-target="#filters-audio-accordion"
              hx-swap="outerHTML"
              hx-vals="js:{filename: window.currentFilename || ''}">
             <span class="accordion-icon"><i class="fa-solid fa-compress"></i></span>
@@ -314,7 +314,7 @@
                         data-ratio="{{ config.ratio }}"
                         data-name="{{ config.name }}"
                         hx-post="/partials/accordion-preset/compressor/{{ preset_key }}"
-                        hx-target="#effects-audio-accordion"
+                        hx-target="#filters-audio-accordion"
                         hx-swap="outerHTML"
                         hx-vals="js:{filename: window.currentFilename || ''}"
                         onclick="document.getElementById('compressor_preset').value = '{{ preset_key }}'">

@@ -37,8 +37,8 @@ from app.services.settings import (
 )
 from app.services import (
     process_audio,
-    process_audio_with_effects,
-    process_video_with_effects,
+    process_audio_with_filters,
+    process_video_with_filters,
     get_input_files,
     get_file_duration,
     format_duration_ms,
@@ -95,7 +95,7 @@ async def process(
     noise_config = noise_presets.get(user_settings.noise_reduction.preset) or noise_presets["none"]
     comp_config = compressor_presets.get(user_settings.compressor.preset) or compressor_presets["none"]
 
-    # Video effect presets
+    # Video filter presets
     brightness_config = brightness_presets.get(user_settings.brightness.preset) or brightness_presets["none"]
     contrast_config = contrast_presets.get(user_settings.contrast.preset) or contrast_presets["none"]
     saturation_config = saturation_presets.get(user_settings.saturation.preset) or saturation_presets["none"]
@@ -103,7 +103,7 @@ async def process(
     sharpen_config = sharpen_presets.get(user_settings.sharpen.preset) or sharpen_presets["none"]
     transform_config = transform_presets.get(user_settings.transform.preset) or transform_presets["none"]
 
-    # Build audio filter chain with all effects (speed is linked)
+    # Build audio filter chain with all filters (speed is linked)
     delays_str = "|".join(str(d) for d in tunnel_config.delays)
     decays_str = "|".join(str(d) for d in tunnel_config.decays)
 
@@ -128,8 +128,8 @@ async def process(
     video_extensions = {".mp4", ".mkv", ".avi", ".mov", ".webm"}
     is_video = input_path.suffix.lower() in video_extensions
 
-    # Check if any video effects are active
-    video_effects_active = (
+    # Check if any video filters are active
+    video_filters_active = (
         brightness_config.brightness != 0.0 or
         contrast_config.contrast != 1.0 or
         saturation_config.saturation != 1.0 or
@@ -140,7 +140,7 @@ async def process(
     )
 
     try:
-        if is_video and video_effects_active:
+        if is_video and video_filters_active:
             # Build video filter chain (with same speed for sync)
             video_filter = build_video_filter_chain(
                 brightness=brightness_config.brightness,
@@ -152,7 +152,7 @@ async def process(
                 speed=speed_config.speed,
             )
 
-            output_path = process_video_with_effects(
+            output_path = process_video_with_filters(
                 input_file=input_path,
                 start_time=start_time,
                 end_time=end_time,
@@ -161,8 +161,8 @@ async def process(
                 output_format="mp4",
             )
         else:
-            # Audio-only output with full filter chain (all 7 audio effects)
-            output_path = process_audio_with_effects(
+            # Audio-only output with full filter chain (all 7 audio filters)
+            output_path = process_audio_with_filters(
                 input_file=input_path,
                 start_time=start_time,
                 end_time=end_time,
@@ -214,14 +214,14 @@ async def extract(
     start_time: str = Form(config.audio.default_start_time),
     end_time: str = Form(config.audio.default_end_time),
 ):
-    """Extract audio from video without applying effects."""
+    """Extract audio from video without applying filters."""
     input_path = INPUT_DIR / input_file
 
     if not input_path.exists():
         raise HTTPException(status_code=404, detail="Input file not found")
 
     try:
-        # Extract audio with neutral settings (no effects)
+        # Extract audio with neutral settings (no filters)
         output_path = process_audio(
             input_file=input_path,
             start_time=start_time,
@@ -230,7 +230,7 @@ async def extract(
             highpass=20,       # Minimal high-pass (full bass)
             lowpass=20000,     # Minimal low-pass (full treble)
             delays="1",        # Minimal delay
-            decays="0",        # No echo effect
+            decays="0",        # No echo
         )
 
         add_history_entry(
@@ -537,7 +537,7 @@ def _get_accordion_context(user_settings, filename: str | None = None) -> dict:
     noise_reduction_current = noise_reduction_presets.get(user_settings.noise_reduction.preset) or noise_reduction_presets["none"]
     compressor_current = compressor_presets.get(user_settings.compressor.preset) or compressor_presets["none"]
 
-    # Video effects
+    # Video filters
     brightness_current = brightness_presets.get(user_settings.brightness.preset) or brightness_presets["none"]
     contrast_current = contrast_presets.get(user_settings.contrast.preset) or contrast_presets["none"]
     saturation_current = saturation_presets.get(user_settings.saturation.preset) or saturation_presets["none"]
@@ -580,18 +580,18 @@ def _get_accordion_context(user_settings, filename: str | None = None) -> dict:
     }
 
 
-@router.get("/partials/effect-chain", response_class=HTMLResponse)
-async def get_effect_chain(request: Request, filename: str | None = None):
-    """Get the full effect chain UI component (tabs with accordion)."""
+@router.get("/partials/filter-chain", response_class=HTMLResponse)
+async def get_filter_chain(request: Request, filename: str | None = None):
+    """Get the full filter chain UI component (tabs with accordion)."""
     user_settings = load_user_settings(filename)
     context = _get_accordion_context(user_settings, filename)
     context["request"] = request
-    return templates.TemplateResponse("partials/effects_tabs.html", context)
+    return templates.TemplateResponse("partials/filters_tabs.html", context)
 
 
-@router.get("/partials/effects-tab/{tab}", response_class=HTMLResponse)
-async def get_effects_tab(request: Request, tab: str, filename: str | None = None):
-    """Switch between Audio and Video effects tabs."""
+@router.get("/partials/filters-tab/{tab}", response_class=HTMLResponse)
+async def get_filters_tab(request: Request, tab: str, filename: str | None = None):
+    """Switch between Audio and Video filters tabs."""
     if tab not in ("audio", "video"):
         raise HTTPException(status_code=404, detail="Tab not found")
 
@@ -600,7 +600,7 @@ async def get_effects_tab(request: Request, tab: str, filename: str | None = Non
     context["request"] = request
 
     # Return full tabs container so tab buttons update their active state
-    return templates.TemplateResponse("partials/effects_tabs.html", context)
+    return templates.TemplateResponse("partials/filters_tabs.html", context)
 
 
 AUDIO_CATEGORIES = ("volume", "tunnel", "frequency", "speed", "pitch", "noise_reduction", "compressor")
@@ -617,7 +617,7 @@ async def get_category_panel(request: Request, category: str, filename: str | No
     user_settings = update_active_category(category, filename)
     context = _get_accordion_context(user_settings, filename)
     context["request"] = request
-    return templates.TemplateResponse("partials/effects_audio_accordion.html", context)
+    return templates.TemplateResponse("partials/filters_audio_accordion.html", context)
 
 
 @router.post("/partials/category-preset/{category}/{preset}", response_class=HTMLResponse)
@@ -626,7 +626,7 @@ async def set_category_preset(request: Request, category: str, preset: str, file
     user_settings = update_category_preset(category, preset, filename)
     context = _get_accordion_context(user_settings, filename)
     context["request"] = request
-    return templates.TemplateResponse("partials/effects_audio_accordion.html", context)
+    return templates.TemplateResponse("partials/filters_audio_accordion.html", context)
 
 
 @router.get("/partials/accordion/{category}", response_class=HTMLResponse)
@@ -641,8 +641,8 @@ async def get_accordion_section(request: Request, category: str, filename: str |
 
     # Return correct template based on category type
     if category in VIDEO_CATEGORIES:
-        return templates.TemplateResponse("partials/effects_video_accordion.html", context)
-    return templates.TemplateResponse("partials/effects_audio_accordion.html", context)
+        return templates.TemplateResponse("partials/filters_video_accordion.html", context)
+    return templates.TemplateResponse("partials/filters_audio_accordion.html", context)
 
 
 @router.post("/partials/accordion-preset/{category}/{preset}", response_class=HTMLResponse)
@@ -657,5 +657,5 @@ async def set_accordion_preset(request: Request, category: str, preset: str, fil
 
     # Return correct template based on category type
     if category in VIDEO_CATEGORIES:
-        return templates.TemplateResponse("partials/effects_video_accordion.html", context)
-    return templates.TemplateResponse("partials/effects_audio_accordion.html", context)
+        return templates.TemplateResponse("partials/filters_video_accordion.html", context)
+    return templates.TemplateResponse("partials/filters_audio_accordion.html", context)

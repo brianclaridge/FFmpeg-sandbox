@@ -1,20 +1,20 @@
 /* ===========================================
-   Effects Tabs
+   Filters Tabs
    =========================================== */
 
-.effects-tabs {
+.filters-tabs {
     display: flex;
     flex-direction: column;
 }
 
-.effects-tab-bar {
+.filters-tab-bar {
     display: flex;
     gap: 0.25rem;
     margin-bottom: 0.75rem;
     border-bottom: 2px solid var(--bg-secondary);
 }
 
-.effects-tab {
+.filters-tab {
     flex: 1;
     padding: 0.6rem 1rem;
     background: transparent;
@@ -33,27 +33,27 @@
     gap: 0.5rem;
 }
 
-.effects-tab:hover {
+.filters-tab:hover {
     color: var(--text-primary);
     background: var(--bg-secondary);
 }
 
-.effects-tab.active {
+.filters-tab.active {
     color: var(--accent);
     border-color: var(--accent);
     background: var(--bg-secondary);
 }
 
-.effects-tab i {
+.filters-tab i {
     font-size: 0.85rem;
 }
 
-.effects-tab-content {
+.filters-tab-content {
     /* Container for accordion content */
 }
 
-/* Video effects placeholder */
-.video-effects-placeholder {
+/* Video filters placeholder */
+.video-filters-placeholder {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -66,27 +66,27 @@
     text-align: center;
 }
 
-.video-effects-placeholder i {
+.video-filters-placeholder i {
     font-size: 2rem;
     margin-bottom: 0.75rem;
     opacity: 0.5;
 }
 
-.video-effects-placeholder p {
+.video-filters-placeholder p {
     font-size: 1rem;
     margin-bottom: 0.25rem;
 }
 
-.video-effects-placeholder .placeholder-hint {
+.video-filters-placeholder .placeholder-hint {
     font-size: 0.75rem;
     opacity: 0.7;
 }
 
 /* ===========================================
-   Effect Chain UI
+   Filter Chain UI
    =========================================== */
 
-.effect-chain {
+.filter-chain {
     margin-bottom: 1rem;
 }
 
@@ -160,7 +160,7 @@
 }
 
 /* ===========================================
-   Effect Chain Accordion
+   Filter Chain Accordion
    =========================================== */
 
 .accordion {
@@ -318,7 +318,7 @@
     margin-bottom: 0;
 }
 
-/* Responsive adjustments for effect chain */
+/* Responsive adjustments for filter chain */
 @media (max-width: 600px) {
     .chain-container {
         flex-direction: column;

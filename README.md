@@ -2,13 +2,13 @@
 
 > **NOTICE:** This is a sample application created with the assistance of my opinionated [.claude](https://github.com/brianclaridge/.claude) stack. It's not meant to be used in production, operated for profit, etc. See [LICENSE.md](./LICENSE.md) for more information.
 
-A web-based audio/video processing tool with 13 effect categories and YAML-driven presets.
+A web-based audio/video processing tool with 13 filter categories and YAML-driven presets.
 
 ## Features
 
-- **13 effect categories** with 66 presets across audio and video
-- **Audio effects:** Volume, Tunnel (echo), Frequency, Speed, Pitch, Noise Reduction, Compressor
-- **Video effects:** Brightness, Contrast, Saturation, Blur, Sharpen, Transform
+- **13 filter categories** with 66 presets across audio and video
+- **Audio filters:** Volume, Tunnel (echo), Frequency, Speed, Pitch, Noise Reduction, Compressor
+- **Video filters:** Brightness, Contrast, Saturation, Blur, Sharpen, Transform
 - **YAML-driven presets** via `presets.yml` - customize without code changes
 - **Per-file metadata** storing settings in `.data/input/{filename}.yml`
 - **Dual-handle clip range slider** with millisecond precision
@@ -44,13 +44,13 @@ uv run python -m app.main
 
 1. **Add source files** via upload, drag-and-drop, or URL download
 2. **Select clip range** using the dual-handle slider
-3. **Choose effect presets** from Audio/Video tabs
+3. **Choose filter presets** from Audio/Video tabs
 4. **Click Process** to generate output
 5. **Preview and download** the result
 
-## Effect Categories
+## Filter Categories
 
-### Audio Effects
+### Audio Filters
 
 | Category | Presets | Description |
 |----------|---------|-------------|
@@ -62,7 +62,7 @@ uv run python -m app.main
 | Noise Reduction | None, Light, Medium, Heavy | Background noise removal |
 | Compressor | None, Light, Podcast, Broadcast | Dynamic range control |
 
-### Video Effects
+### Video Filters
 
 | Category | Presets | Description |
 |----------|---------|-------------|
@@ -98,7 +98,7 @@ Theme selection saved in localStorage.
 
 ```text
 config.yml               # App configuration
-presets.yml              # Effect presets (66 presets, 13 categories)
+presets.yml              # Filter presets (66 presets, 13 categories)
 .data/
 ├── input/               # Source files + per-file metadata
 ├── output/              # Processed files

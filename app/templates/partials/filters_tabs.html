@@ -1,0 +1,27 @@
+<div id="filters-tabs-container" class="filters-tabs">
+    <div class="filters-tab-bar">
+        <button type="button"
+                class="filters-tab {% if user_settings.active_tab == 'audio' or not user_settings.active_tab %}active{% endif %}"
+                hx-get="/partials/filters-tab/audio"
+                hx-target="#filters-tabs-container"
+                hx-swap="outerHTML"
+                hx-vals="js:{filename: window.currentFilename || ''}">
+            <i class="fa-solid fa-music"></i> Audio
+        </button>
+        <button type="button"
+                class="filters-tab {% if user_settings.active_tab == 'video' %}active{% endif %}"
+                hx-get="/partials/filters-tab/video"
+                hx-target="#filters-tabs-container"
+                hx-swap="outerHTML"
+                hx-vals="js:{filename: window.currentFilename || ''}">
+            <i class="fa-solid fa-video"></i> Video
+        </button>
+    </div>
+    <div id="filters-tab-content" class="filters-tab-content">
+        {% if user_settings.active_tab == 'video' %}
+            {% include "partials/filters_video_accordion.html" %}
+        {% else %}
+            {% include "partials/filters_audio_accordion.html" %}
+        {% endif %}
+    </div>
+</div>

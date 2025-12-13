@@ -42,8 +42,8 @@ from app.services.ffmpeg_executor import (
 # Processing functions
 from app.services.processor import (
     process_audio,
-    process_audio_with_effects,
-    process_video_with_effects,
+    process_audio_with_filters,
+    process_video_with_filters,
 )
 
 __all__ = [
@@ -73,6 +73,6 @@ __all__ = [
     "run_ffprobe_command",
     # Processing
     "process_audio",
-    "process_audio_with_effects",
-    "process_video_with_effects",
+    "process_audio_with_filters",
+    "process_video_with_filters",
 ]

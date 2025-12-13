@@ -1,12 +1,12 @@
-# Effect Presets Configuration
-# Edit this file to customize presets without code changes.
+# Filter Presets Configuration
+# Edit this file to customize filter presets without code changes.
 # Restart the application after making changes.
 
 audio:
   volume:
     none:
       name: "None"
-      description: "No effect (original)"
+      description: "No change (original)"
       volume: 1.0
     0.25x:
       name: "0.25x"
@@ -40,7 +40,7 @@ audio:
   tunnel:
     none:
       name: "None"
-      description: "No echo effect"
+      description: "No echo/reverb"
       delays: [1]
       decays: [0.0]
     subtle:
@@ -55,7 +55,7 @@ audio:
       decays: [0.35, 0.3, 0.25, 0.2]
     heavy:
       name: "Heavy"
-      description: "Strong cave effect"
+      description: "Strong cave sound"
       delays: [20, 35, 55, 80]
       decays: [0.4, 0.35, 0.3, 0.25]
     extreme:

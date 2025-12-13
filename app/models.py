@@ -7,7 +7,7 @@ from datetime import datetime
 
 # ============ LEGACY PRESET (used by /partials/sliders endpoint) ============
 class PresetLevel(str, Enum):
-    """Tunnel effect intensity presets."""
+    """Tunnel filter intensity presets."""
     NONE = "none"
     LIGHT = "light"
     MEDIUM = "medium"
@@ -16,7 +16,7 @@ class PresetLevel(str, Enum):
 
 
 class PresetConfig(BaseModel):
-    """Configuration for a preset effect level."""
+    """Configuration for a preset filter level."""
     name: str
     description: str
     volume: float
@@ -28,7 +28,7 @@ class PresetConfig(BaseModel):
 
 PRESETS: dict[PresetLevel, PresetConfig] = {
     PresetLevel.NONE: PresetConfig(
-        name="No Effect",
+        name="No Filter",
         description="Clean audio, no tunnel processing",
         volume=1.0,
         highpass=20,
@@ -56,7 +56,7 @@ PRESETS: dict[PresetLevel, PresetConfig] = {
     ),
     PresetLevel.HEAVY: PresetConfig(
         name="Heavy Tunnel",
-        description="Strong cave effect, slightly distant voice",
+        description="Strong cave sound, slightly distant voice",
         volume=2.0,
         highpass=120,
         lowpass=3500,
@@ -75,7 +75,7 @@ PRESETS: dict[PresetLevel, PresetConfig] = {
 }
 
 
-# ============ AUDIO EFFECT CONFIG SCHEMAS ============
+# ============ AUDIO FILTER CONFIG SCHEMAS ============
 # These are used by presets.py to validate YAML presets
 
 class VolumeConfig(BaseModel):
@@ -134,7 +134,7 @@ class CompressorConfig(BaseModel):
     makeup: float
 
 
-# ============ VIDEO EFFECT CONFIG SCHEMAS ============
+# ============ VIDEO FILTER CONFIG SCHEMAS ============
 
 class BrightnessConfig(BaseModel):
     """Configuration for brightness preset."""
@@ -181,14 +181,14 @@ class TransformConfig(BaseModel):
 # ============ USER SETTINGS ============
 
 class CategorySettings(BaseModel):
-    """Settings for a single effect category."""
+    """Settings for a single filter category."""
     preset: str
     custom_values: dict = {}
 
 
 class UserSettings(BaseModel):
     """Complete user settings for all categories."""
-    # Audio effects
+    # Audio filters
     volume: CategorySettings = CategorySettings(preset="none")
     tunnel: CategorySettings = CategorySettings(preset="none")
     frequency: CategorySettings = CategorySettings(preset="none")
@@ -196,7 +196,7 @@ class UserSettings(BaseModel):
     pitch: CategorySettings = CategorySettings(preset="none")
     noise_reduction: CategorySettings = CategorySettings(preset="none")
     compressor: CategorySettings = CategorySettings(preset="none")
-    # Video effects
+    # Video filters
     brightness: CategorySettings = CategorySettings(preset="none")
     contrast: CategorySettings = CategorySettings(preset="none")
     saturation: CategorySettings = CategorySettings(preset="none")
