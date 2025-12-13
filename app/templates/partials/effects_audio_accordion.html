@@ -8,6 +8,7 @@
              hx-vals="js:{filename: window.currentFilename || ''}">
             <span class="accordion-icon"><i class="fa-solid fa-volume-high"></i></span>
             <span class="accordion-label">Volume</span>
+            <span class="accordion-description">Amplify or reduce audio loudness</span>
             <span class="accordion-preset" id="volume-preset-label">{{ volume_presets.get(user_settings.volume.preset, {}).name or user_settings.volume.preset }}</span>
             <span class="accordion-indicator">{% if user_settings.active_category == 'volume' %}&#9660;{% else %}&#9654;{% endif %}</span>
         </div>
@@ -53,6 +54,7 @@
              hx-vals="js:{filename: window.currentFilename || ''}">
             <span class="accordion-icon"><i class="fa-solid fa-dungeon"></i></span>
             <span class="accordion-label">Tunnel</span>
+            <span class="accordion-description">Add echo and reverb depth</span>
             <span class="accordion-preset" id="tunnel-preset-label">{{ tunnel_presets.get(user_settings.tunnel.preset, {}).name or user_settings.tunnel.preset }}</span>
             <span class="accordion-indicator">{% if user_settings.active_category == 'tunnel' %}&#9660;{% else %}&#9654;{% endif %}</span>
         </div>
@@ -106,6 +108,7 @@
              hx-vals="js:{filename: window.currentFilename || ''}">
             <span class="accordion-icon"><i class="fa-solid fa-wave-square"></i></span>
             <span class="accordion-label">Frequency</span>
+            <span class="accordion-description">Filter bass and treble frequencies</span>
             <span class="accordion-preset" id="frequency-preset-label">{{ frequency_presets.get(user_settings.frequency.preset, {}).name or user_settings.frequency.preset }}</span>
             <span class="accordion-indicator">{% if user_settings.active_category == 'frequency' %}&#9660;{% else %}&#9654;{% endif %}</span>
         </div>
@@ -159,6 +162,7 @@
              hx-vals="js:{filename: window.currentFilename || ''}">
             <span class="accordion-icon"><i class="fa-solid fa-gauge-high"></i></span>
             <span class="accordion-label">Speed</span>
+            <span class="accordion-description">Slow down or speed up playback</span>
             <span class="accordion-preset" id="speed-preset-label">{{ speed_presets.get(user_settings.speed.preset, {}).name or user_settings.speed.preset }}</span>
             <span class="accordion-indicator">{% if user_settings.active_category == 'speed' %}&#9660;{% else %}&#9654;{% endif %}</span>
         </div>
@@ -204,6 +208,7 @@
              hx-vals="js:{filename: window.currentFilename || ''}">
             <span class="accordion-icon"><i class="fa-solid fa-music"></i></span>
             <span class="accordion-label">Pitch</span>
+            <span class="accordion-description">Shift voice higher or lower</span>
             <span class="accordion-preset" id="pitch-preset-label">{{ pitch_presets.get(user_settings.pitch.preset, {}).name or user_settings.pitch.preset }}</span>
             <span class="accordion-indicator">{% if user_settings.active_category == 'pitch' %}&#9660;{% else %}&#9654;{% endif %}</span>
         </div>
@@ -249,6 +254,7 @@
              hx-vals="js:{filename: window.currentFilename || ''}">
             <span class="accordion-icon"><i class="fa-solid fa-volume-xmark"></i></span>
             <span class="accordion-label">Noise Reduction</span>
+            <span class="accordion-description">Remove background hiss and hum</span>
             <span class="accordion-preset" id="noise_reduction-preset-label">{{ noise_reduction_presets.get(user_settings.noise_reduction.preset, {}).name or user_settings.noise_reduction.preset }}</span>
             <span class="accordion-indicator">{% if user_settings.active_category == 'noise_reduction' %}&#9660;{% else %}&#9654;{% endif %}</span>
         </div>
@@ -294,6 +300,7 @@
              hx-vals="js:{filename: window.currentFilename || ''}">
             <span class="accordion-icon"><i class="fa-solid fa-compress"></i></span>
             <span class="accordion-label">Compressor</span>
+            <span class="accordion-description">Even out loud and quiet parts</span>
             <span class="accordion-preset" id="compressor-preset-label">{{ compressor_presets.get(user_settings.compressor.preset, {}).name or user_settings.compressor.preset }}</span>
             <span class="accordion-indicator">{% if user_settings.active_category == 'compressor' %}&#9660;{% else %}&#9654;{% endif %}</span>
         </div>

@@ -8,6 +8,7 @@
              hx-vals="js:{filename: window.currentFilename || ''}">
             <span class="accordion-icon"><i class="fa-solid fa-sun"></i></span>
             <span class="accordion-label">Brightness</span>
+            <span class="accordion-description">Make image lighter or darker</span>
             <span class="accordion-preset" id="brightness-preset-label">{{ brightness_presets.get(user_settings.brightness.preset, {}).name or user_settings.brightness.preset }}</span>
             <span class="accordion-indicator">{% if user_settings.active_category == 'brightness' %}&#9660;{% else %}&#9654;{% endif %}</span>
         </div>
@@ -53,6 +54,7 @@
              hx-vals="js:{filename: window.currentFilename || ''}">
             <span class="accordion-icon"><i class="fa-solid fa-circle-half-stroke"></i></span>
             <span class="accordion-label">Contrast</span>
+            <span class="accordion-description">Adjust difference between light and dark</span>
             <span class="accordion-preset" id="contrast-preset-label">{{ contrast_presets.get(user_settings.contrast.preset, {}).name or user_settings.contrast.preset }}</span>
             <span class="accordion-indicator">{% if user_settings.active_category == 'contrast' %}&#9660;{% else %}&#9654;{% endif %}</span>
         </div>
@@ -98,6 +100,7 @@
              hx-vals="js:{filename: window.currentFilename || ''}">
             <span class="accordion-icon"><i class="fa-solid fa-palette"></i></span>
             <span class="accordion-label">Saturation</span>
+            <span class="accordion-description">Control color intensity</span>
             <span class="accordion-preset" id="saturation-preset-label">{{ saturation_presets.get(user_settings.saturation.preset, {}).name or user_settings.saturation.preset }}</span>
             <span class="accordion-indicator">{% if user_settings.active_category == 'saturation' %}&#9660;{% else %}&#9654;{% endif %}</span>
         </div>
@@ -143,6 +146,7 @@
              hx-vals="js:{filename: window.currentFilename || ''}">
             <span class="accordion-icon"><i class="fa-solid fa-water"></i></span>
             <span class="accordion-label">Blur</span>
+            <span class="accordion-description">Soften or defocus the image</span>
             <span class="accordion-preset" id="blur-preset-label">{{ blur_presets.get(user_settings.blur.preset, {}).name or user_settings.blur.preset }}</span>
             <span class="accordion-indicator">{% if user_settings.active_category == 'blur' %}&#9660;{% else %}&#9654;{% endif %}</span>
         </div>
@@ -186,8 +190,9 @@
              hx-target="#effects-video-accordion"
              hx-swap="outerHTML"
              hx-vals="js:{filename: window.currentFilename || ''}">
-            <span class="accordion-icon"><i class="fa-solid fa-diamond"></i></span>
+            <span class="accordion-icon"><i class="fa-solid fa-knife"></i></span>
             <span class="accordion-label">Sharpen</span>
+            <span class="accordion-description">Enhance edge definition</span>
             <span class="accordion-preset" id="sharpen-preset-label">{{ sharpen_presets.get(user_settings.sharpen.preset, {}).name or user_settings.sharpen.preset }}</span>
             <span class="accordion-indicator">{% if user_settings.active_category == 'sharpen' %}&#9660;{% else %}&#9654;{% endif %}</span>
         </div>
@@ -233,6 +238,7 @@
              hx-vals="js:{filename: window.currentFilename || ''}">
             <span class="accordion-icon"><i class="fa-solid fa-rotate"></i></span>
             <span class="accordion-label">Transform</span>
+            <span class="accordion-description">Flip or rotate the video</span>
             <span class="accordion-preset" id="transform-preset-label">{{ transform_presets.get(user_settings.transform.preset, {}).name or user_settings.transform.preset }}</span>
             <span class="accordion-indicator">{% if user_settings.active_category == 'transform' %}&#9660;{% else %}&#9654;{% endif %}</span>
         </div>

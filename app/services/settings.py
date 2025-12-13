@@ -89,15 +89,18 @@ def update_category_preset(category: str, preset: str, filename: str | None = No
 
 
 def update_active_category(category: str, filename: str | None = None) -> UserSettings:
-    """Update which category panel is displayed."""
+    """Toggle the active category panel (close if already open)."""
+    current_settings = load_user_settings(filename) if filename else UserSettings()
+
+    # Toggle: if clicking the already-open category, close it
+    new_category = "" if current_settings.active_category == category else category
+
     if not filename:
-        # Return default settings with updated active category (no persistence)
-        settings = UserSettings()
-        settings.active_category = category
-        return settings
+        current_settings.active_category = new_category
+        return current_settings
 
     # Update in file metadata
-    update_metadata_category(filename, category)
+    update_metadata_category(filename, new_category)
     return load_user_settings(filename)
 
 
