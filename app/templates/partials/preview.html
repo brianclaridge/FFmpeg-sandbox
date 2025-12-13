@@ -1,13 +1,20 @@
 {% if success %}
 <div class="preview-success">
     <p>Processing complete!</p>
+    {% if is_video %}
+    <video controls autoplay loop class="output-video">
+        <source src="/preview/{{ output_file }}" type="video/mp4">
+        Your browser does not support the video element.
+    </video>
+    {% else %}
     <audio controls autoplay>
         <source src="/preview/{{ output_file }}" type="audio/mpeg">
         Your browser does not support the audio element.
     </audio>
+    {% endif %}
     <div class="preview-actions">
         <a href="/preview/{{ output_file }}" download="{{ output_file }}" class="btn-secondary">
-            Download
+            <i class="fas fa-download"></i> Download {{ "Video" if is_video else "Audio" }}
         </a>
     </div>
 </div>

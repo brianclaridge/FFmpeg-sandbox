@@ -230,6 +230,7 @@ async def process(
             {
                 "request": request,
                 "output_file": output_path.name,
+                "is_video": output_path.suffix.lower() in {".mp4", ".webm", ".mkv"},
                 "success": True,
             },
         )
@@ -308,18 +309,24 @@ async def extract(
 
 
 @router.get("/preview/{filename}")
-async def preview_audio(filename: str):
-    """Serve processed audio file."""
+async def preview_file(filename: str):
+    """Serve processed audio or video file."""
     file_path = OUTPUT_DIR / filename
 
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="File not found")
 
-    return FileResponse(
-        file_path,
-        media_type="audio/mpeg",
-        filename=filename,
-    )
+    # Detect media type from extension
+    ext = file_path.suffix.lower()
+    media_types = {
+        ".mp3": "audio/mpeg",
+        ".mp4": "video/mp4",
+        ".webm": "video/webm",
+        ".mkv": "video/x-matroska",
+    }
+    media_type = media_types.get(ext, "application/octet-stream")
+
+    return FileResponse(file_path, media_type=media_type, filename=filename)
 
 
 @router.get("/partials/sliders", response_class=HTMLResponse)
