@@ -244,6 +244,9 @@ input[type="range"].clip-range-end::-moz-range-thumb {
 }
 
 .metadata-title-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
     margin-bottom: 0.5rem;
 }
 
@@ -252,7 +255,18 @@ input[type="range"].clip-range-end::-moz-range-thumb {
     color: var(--text-primary);
     font-style: italic;
     line-height: 1.3;
-    display: block;
+    flex: 1;
+}
+
+.metadata-source-link {
+    color: var(--accent);
+    font-size: 0.8rem;
+    flex-shrink: 0;
+    padding: 0.1rem;
+}
+
+.metadata-source-link:hover {
+    color: var(--accent-hover);
 }
 
 .metadata-tags-row {

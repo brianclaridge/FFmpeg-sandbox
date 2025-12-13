@@ -76,6 +76,9 @@
                 </div>
                 <div class="metadata-title-row" id="metadata-title-row" style="display: none;">
                     <span class="metadata-title" id="metadata-title"></span>
+                    <a href="#" id="metadata-source-link" class="metadata-source-link" target="_blank" title="Open source">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    </a>
                 </div>
                 <div class="metadata-grid">
                     <div class="metadata-item">
@@ -618,12 +621,21 @@ var ClipRangeController = (function() {
             if (bitrateItem) bitrateItem.style.display = 'none';
         }
 
-        // Title (from yt-dlp downloads)
+        // Title and source link (from yt-dlp downloads)
         var titleRow = document.getElementById('metadata-title-row');
         var titleEl = document.getElementById('metadata-title');
+        var sourceLink = document.getElementById('metadata-source-link');
         if (data.title && data.title.length > 0) {
             if (titleEl) titleEl.textContent = data.title;
-            if (titleRow) titleRow.style.display = 'block';
+            if (sourceLink) {
+                if (data.source_url && data.source_url.length > 0) {
+                    sourceLink.href = data.source_url;
+                    sourceLink.style.display = 'inline';
+                } else {
+                    sourceLink.style.display = 'none';
+                }
+            }
+            if (titleRow) titleRow.style.display = 'flex';
         } else {
             if (titleRow) titleRow.style.display = 'none';
         }

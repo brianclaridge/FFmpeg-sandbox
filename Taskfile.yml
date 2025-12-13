@@ -111,6 +111,7 @@ tasks:
   clean:all:
     desc: Remove all generated files (output, logs, history, metadata)
     cmds:
+      - task: clean:downloads
       - task: clean:output
       - task: clean:logs
       - task: clean:history

@@ -278,6 +278,7 @@ async def get_duration(filename: str):
     metadata["title"] = source.get("title", "")
     metadata["tags"] = source.get("tags", [])
     metadata["uploader"] = source.get("uploader", "")
+    metadata["source_url"] = source.get("url", "")
 
     return JSONResponse(metadata)
 

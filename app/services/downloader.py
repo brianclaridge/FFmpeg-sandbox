@@ -90,6 +90,7 @@ def get_video_info(url: str) -> dict | None:
                 'uploader': info.get('uploader', 'Unknown'),
                 'extractor': info.get('extractor', 'unknown'),
                 'tags': info.get('tags', []) or [],
+                'filesize': info.get('filesize') or info.get('filesize_approx') or 0,
             }
     except Exception as e:
         logger.error(f"Failed to get video info: {e}")

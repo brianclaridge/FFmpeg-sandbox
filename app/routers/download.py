@@ -56,6 +56,14 @@ async def validate_download_url(request: Request, download_url: str = Form(...))
     duration_secs = duration % 60
     duration_str = f"{duration_mins}:{duration_secs:02d}"
 
+    # Format file size
+    filesize = info.get('filesize', 0)
+    if filesize > 0:
+        size_gb = filesize / (1024 ** 3)
+        size_str = f"{size_gb:.1f} GB" if size_gb >= 1 else f"{filesize / (1024 ** 2):.0f} MB"
+    else:
+        size_str = None
+
     return templates.TemplateResponse(
         "partials/download_status.html",
         {
@@ -66,6 +74,7 @@ async def validate_download_url(request: Request, download_url: str = Form(...))
                 "duration": duration_str,
                 "uploader": info['uploader'],
                 "source": info['extractor'],
+                "size": size_str,
             },
             "url": url,
         },

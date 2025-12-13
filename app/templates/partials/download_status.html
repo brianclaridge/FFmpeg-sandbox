@@ -11,6 +11,7 @@
         <div class="video-meta">
             <span>{{ video_info.source }}</span>
             <span>{{ video_info.duration }}</span>
+            {% if video_info.size %}<span>{{ video_info.size }}</span>{% endif %}
             <span>{{ video_info.uploader }}</span>
         </div>
     </div>
