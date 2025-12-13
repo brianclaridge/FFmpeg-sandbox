@@ -29,18 +29,22 @@
 ## Architecture
 
 ### 4-Column Layout
+
 1. **Source** - File selection, upload, URL download, file metadata display
 2. **Clip Selection + Effect Chain** - Dual-handle range slider, Volume/Tunnel/Frequency accordion
 3. **History** - Processing history with replay capability
 4. **Preview** - Inline video player, processed audio playback
 
 ### Per-File Metadata
+
 Each input file gets a companion `.yml` with:
+
 - Source info (title, uploader, URL, tags) from yt-dlp
 - Effect chain settings (volume/tunnel/frequency presets)
 - Processing history
 
 ### Effect Chain Categories
+
 - **Volume**: None (passthrough), 1x, 1.5x, 2x, 3x, 4x
 - **Tunnel**: None, Subtle, Medium, Heavy, Extreme (echo/reverb)
 - **Frequency**: Flat, Bass Cut, Treble Cut, Narrow Band, Voice Clarity
