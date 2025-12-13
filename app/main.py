@@ -12,27 +12,26 @@ from fastapi.templating import Jinja2Templates
 from loguru import logger
 
 from app.config import INPUT_DIR, OUTPUT_DIR, LOGS_DIR, config
-from app.models import (
-    PRESETS, PresetLevel,
-    # Audio effects
-    VOLUME_PRESETS, VOLUME_PRESETS_BY_STR, VolumePreset,
-    TUNNEL_PRESETS, TUNNEL_PRESETS_BY_STR, TunnelPreset,
-    FREQUENCY_PRESETS, FREQUENCY_PRESETS_BY_STR, FrequencyPreset,
-    SPEED_PRESETS, SPEED_PRESETS_BY_STR, SpeedPreset,
-    PITCH_PRESETS, PITCH_PRESETS_BY_STR, PitchPreset,
-    NOISE_REDUCTION_PRESETS, NOISE_REDUCTION_PRESETS_BY_STR, NoiseReductionPreset,
-    COMPRESSOR_PRESETS, COMPRESSOR_PRESETS_BY_STR, CompressorPreset,
-    # Video effects
-    BRIGHTNESS_PRESETS, BRIGHTNESS_PRESETS_BY_STR, BrightnessPreset,
-    CONTRAST_PRESETS, CONTRAST_PRESETS_BY_STR, ContrastPreset,
-    SATURATION_PRESETS, SATURATION_PRESETS_BY_STR, SaturationPreset,
-    BLUR_PRESETS, BLUR_PRESETS_BY_STR, BlurPreset,
-    SHARPEN_PRESETS, SHARPEN_PRESETS_BY_STR, SharpenPreset,
-    TRANSFORM_PRESETS, TRANSFORM_PRESETS_BY_STR, TransformPreset,
-)
+from app.models import PRESETS, PresetLevel
 from app.routers import audio, history, download
 from app.services import get_input_files
 from app.services.settings import load_user_settings
+from app.services.presets import (
+    load_presets,
+    get_volume_presets,
+    get_tunnel_presets,
+    get_frequency_presets,
+    get_speed_presets,
+    get_pitch_presets,
+    get_noise_reduction_presets,
+    get_compressor_presets,
+    get_brightness_presets,
+    get_contrast_presets,
+    get_saturation_presets,
+    get_blur_presets,
+    get_sharpen_presets,
+    get_transform_presets,
+)
 
 
 class InterceptHandler(logging.Handler):
@@ -77,6 +76,9 @@ for name in ["uvicorn", "uvicorn.error", "uvicorn.access", "fastapi"]:
     log.propagate = False
 
 logger.info("Audio Processor starting up")
+
+# Load presets from YAML file
+load_presets()
 
 app = FastAPI(
     title="Audio Processor",
@@ -152,73 +154,35 @@ async def index(request: Request):
     input_files = get_input_files(INPUT_DIR)
     user_settings = load_user_settings()
 
-    # Get current preset configs for initial panel render
-    try:
-        volume_preset = VOLUME_PRESETS[VolumePreset(user_settings.volume.preset)]
-    except (ValueError, KeyError):
-        volume_preset = VOLUME_PRESETS[VolumePreset.X2]
+    # Get preset dictionaries from YAML
+    volume_presets = get_volume_presets()
+    tunnel_presets = get_tunnel_presets()
+    frequency_presets = get_frequency_presets()
+    speed_presets = get_speed_presets()
+    pitch_presets = get_pitch_presets()
+    noise_reduction_presets = get_noise_reduction_presets()
+    compressor_presets = get_compressor_presets()
+    brightness_presets = get_brightness_presets()
+    contrast_presets = get_contrast_presets()
+    saturation_presets = get_saturation_presets()
+    blur_presets = get_blur_presets()
+    sharpen_presets = get_sharpen_presets()
+    transform_presets = get_transform_presets()
 
-    try:
-        tunnel_preset = TUNNEL_PRESETS[TunnelPreset(user_settings.tunnel.preset)]
-    except (ValueError, KeyError):
-        tunnel_preset = TUNNEL_PRESETS[TunnelPreset.NONE]
-
-    try:
-        frequency_preset = FREQUENCY_PRESETS[FrequencyPreset(user_settings.frequency.preset)]
-    except (ValueError, KeyError):
-        frequency_preset = FREQUENCY_PRESETS[FrequencyPreset.NONE]
-
-    # New audio effects
-    try:
-        speed_preset = SPEED_PRESETS[SpeedPreset(user_settings.speed.preset)]
-    except (ValueError, KeyError):
-        speed_preset = SPEED_PRESETS[SpeedPreset.NONE]
-
-    try:
-        pitch_preset = PITCH_PRESETS[PitchPreset(user_settings.pitch.preset)]
-    except (ValueError, KeyError):
-        pitch_preset = PITCH_PRESETS[PitchPreset.NONE]
-
-    try:
-        noise_reduction_preset = NOISE_REDUCTION_PRESETS[NoiseReductionPreset(user_settings.noise_reduction.preset)]
-    except (ValueError, KeyError):
-        noise_reduction_preset = NOISE_REDUCTION_PRESETS[NoiseReductionPreset.NONE]
-
-    try:
-        compressor_preset = COMPRESSOR_PRESETS[CompressorPreset(user_settings.compressor.preset)]
-    except (ValueError, KeyError):
-        compressor_preset = COMPRESSOR_PRESETS[CompressorPreset.NONE]
-
-    # Video effects
-    try:
-        brightness_preset = BRIGHTNESS_PRESETS[BrightnessPreset(user_settings.brightness.preset)]
-    except (ValueError, KeyError):
-        brightness_preset = BRIGHTNESS_PRESETS[BrightnessPreset.NONE]
-
-    try:
-        contrast_preset = CONTRAST_PRESETS[ContrastPreset(user_settings.contrast.preset)]
-    except (ValueError, KeyError):
-        contrast_preset = CONTRAST_PRESETS[ContrastPreset.NONE]
-
-    try:
-        saturation_preset = SATURATION_PRESETS[SaturationPreset(user_settings.saturation.preset)]
-    except (ValueError, KeyError):
-        saturation_preset = SATURATION_PRESETS[SaturationPreset.NONE]
-
-    try:
-        blur_preset = BLUR_PRESETS[BlurPreset(user_settings.blur.preset)]
-    except (ValueError, KeyError):
-        blur_preset = BLUR_PRESETS[BlurPreset.NONE]
-
-    try:
-        sharpen_preset = SHARPEN_PRESETS[SharpenPreset(user_settings.sharpen.preset)]
-    except (ValueError, KeyError):
-        sharpen_preset = SHARPEN_PRESETS[SharpenPreset.NONE]
-
-    try:
-        transform_preset = TRANSFORM_PRESETS[TransformPreset(user_settings.transform.preset)]
-    except (ValueError, KeyError):
-        transform_preset = TRANSFORM_PRESETS[TransformPreset.NONE]
+    # Get current preset configs for initial panel render (with fallbacks)
+    volume_current = volume_presets.get(user_settings.volume.preset) or volume_presets.get("none")
+    tunnel_current = tunnel_presets.get(user_settings.tunnel.preset) or tunnel_presets.get("none")
+    frequency_current = frequency_presets.get(user_settings.frequency.preset) or frequency_presets.get("none")
+    speed_current = speed_presets.get(user_settings.speed.preset) or speed_presets.get("none")
+    pitch_current = pitch_presets.get(user_settings.pitch.preset) or pitch_presets.get("none")
+    noise_reduction_current = noise_reduction_presets.get(user_settings.noise_reduction.preset) or noise_reduction_presets.get("none")
+    compressor_current = compressor_presets.get(user_settings.compressor.preset) or compressor_presets.get("none")
+    brightness_current = brightness_presets.get(user_settings.brightness.preset) or brightness_presets.get("none")
+    contrast_current = contrast_presets.get(user_settings.contrast.preset) or contrast_presets.get("none")
+    saturation_current = saturation_presets.get(user_settings.saturation.preset) or saturation_presets.get("none")
+    blur_current = blur_presets.get(user_settings.blur.preset) or blur_presets.get("none")
+    sharpen_current = sharpen_presets.get(user_settings.sharpen.preset) or sharpen_presets.get("none")
+    transform_current = transform_presets.get(user_settings.transform.preset) or transform_presets.get("none")
 
     return templates.TemplateResponse(
         "index.html",
@@ -229,38 +193,38 @@ async def index(request: Request):
             "user_settings": user_settings,
             "current_filename": None,  # No file selected on initial load
             # Audio effect presets
-            "volume_presets": VOLUME_PRESETS_BY_STR,
-            "tunnel_presets": TUNNEL_PRESETS_BY_STR,
-            "frequency_presets": FREQUENCY_PRESETS_BY_STR,
-            "speed_presets": SPEED_PRESETS_BY_STR,
-            "pitch_presets": PITCH_PRESETS_BY_STR,
-            "noise_reduction_presets": NOISE_REDUCTION_PRESETS_BY_STR,
-            "compressor_presets": COMPRESSOR_PRESETS_BY_STR,
+            "volume_presets": volume_presets,
+            "tunnel_presets": tunnel_presets,
+            "frequency_presets": frequency_presets,
+            "speed_presets": speed_presets,
+            "pitch_presets": pitch_presets,
+            "noise_reduction_presets": noise_reduction_presets,
+            "compressor_presets": compressor_presets,
             # Video effect presets
-            "brightness_presets": BRIGHTNESS_PRESETS_BY_STR,
-            "contrast_presets": CONTRAST_PRESETS_BY_STR,
-            "saturation_presets": SATURATION_PRESETS_BY_STR,
-            "blur_presets": BLUR_PRESETS_BY_STR,
-            "sharpen_presets": SHARPEN_PRESETS_BY_STR,
-            "transform_presets": TRANSFORM_PRESETS_BY_STR,
+            "brightness_presets": brightness_presets,
+            "contrast_presets": contrast_presets,
+            "saturation_presets": saturation_presets,
+            "blur_presets": blur_presets,
+            "sharpen_presets": sharpen_presets,
+            "transform_presets": transform_presets,
             # Current audio preset configs
-            "volume_current": volume_preset,
-            "tunnel_current": tunnel_preset,
-            "frequency_current": frequency_preset,
-            "speed_current": speed_preset,
-            "pitch_current": pitch_preset,
-            "noise_reduction_current": noise_reduction_preset,
-            "compressor_current": compressor_preset,
+            "volume_current": volume_current,
+            "tunnel_current": tunnel_current,
+            "frequency_current": frequency_current,
+            "speed_current": speed_current,
+            "pitch_current": pitch_current,
+            "noise_reduction_current": noise_reduction_current,
+            "compressor_current": compressor_current,
             # Current video preset configs
-            "brightness_current": brightness_preset,
-            "contrast_current": contrast_preset,
-            "saturation_current": saturation_preset,
-            "blur_current": blur_preset,
-            "sharpen_current": sharpen_preset,
-            "transform_current": transform_preset,
+            "brightness_current": brightness_current,
+            "contrast_current": contrast_current,
+            "saturation_current": saturation_current,
+            "blur_current": blur_current,
+            "sharpen_current": sharpen_current,
+            "transform_current": transform_current,
             # Form defaults based on current settings
-            "delays": "|".join(str(d) for d in tunnel_preset.delays),
-            "decays": "|".join(str(d) for d in tunnel_preset.decays),
+            "delays": "|".join(str(d) for d in tunnel_current.delays),
+            "decays": "|".join(str(d) for d in tunnel_current.decays),
         },
     )
 

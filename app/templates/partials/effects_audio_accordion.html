@@ -8,7 +8,7 @@
              hx-vals="js:{filename: window.currentFilename || ''}">
             <span class="accordion-icon"><i class="fa-solid fa-volume-high"></i></span>
             <span class="accordion-label">Volume</span>
-            <span class="accordion-preset">{{ volume_presets.get(user_settings.volume.preset, {}).name or user_settings.volume.preset }}</span>
+            <span class="accordion-preset" id="volume-preset-label">{{ volume_presets.get(user_settings.volume.preset, {}).name or user_settings.volume.preset }}</span>
             <span class="accordion-indicator">{% if user_settings.active_category == 'volume' %}&#9660;{% else %}&#9654;{% endif %}</span>
         </div>
         {% if user_settings.active_category == 'volume' %}
@@ -18,6 +18,7 @@
                 <button type="button"
                         class="preset-pill {% if user_settings.volume.preset == preset_key %}active{% endif %}"
                         data-volume="{{ config.volume }}"
+                        data-name="{{ config.name }}"
                         hx-post="/partials/accordion-preset/volume/{{ preset_key }}"
                         hx-target="#effects-audio-accordion"
                         hx-swap="outerHTML"
@@ -33,7 +34,7 @@
                     <input type="range" name="volume" id="volume"
                            min="0" max="4" step="0.1"
                            value="{{ volume_current.volume }}"
-                           oninput="document.getElementById('volume-value').textContent = this.value; updateVolumePresetPills(this.value);">
+                           oninput="document.getElementById('volume-value').textContent = this.value; updatePresetLabel('volume', {volume: this.value})">
                 </div>
             </div>
         </div>
@@ -52,15 +53,18 @@
              hx-vals="js:{filename: window.currentFilename || ''}">
             <span class="accordion-icon"><i class="fa-solid fa-dungeon"></i></span>
             <span class="accordion-label">Tunnel</span>
-            <span class="accordion-preset">{{ tunnel_presets.get(user_settings.tunnel.preset, {}).name or user_settings.tunnel.preset }}</span>
+            <span class="accordion-preset" id="tunnel-preset-label">{{ tunnel_presets.get(user_settings.tunnel.preset, {}).name or user_settings.tunnel.preset }}</span>
             <span class="accordion-indicator">{% if user_settings.active_category == 'tunnel' %}&#9660;{% else %}&#9654;{% endif %}</span>
         </div>
         {% if user_settings.active_category == 'tunnel' %}
         <div class="accordion-content">
-            <div class="preset-pills">
+            <div class="preset-pills" id="tunnel-preset-pills">
                 {% for preset_key, config in tunnel_presets.items() %}
                 <button type="button"
                         class="preset-pill {% if user_settings.tunnel.preset == preset_key %}active{% endif %}"
+                        data-delays="{{ config.delays | join('|') }}"
+                        data-decays="{{ config.decays | join('|') }}"
+                        data-name="{{ config.name }}"
                         hx-post="/partials/accordion-preset/tunnel/{{ preset_key }}"
                         hx-target="#effects-audio-accordion"
                         hx-swap="outerHTML"
@@ -75,13 +79,15 @@
                     <label for="delays">Echo Delays (ms, pipe-separated)</label>
                     <input type="text" name="delays" id="delays"
                            value="{{ tunnel_current.delays | join('|') }}"
-                           placeholder="15|25|35|50">
+                           placeholder="15|25|35|50"
+                           oninput="updatePresetLabel('tunnel', {delays: this.value, decays: document.getElementById('decays').value})">
                 </div>
                 <div class="form-group">
                     <label for="decays">Echo Decays (0-1, pipe-separated)</label>
                     <input type="text" name="decays" id="decays"
                            value="{{ tunnel_current.decays | join('|') }}"
-                           placeholder="0.35|0.3|0.25|0.2">
+                           placeholder="0.35|0.3|0.25|0.2"
+                           oninput="updatePresetLabel('tunnel', {delays: document.getElementById('delays').value, decays: this.value})">
                 </div>
             </div>
         </div>
@@ -100,15 +106,18 @@
              hx-vals="js:{filename: window.currentFilename || ''}">
             <span class="accordion-icon"><i class="fa-solid fa-wave-square"></i></span>
             <span class="accordion-label">Frequency</span>
-            <span class="accordion-preset">{{ frequency_presets.get(user_settings.frequency.preset, {}).name or user_settings.frequency.preset }}</span>
+            <span class="accordion-preset" id="frequency-preset-label">{{ frequency_presets.get(user_settings.frequency.preset, {}).name or user_settings.frequency.preset }}</span>
             <span class="accordion-indicator">{% if user_settings.active_category == 'frequency' %}&#9660;{% else %}&#9654;{% endif %}</span>
         </div>
         {% if user_settings.active_category == 'frequency' %}
         <div class="accordion-content">
-            <div class="preset-pills">
+            <div class="preset-pills" id="frequency-preset-pills">
                 {% for preset_key, config in frequency_presets.items() %}
                 <button type="button"
                         class="preset-pill {% if user_settings.frequency.preset == preset_key %}active{% endif %}"
+                        data-highpass="{{ config.highpass }}"
+                        data-lowpass="{{ config.lowpass }}"
+                        data-name="{{ config.name }}"
                         hx-post="/partials/accordion-preset/frequency/{{ preset_key }}"
                         hx-target="#effects-audio-accordion"
                         hx-swap="outerHTML"
@@ -124,14 +133,14 @@
                     <input type="range" name="highpass" id="highpass"
                            min="20" max="500" step="10"
                            value="{{ frequency_current.highpass }}"
-                           oninput="document.getElementById('highpass-value').textContent = this.value">
+                           oninput="document.getElementById('highpass-value').textContent = this.value; updatePresetLabel('frequency', {highpass: this.value, lowpass: document.getElementById('lowpass').value})">
                 </div>
                 <div class="form-group">
                     <label for="lowpass">Low-pass: <span id="lowpass-value">{{ frequency_current.lowpass }}</span> Hz</label>
                     <input type="range" name="lowpass" id="lowpass"
                            min="2000" max="20000" step="100"
                            value="{{ frequency_current.lowpass }}"
-                           oninput="document.getElementById('lowpass-value').textContent = this.value">
+                           oninput="document.getElementById('lowpass-value').textContent = this.value; updatePresetLabel('frequency', {highpass: document.getElementById('highpass').value, lowpass: this.value})">
                 </div>
             </div>
         </div>
@@ -150,15 +159,17 @@
              hx-vals="js:{filename: window.currentFilename || ''}">
             <span class="accordion-icon"><i class="fa-solid fa-gauge-high"></i></span>
             <span class="accordion-label">Speed</span>
-            <span class="accordion-preset">{{ speed_presets.get(user_settings.speed.preset, {}).name or user_settings.speed.preset }}</span>
+            <span class="accordion-preset" id="speed-preset-label">{{ speed_presets.get(user_settings.speed.preset, {}).name or user_settings.speed.preset }}</span>
             <span class="accordion-indicator">{% if user_settings.active_category == 'speed' %}&#9660;{% else %}&#9654;{% endif %}</span>
         </div>
         {% if user_settings.active_category == 'speed' %}
         <div class="accordion-content">
-            <div class="preset-pills">
+            <div class="preset-pills" id="speed-preset-pills">
                 {% for preset_key, config in speed_presets.items() %}
                 <button type="button"
                         class="preset-pill {% if user_settings.speed.preset == preset_key %}active{% endif %}"
+                        data-speed="{{ config.speed }}"
+                        data-name="{{ config.name }}"
                         hx-post="/partials/accordion-preset/speed/{{ preset_key }}"
                         hx-target="#effects-audio-accordion"
                         hx-swap="outerHTML"
@@ -174,7 +185,7 @@
                     <input type="range" name="speed" id="speed"
                            min="0.5" max="2" step="0.05"
                            value="{{ speed_current.speed }}"
-                           oninput="document.getElementById('speed-value').textContent = this.value">
+                           oninput="document.getElementById('speed-value').textContent = this.value; updatePresetLabel('speed', {speed: this.value})">
                 </div>
             </div>
         </div>
@@ -193,15 +204,17 @@
              hx-vals="js:{filename: window.currentFilename || ''}">
             <span class="accordion-icon"><i class="fa-solid fa-music"></i></span>
             <span class="accordion-label">Pitch</span>
-            <span class="accordion-preset">{{ pitch_presets.get(user_settings.pitch.preset, {}).name or user_settings.pitch.preset }}</span>
+            <span class="accordion-preset" id="pitch-preset-label">{{ pitch_presets.get(user_settings.pitch.preset, {}).name or user_settings.pitch.preset }}</span>
             <span class="accordion-indicator">{% if user_settings.active_category == 'pitch' %}&#9660;{% else %}&#9654;{% endif %}</span>
         </div>
         {% if user_settings.active_category == 'pitch' %}
         <div class="accordion-content">
-            <div class="preset-pills">
+            <div class="preset-pills" id="pitch-preset-pills">
                 {% for preset_key, config in pitch_presets.items() %}
                 <button type="button"
                         class="preset-pill {% if user_settings.pitch.preset == preset_key %}active{% endif %}"
+                        data-semitones="{{ config.semitones }}"
+                        data-name="{{ config.name }}"
                         hx-post="/partials/accordion-preset/pitch/{{ preset_key }}"
                         hx-target="#effects-audio-accordion"
                         hx-swap="outerHTML"
@@ -217,7 +230,7 @@
                     <input type="range" name="pitch" id="pitch"
                            min="-12" max="12" step="1"
                            value="{{ pitch_current.semitones }}"
-                           oninput="document.getElementById('pitch-value').textContent = this.value">
+                           oninput="document.getElementById('pitch-value').textContent = this.value; updatePresetLabel('pitch', {semitones: this.value})">
                 </div>
             </div>
         </div>
@@ -236,15 +249,17 @@
              hx-vals="js:{filename: window.currentFilename || ''}">
             <span class="accordion-icon"><i class="fa-solid fa-volume-xmark"></i></span>
             <span class="accordion-label">Noise Reduction</span>
-            <span class="accordion-preset">{{ noise_reduction_presets.get(user_settings.noise_reduction.preset, {}).name or user_settings.noise_reduction.preset }}</span>
+            <span class="accordion-preset" id="noise_reduction-preset-label">{{ noise_reduction_presets.get(user_settings.noise_reduction.preset, {}).name or user_settings.noise_reduction.preset }}</span>
             <span class="accordion-indicator">{% if user_settings.active_category == 'noise_reduction' %}&#9660;{% else %}&#9654;{% endif %}</span>
         </div>
         {% if user_settings.active_category == 'noise_reduction' %}
         <div class="accordion-content">
-            <div class="preset-pills">
+            <div class="preset-pills" id="noise_reduction-preset-pills">
                 {% for preset_key, config in noise_reduction_presets.items() %}
                 <button type="button"
                         class="preset-pill {% if user_settings.noise_reduction.preset == preset_key %}active{% endif %}"
+                        data-noise-floor="{{ config.noise_floor }}"
+                        data-name="{{ config.name }}"
                         hx-post="/partials/accordion-preset/noise_reduction/{{ preset_key }}"
                         hx-target="#effects-audio-accordion"
                         hx-swap="outerHTML"
@@ -260,7 +275,7 @@
                     <input type="range" name="noise_floor" id="noise_floor"
                            min="-80" max="-20" step="5"
                            value="{{ noise_reduction_current.noise_floor }}"
-                           oninput="document.getElementById('noise-floor-value').textContent = this.value">
+                           oninput="document.getElementById('noise-floor-value').textContent = this.value; updatePresetLabel('noise_reduction', {'noise-floor': this.value})">
                 </div>
             </div>
         </div>
@@ -279,15 +294,18 @@
              hx-vals="js:{filename: window.currentFilename || ''}">
             <span class="accordion-icon"><i class="fa-solid fa-compress"></i></span>
             <span class="accordion-label">Compressor</span>
-            <span class="accordion-preset">{{ compressor_presets.get(user_settings.compressor.preset, {}).name or user_settings.compressor.preset }}</span>
+            <span class="accordion-preset" id="compressor-preset-label">{{ compressor_presets.get(user_settings.compressor.preset, {}).name or user_settings.compressor.preset }}</span>
             <span class="accordion-indicator">{% if user_settings.active_category == 'compressor' %}&#9660;{% else %}&#9654;{% endif %}</span>
         </div>
         {% if user_settings.active_category == 'compressor' %}
         <div class="accordion-content">
-            <div class="preset-pills">
+            <div class="preset-pills" id="compressor-preset-pills">
                 {% for preset_key, config in compressor_presets.items() %}
                 <button type="button"
                         class="preset-pill {% if user_settings.compressor.preset == preset_key %}active{% endif %}"
+                        data-threshold="{{ config.threshold }}"
+                        data-ratio="{{ config.ratio }}"
+                        data-name="{{ config.name }}"
                         hx-post="/partials/accordion-preset/compressor/{{ preset_key }}"
                         hx-target="#effects-audio-accordion"
                         hx-swap="outerHTML"
@@ -303,14 +321,14 @@
                     <input type="range" name="threshold" id="threshold"
                            min="-40" max="0" step="1"
                            value="{{ compressor_current.threshold }}"
-                           oninput="document.getElementById('threshold-value').textContent = this.value">
+                           oninput="document.getElementById('threshold-value').textContent = this.value; updatePresetLabel('compressor', {threshold: this.value, ratio: document.getElementById('ratio').value})">
                 </div>
                 <div class="form-group">
                     <label for="ratio">Ratio: <span id="ratio-value">{{ compressor_current.ratio }}</span>:1</label>
                     <input type="range" name="ratio" id="ratio"
                            min="1" max="20" step="0.5"
                            value="{{ compressor_current.ratio }}"
-                           oninput="document.getElementById('ratio-value').textContent = this.value">
+                           oninput="document.getElementById('ratio-value').textContent = this.value; updatePresetLabel('compressor', {threshold: document.getElementById('threshold').value, ratio: this.value})">
                 </div>
             </div>
         </div>

@@ -75,7 +75,7 @@ def get_default_metadata() -> dict[str, Any]:
 def get_default_settings() -> dict[str, Any]:
     """Return default effect chain settings."""
     return {
-        "active_category": "volume",
+        "active_category": "",
         "active_tab": "audio",
         # Audio effects
         "volume": {"preset": "none", "custom_values": {}},

@@ -799,19 +799,61 @@ var ClipRangeController = (function() {
     });
 })();
 
-// Update volume preset pills based on slider value
-function updateVolumePresetPills(value) {
-    var pills = document.querySelectorAll('#volume-preset-pills .preset-pill');
-    var sliderValue = parseFloat(value);
+// Generic function to update preset label and pill highlighting
+// category: string name of effect (e.g., 'volume', 'frequency', 'brightness')
+// values: object with current values (e.g., {volume: 1.5} or {highpass: 100, lowpass: 8000})
+function updatePresetLabel(category, values) {
+    var pillsContainer = document.getElementById(category + '-preset-pills');
+    var labelElement = document.getElementById(category + '-preset-label');
+
+    if (!pillsContainer || !labelElement) return;
+
+    var pills = pillsContainer.querySelectorAll('.preset-pill');
+    var matchedPresetName = null;
 
     pills.forEach(function(pill) {
-        var presetValue = parseFloat(pill.getAttribute('data-volume'));
-        if (Math.abs(sliderValue - presetValue) < 0.01) {
+        var matches = true;
+
+        // Check each value against the pill's data attributes
+        for (var key in values) {
+            var dataKey = 'data-' + key.replace(/_/g, '-');
+            var presetValue = pill.getAttribute(dataKey);
+            var currentValue = values[key];
+
+            if (presetValue === null) {
+                matches = false;
+                break;
+            }
+
+            // Compare as floats with tolerance for sliders
+            var presetFloat = parseFloat(presetValue);
+            var currentFloat = parseFloat(currentValue);
+
+            if (isNaN(presetFloat) || isNaN(currentFloat)) {
+                // String comparison for non-numeric values (like pipe-separated arrays)
+                if (presetValue !== currentValue) {
+                    matches = false;
+                    break;
+                }
+            } else {
+                // Float comparison with tolerance
+                if (Math.abs(presetFloat - currentFloat) >= 0.01) {
+                    matches = false;
+                    break;
+                }
+            }
+        }
+
+        if (matches) {
             pill.classList.add('active');
+            matchedPresetName = pill.getAttribute('data-name');
         } else {
             pill.classList.remove('active');
         }
     });
+
+    // Update the label
+    labelElement.textContent = matchedPresetName || 'Custom';
 }
 
 document.addEventListener('DOMContentLoaded', function() {

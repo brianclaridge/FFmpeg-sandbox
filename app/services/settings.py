@@ -40,7 +40,7 @@ def load_user_settings(filename: str | None = None) -> UserSettings:
             blur=CategorySettings(**settings_data.get("blur", {"preset": "none"})),
             sharpen=CategorySettings(**settings_data.get("sharpen", {"preset": "none"})),
             transform=CategorySettings(**settings_data.get("transform", {"preset": "none"})),
-            active_category=settings_data.get("active_category", "volume"),
+            active_category=settings_data.get("active_category", ""),
             active_tab=settings_data.get("active_tab", "audio"),
         )
     except Exception as e:

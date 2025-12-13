@@ -40,8 +40,8 @@
 
 .effects-tab.active {
     color: var(--accent);
-    border-bottom-color: var(--accent);
-    background: transparent;
+    border-color: var(--accent);
+    background: var(--bg-secondary);
 }
 
 .effects-tab i {

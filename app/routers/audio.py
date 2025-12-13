@@ -13,23 +13,21 @@ from fastapi.templating import Jinja2Templates
 from loguru import logger
 
 from app.config import INPUT_DIR, OUTPUT_DIR, config
-from app.models import (
-    PresetLevel, PRESETS,
-    # Audio effects
-    VolumePreset, VOLUME_PRESETS, VOLUME_PRESETS_BY_STR,
-    TunnelPreset, TUNNEL_PRESETS, TUNNEL_PRESETS_BY_STR,
-    FrequencyPreset, FREQUENCY_PRESETS, FREQUENCY_PRESETS_BY_STR,
-    SpeedPreset, SPEED_PRESETS, SPEED_PRESETS_BY_STR,
-    PitchPreset, PITCH_PRESETS, PITCH_PRESETS_BY_STR,
-    NoiseReductionPreset, NOISE_REDUCTION_PRESETS, NOISE_REDUCTION_PRESETS_BY_STR,
-    CompressorPreset, COMPRESSOR_PRESETS, COMPRESSOR_PRESETS_BY_STR,
-    # Video effects
-    BrightnessPreset, BRIGHTNESS_PRESETS, BRIGHTNESS_PRESETS_BY_STR,
-    ContrastPreset, CONTRAST_PRESETS, CONTRAST_PRESETS_BY_STR,
-    SaturationPreset, SATURATION_PRESETS, SATURATION_PRESETS_BY_STR,
-    BlurPreset, BLUR_PRESETS, BLUR_PRESETS_BY_STR,
-    SharpenPreset, SHARPEN_PRESETS, SHARPEN_PRESETS_BY_STR,
-    TransformPreset, TRANSFORM_PRESETS, TRANSFORM_PRESETS_BY_STR,
+from app.models import PresetLevel, PRESETS
+from app.services.presets import (
+    get_volume_presets,
+    get_tunnel_presets,
+    get_frequency_presets,
+    get_speed_presets,
+    get_pitch_presets,
+    get_noise_reduction_presets,
+    get_compressor_presets,
+    get_brightness_presets,
+    get_contrast_presets,
+    get_saturation_presets,
+    get_blur_presets,
+    get_sharpen_presets,
+    get_transform_presets,
 )
 from app.services.settings import (
     load_user_settings,
@@ -73,72 +71,37 @@ async def process(
     # Load user settings from per-file YAML
     user_settings = load_user_settings(input_file)
 
-    # Lookup all preset configurations from user settings
-    try:
-        volume_config = VOLUME_PRESETS[VolumePreset(user_settings.volume.preset)]
-    except (ValueError, KeyError):
-        volume_config = VOLUME_PRESETS[VolumePreset.X2]
+    # Get preset dictionaries
+    volume_presets = get_volume_presets()
+    tunnel_presets = get_tunnel_presets()
+    frequency_presets = get_frequency_presets()
+    speed_presets = get_speed_presets()
+    pitch_presets = get_pitch_presets()
+    noise_presets = get_noise_reduction_presets()
+    compressor_presets = get_compressor_presets()
+    brightness_presets = get_brightness_presets()
+    contrast_presets = get_contrast_presets()
+    saturation_presets = get_saturation_presets()
+    blur_presets = get_blur_presets()
+    sharpen_presets = get_sharpen_presets()
+    transform_presets = get_transform_presets()
 
-    try:
-        tunnel_config = TUNNEL_PRESETS[TunnelPreset(user_settings.tunnel.preset)]
-    except (ValueError, KeyError):
-        tunnel_config = TUNNEL_PRESETS[TunnelPreset.NONE]
-
-    try:
-        frequency_config = FREQUENCY_PRESETS[FrequencyPreset(user_settings.frequency.preset)]
-    except (ValueError, KeyError):
-        frequency_config = FREQUENCY_PRESETS[FrequencyPreset.NONE]
-
-    try:
-        speed_config = SPEED_PRESETS[SpeedPreset(user_settings.speed.preset)]
-    except (ValueError, KeyError):
-        speed_config = SPEED_PRESETS[SpeedPreset.NONE]
-
-    try:
-        pitch_config = PITCH_PRESETS[PitchPreset(user_settings.pitch.preset)]
-    except (ValueError, KeyError):
-        pitch_config = PITCH_PRESETS[PitchPreset.NONE]
-
-    try:
-        noise_config = NOISE_REDUCTION_PRESETS[NoiseReductionPreset(user_settings.noise_reduction.preset)]
-    except (ValueError, KeyError):
-        noise_config = NOISE_REDUCTION_PRESETS[NoiseReductionPreset.NONE]
-
-    try:
-        comp_config = COMPRESSOR_PRESETS[CompressorPreset(user_settings.compressor.preset)]
-    except (ValueError, KeyError):
-        comp_config = COMPRESSOR_PRESETS[CompressorPreset.NONE]
+    # Lookup all preset configurations from user settings (with fallbacks)
+    volume_config = volume_presets.get(user_settings.volume.preset) or volume_presets["none"]
+    tunnel_config = tunnel_presets.get(user_settings.tunnel.preset) or tunnel_presets["none"]
+    frequency_config = frequency_presets.get(user_settings.frequency.preset) or frequency_presets["none"]
+    speed_config = speed_presets.get(user_settings.speed.preset) or speed_presets["none"]
+    pitch_config = pitch_presets.get(user_settings.pitch.preset) or pitch_presets["none"]
+    noise_config = noise_presets.get(user_settings.noise_reduction.preset) or noise_presets["none"]
+    comp_config = compressor_presets.get(user_settings.compressor.preset) or compressor_presets["none"]
 
     # Video effect presets
-    try:
-        brightness_config = BRIGHTNESS_PRESETS[BrightnessPreset(user_settings.brightness.preset)]
-    except (ValueError, KeyError):
-        brightness_config = BRIGHTNESS_PRESETS[BrightnessPreset.NONE]
-
-    try:
-        contrast_config = CONTRAST_PRESETS[ContrastPreset(user_settings.contrast.preset)]
-    except (ValueError, KeyError):
-        contrast_config = CONTRAST_PRESETS[ContrastPreset.NONE]
-
-    try:
-        saturation_config = SATURATION_PRESETS[SaturationPreset(user_settings.saturation.preset)]
-    except (ValueError, KeyError):
-        saturation_config = SATURATION_PRESETS[SaturationPreset.NONE]
-
-    try:
-        blur_config = BLUR_PRESETS[BlurPreset(user_settings.blur.preset)]
-    except (ValueError, KeyError):
-        blur_config = BLUR_PRESETS[BlurPreset.NONE]
-
-    try:
-        sharpen_config = SHARPEN_PRESETS[SharpenPreset(user_settings.sharpen.preset)]
-    except (ValueError, KeyError):
-        sharpen_config = SHARPEN_PRESETS[SharpenPreset.NONE]
-
-    try:
-        transform_config = TRANSFORM_PRESETS[TransformPreset(user_settings.transform.preset)]
-    except (ValueError, KeyError):
-        transform_config = TRANSFORM_PRESETS[TransformPreset.NONE]
+    brightness_config = brightness_presets.get(user_settings.brightness.preset) or brightness_presets["none"]
+    contrast_config = contrast_presets.get(user_settings.contrast.preset) or contrast_presets["none"]
+    saturation_config = saturation_presets.get(user_settings.saturation.preset) or saturation_presets["none"]
+    blur_config = blur_presets.get(user_settings.blur.preset) or blur_presets["none"]
+    sharpen_config = sharpen_presets.get(user_settings.sharpen.preset) or sharpen_presets["none"]
+    transform_config = transform_presets.get(user_settings.transform.preset) or transform_presets["none"]
 
     # Build audio filter chain with all effects (speed is linked)
     delays_str = "|".join(str(d) for d in tunnel_config.delays)
@@ -550,90 +513,55 @@ async def clip_video_preview(filename: str, start: str, end: str):
 
 def _get_accordion_context(user_settings, filename: str | None = None) -> dict:
     """Build context dict for accordion template."""
-    # Get current preset configs for each category
-    try:
-        volume_current = VOLUME_PRESETS[VolumePreset(user_settings.volume.preset)]
-    except (ValueError, KeyError):
-        volume_current = VOLUME_PRESETS[VolumePreset("none")]
+    # Get preset dictionaries from YAML
+    volume_presets = get_volume_presets()
+    tunnel_presets = get_tunnel_presets()
+    frequency_presets = get_frequency_presets()
+    speed_presets = get_speed_presets()
+    pitch_presets = get_pitch_presets()
+    noise_reduction_presets = get_noise_reduction_presets()
+    compressor_presets = get_compressor_presets()
+    brightness_presets = get_brightness_presets()
+    contrast_presets = get_contrast_presets()
+    saturation_presets = get_saturation_presets()
+    blur_presets = get_blur_presets()
+    sharpen_presets = get_sharpen_presets()
+    transform_presets = get_transform_presets()
 
-    try:
-        tunnel_current = TUNNEL_PRESETS[TunnelPreset(user_settings.tunnel.preset)]
-    except (ValueError, KeyError):
-        tunnel_current = TUNNEL_PRESETS[TunnelPreset("none")]
-
-    try:
-        frequency_current = FREQUENCY_PRESETS[FrequencyPreset(user_settings.frequency.preset)]
-    except (ValueError, KeyError):
-        frequency_current = FREQUENCY_PRESETS[FrequencyPreset("none")]
-
-    try:
-        speed_current = SPEED_PRESETS[SpeedPreset(user_settings.speed.preset)]
-    except (ValueError, KeyError):
-        speed_current = SPEED_PRESETS[SpeedPreset("none")]
-
-    try:
-        pitch_current = PITCH_PRESETS[PitchPreset(user_settings.pitch.preset)]
-    except (ValueError, KeyError):
-        pitch_current = PITCH_PRESETS[PitchPreset("none")]
-
-    try:
-        noise_reduction_current = NOISE_REDUCTION_PRESETS[NoiseReductionPreset(user_settings.noise_reduction.preset)]
-    except (ValueError, KeyError):
-        noise_reduction_current = NOISE_REDUCTION_PRESETS[NoiseReductionPreset("none")]
-
-    try:
-        compressor_current = COMPRESSOR_PRESETS[CompressorPreset(user_settings.compressor.preset)]
-    except (ValueError, KeyError):
-        compressor_current = COMPRESSOR_PRESETS[CompressorPreset("none")]
+    # Get current preset configs for each category (with fallbacks)
+    volume_current = volume_presets.get(user_settings.volume.preset) or volume_presets["none"]
+    tunnel_current = tunnel_presets.get(user_settings.tunnel.preset) or tunnel_presets["none"]
+    frequency_current = frequency_presets.get(user_settings.frequency.preset) or frequency_presets["none"]
+    speed_current = speed_presets.get(user_settings.speed.preset) or speed_presets["none"]
+    pitch_current = pitch_presets.get(user_settings.pitch.preset) or pitch_presets["none"]
+    noise_reduction_current = noise_reduction_presets.get(user_settings.noise_reduction.preset) or noise_reduction_presets["none"]
+    compressor_current = compressor_presets.get(user_settings.compressor.preset) or compressor_presets["none"]
 
     # Video effects
-    try:
-        brightness_current = BRIGHTNESS_PRESETS[BrightnessPreset(user_settings.brightness.preset)]
-    except (ValueError, KeyError):
-        brightness_current = BRIGHTNESS_PRESETS[BrightnessPreset("none")]
-
-    try:
-        contrast_current = CONTRAST_PRESETS[ContrastPreset(user_settings.contrast.preset)]
-    except (ValueError, KeyError):
-        contrast_current = CONTRAST_PRESETS[ContrastPreset("none")]
-
-    try:
-        saturation_current = SATURATION_PRESETS[SaturationPreset(user_settings.saturation.preset)]
-    except (ValueError, KeyError):
-        saturation_current = SATURATION_PRESETS[SaturationPreset("none")]
-
-    try:
-        blur_current = BLUR_PRESETS[BlurPreset(user_settings.blur.preset)]
-    except (ValueError, KeyError):
-        blur_current = BLUR_PRESETS[BlurPreset("none")]
-
-    try:
-        sharpen_current = SHARPEN_PRESETS[SharpenPreset(user_settings.sharpen.preset)]
-    except (ValueError, KeyError):
-        sharpen_current = SHARPEN_PRESETS[SharpenPreset("none")]
-
-    try:
-        transform_current = TRANSFORM_PRESETS[TransformPreset(user_settings.transform.preset)]
-    except (ValueError, KeyError):
-        transform_current = TRANSFORM_PRESETS[TransformPreset("none")]
+    brightness_current = brightness_presets.get(user_settings.brightness.preset) or brightness_presets["none"]
+    contrast_current = contrast_presets.get(user_settings.contrast.preset) or contrast_presets["none"]
+    saturation_current = saturation_presets.get(user_settings.saturation.preset) or saturation_presets["none"]
+    blur_current = blur_presets.get(user_settings.blur.preset) or blur_presets["none"]
+    sharpen_current = sharpen_presets.get(user_settings.sharpen.preset) or sharpen_presets["none"]
+    transform_current = transform_presets.get(user_settings.transform.preset) or transform_presets["none"]
 
     return {
         "user_settings": user_settings,
         # Audio presets
-        "volume_presets": VOLUME_PRESETS_BY_STR,
-        "tunnel_presets": TUNNEL_PRESETS_BY_STR,
-        "frequency_presets": FREQUENCY_PRESETS_BY_STR,
-        "speed_presets": SPEED_PRESETS_BY_STR,
-        "pitch_presets": PITCH_PRESETS_BY_STR,
-        "noise_reduction_presets": NOISE_REDUCTION_PRESETS_BY_STR,
-        "compressor_presets": COMPRESSOR_PRESETS_BY_STR,
+        "volume_presets": volume_presets,
+        "tunnel_presets": tunnel_presets,
+        "frequency_presets": frequency_presets,
+        "speed_presets": speed_presets,
+        "pitch_presets": pitch_presets,
+        "noise_reduction_presets": noise_reduction_presets,
+        "compressor_presets": compressor_presets,
         # Video presets
-        "brightness_presets": BRIGHTNESS_PRESETS_BY_STR,
-        "contrast_presets": CONTRAST_PRESETS_BY_STR,
-        "saturation_presets": SATURATION_PRESETS_BY_STR,
-        "blur_presets": BLUR_PRESETS_BY_STR,
-        "sharpen_presets": SHARPEN_PRESETS_BY_STR,
-        "transform_presets": TRANSFORM_PRESETS_BY_STR,
+        "brightness_presets": brightness_presets,
+        "contrast_presets": contrast_presets,
+        "saturation_presets": saturation_presets,
+        "blur_presets": blur_presets,
+        "sharpen_presets": sharpen_presets,
+        "transform_presets": transform_presets,
         # Current values
         "volume_current": volume_current,
         "tunnel_current": tunnel_current,

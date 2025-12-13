@@ -1,0 +1,326 @@
+# Effect Presets Configuration
+# Edit this file to customize presets without code changes.
+# Restart the application after making changes.
+
+audio:
+  volume:
+    none:
+      name: "None"
+      description: "No effect (original)"
+      volume: 1.0
+    0.25x:
+      name: "0.25x"
+      description: "Very quiet"
+      volume: 0.25
+    0.5x:
+      name: "0.5x"
+      description: "Half volume"
+      volume: 0.5
+    0.75x:
+      name: "0.75x"
+      description: "Slightly quieter"
+      volume: 0.75
+    1.5x:
+      name: "1.5x"
+      description: "Slight boost"
+      volume: 1.5
+    2x:
+      name: "2x"
+      description: "Double volume"
+      volume: 2.0
+    3x:
+      name: "3x"
+      description: "Triple volume"
+      volume: 3.0
+    4x:
+      name: "4x"
+      description: "Maximum boost"
+      volume: 4.0
+
+  tunnel:
+    none:
+      name: "None"
+      description: "No echo effect"
+      delays: [1]
+      decays: [0.0]
+    subtle:
+      name: "Subtle"
+      description: "Light ambience"
+      delays: [10, 20]
+      decays: [0.2, 0.15]
+    medium:
+      name: "Medium"
+      description: "Noticeable reverb"
+      delays: [15, 25, 35, 50]
+      decays: [0.35, 0.3, 0.25, 0.2]
+    heavy:
+      name: "Heavy"
+      description: "Strong cave effect"
+      delays: [20, 35, 55, 80]
+      decays: [0.4, 0.35, 0.3, 0.25]
+    extreme:
+      name: "Extreme"
+      description: "Deep bunker sound"
+      delays: [25, 45, 70, 100, 140]
+      decays: [0.45, 0.4, 0.35, 0.3, 0.25]
+
+  frequency:
+    none:
+      name: "None"
+      description: "No frequency filtering"
+      highpass: 20
+      lowpass: 20000
+    flat:
+      name: "Flat"
+      description: "Full spectrum"
+      highpass: 20
+      lowpass: 20000
+    bass_cut:
+      name: "Bass Cut"
+      description: "Remove low frequencies"
+      highpass: 200
+      lowpass: 20000
+    treble_cut:
+      name: "Treble Cut"
+      description: "Remove high frequencies"
+      highpass: 20
+      lowpass: 4000
+    narrow:
+      name: "Narrow Band"
+      description: "Voice-focused range"
+      highpass: 150
+      lowpass: 3500
+    voice:
+      name: "Voice Clarity"
+      description: "Optimal for speech"
+      highpass: 100
+      lowpass: 6000
+
+  speed:
+    none:
+      name: "None"
+      description: "No speed change"
+      speed: 1.0
+    0.5x:
+      name: "0.5x"
+      description: "Half speed (slow)"
+      speed: 0.5
+    0.75x:
+      name: "0.75x"
+      description: "Slightly slower"
+      speed: 0.75
+    1x:
+      name: "1x"
+      description: "Normal speed"
+      speed: 1.0
+    1.25x:
+      name: "1.25x"
+      description: "Slightly faster"
+      speed: 1.25
+    1.5x:
+      name: "1.5x"
+      description: "Faster"
+      speed: 1.5
+    2x:
+      name: "2x"
+      description: "Double speed"
+      speed: 2.0
+
+  pitch:
+    none:
+      name: "None"
+      description: "No pitch change"
+      semitones: 0.0
+    low:
+      name: "Low"
+      description: "Lower pitch (-4 semitones)"
+      semitones: -4.0
+    normal:
+      name: "Normal"
+      description: "Original pitch"
+      semitones: 0.0
+    high:
+      name: "High"
+      description: "Higher pitch (+4 semitones)"
+      semitones: 4.0
+    chipmunk:
+      name: "Chipmunk"
+      description: "Very high pitch (+8 semitones)"
+      semitones: 8.0
+
+  noise_reduction:
+    none:
+      name: "None"
+      description: "No noise reduction"
+      noise_floor: -25.0
+      noise_reduction: 0.0
+    light:
+      name: "Light"
+      description: "Subtle noise reduction"
+      noise_floor: -30.0
+      noise_reduction: 0.5
+    medium:
+      name: "Medium"
+      description: "Moderate noise reduction"
+      noise_floor: -40.0
+      noise_reduction: 0.7
+    heavy:
+      name: "Heavy"
+      description: "Aggressive noise reduction"
+      noise_floor: -50.0
+      noise_reduction: 0.9
+
+  compressor:
+    none:
+      name: "None"
+      description: "No compression"
+      threshold: 0.0
+      ratio: 1.0
+      attack: 20.0
+      release: 250.0
+      makeup: 0.0
+    light:
+      name: "Light"
+      description: "Subtle dynamic control"
+      threshold: -20.0
+      ratio: 2.0
+      attack: 20.0
+      release: 200.0
+      makeup: 2.0
+    podcast:
+      name: "Podcast"
+      description: "Voice-optimized compression"
+      threshold: -18.0
+      ratio: 4.0
+      attack: 10.0
+      release: 150.0
+      makeup: 4.0
+    broadcast:
+      name: "Broadcast"
+      description: "Broadcast-style limiting"
+      threshold: -12.0
+      ratio: 8.0
+      attack: 5.0
+      release: 100.0
+      makeup: 6.0
+
+video:
+  brightness:
+    none:
+      name: "None"
+      description: "No brightness change"
+      brightness: 0.0
+    dark:
+      name: "Dark"
+      description: "Darker image (-0.2)"
+      brightness: -0.2
+    normal:
+      name: "Normal"
+      description: "Original brightness"
+      brightness: 0.0
+    bright:
+      name: "Bright"
+      description: "Brighter image (+0.2)"
+      brightness: 0.2
+
+  contrast:
+    none:
+      name: "None"
+      description: "No contrast change"
+      contrast: 1.0
+    low:
+      name: "Low"
+      description: "Reduced contrast"
+      contrast: 0.8
+    normal:
+      name: "Normal"
+      description: "Original contrast"
+      contrast: 1.0
+    high:
+      name: "High"
+      description: "Increased contrast"
+      contrast: 1.3
+
+  saturation:
+    none:
+      name: "None"
+      description: "No saturation change"
+      saturation: 1.0
+    grayscale:
+      name: "Grayscale"
+      description: "Black and white"
+      saturation: 0.0
+    muted:
+      name: "Muted"
+      description: "Reduced colors"
+      saturation: 0.5
+    normal:
+      name: "Normal"
+      description: "Original saturation"
+      saturation: 1.0
+    vivid:
+      name: "Vivid"
+      description: "Enhanced colors"
+      saturation: 1.5
+
+  blur:
+    none:
+      name: "None"
+      description: "No blur"
+      sigma: 0.0
+    light:
+      name: "Light"
+      description: "Subtle blur"
+      sigma: 1.0
+    medium:
+      name: "Medium"
+      description: "Moderate blur"
+      sigma: 3.0
+    heavy:
+      name: "Heavy"
+      description: "Strong blur"
+      sigma: 6.0
+
+  sharpen:
+    none:
+      name: "None"
+      description: "No sharpening"
+      amount: 0.0
+    light:
+      name: "Light"
+      description: "Subtle sharpening"
+      amount: 0.5
+    medium:
+      name: "Medium"
+      description: "Moderate sharpening"
+      amount: 1.0
+    strong:
+      name: "Strong"
+      description: "Strong sharpening"
+      amount: 1.5
+
+  transform:
+    none:
+      name: "None"
+      description: "No transform"
+      filter: ""
+    flip_h:
+      name: "Flip H"
+      description: "Horizontal flip"
+      filter: "hflip"
+    flip_v:
+      name: "Flip V"
+      description: "Vertical flip"
+      filter: "vflip"
+    rotate_90:
+      name: "90°"
+      description: "Rotate 90° clockwise"
+      filter: "transpose=1"
+    rotate_180:
+      name: "180°"
+      description: "Rotate 180°"
+      filter: "transpose=1,transpose=1"
+    rotate_270:
+      name: "270°"
+      description: "Rotate 270° clockwise"
+      filter: "transpose=2"
