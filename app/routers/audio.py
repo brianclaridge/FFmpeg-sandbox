@@ -39,6 +39,7 @@ from app.services.settings import (
 )
 from app.services.processor import (
     process_audio,
+    process_audio_with_effects,
     process_video_with_effects,
     get_input_files,
     get_file_duration,
@@ -197,16 +198,13 @@ async def process(
                 output_format="mp4",
             )
         else:
-            # Audio-only extraction (uses legacy process_audio for MP3 output)
-            output_path = process_audio(
+            # Audio-only output with full filter chain (all 7 audio effects)
+            output_path = process_audio_with_effects(
                 input_file=input_path,
                 start_time=start_time,
                 end_time=end_time,
-                volume=volume_config.volume,
-                highpass=frequency_config.highpass,
-                lowpass=frequency_config.lowpass,
-                delays=delays_str,
-                decays=decays_str,
+                audio_filter=audio_filter,
+                output_format="mp3",
             )
 
         add_history_entry(

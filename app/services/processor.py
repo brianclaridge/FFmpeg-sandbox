@@ -597,3 +597,72 @@ def process_video_with_effects(
 
     logger.info(f"Video output saved: {output_file.name}")
     return output_file
+
+
+def process_audio_with_effects(
+    input_file: Path,
+    start_time: str,
+    end_time: str,
+    audio_filter: str | None = None,
+    output_format: str = "mp3",
+) -> Path:
+    """
+    Process audio with the full filter chain.
+
+    Extracts audio from input file and applies all audio effects.
+    This function should be used instead of process_audio() when
+    the full effect chain (including speed, pitch, noise reduction,
+    compressor) needs to be applied.
+
+    Args:
+        input_file: Path to source file (audio or video)
+        start_time: Start timestamp (HH:MM:SS or HH:MM:SS.mmm)
+        end_time: End timestamp (HH:MM:SS or HH:MM:SS.mmm)
+        audio_filter: Complete audio filter chain string from build_audio_filter_chain()
+        output_format: Output format (mp3, wav, flac)
+
+    Returns:
+        Path to the processed output file
+    """
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    output_file = OUTPUT_DIR / f"processed_{timestamp}.{output_format}"
+
+    cmd = [
+        "ffmpeg",
+        "-y",
+        "-i", str(input_file),
+        "-ss", start_time,
+        "-to", end_time,
+        "-vn",  # No video output
+    ]
+
+    # Add audio filter chain if present
+    if audio_filter:
+        cmd.extend(["-af", audio_filter])
+
+    # Output settings based on format
+    if output_format == "mp3":
+        cmd.extend(["-acodec", "libmp3lame", "-q:a", "4"])
+    elif output_format == "wav":
+        cmd.extend(["-acodec", "pcm_s16le"])
+    elif output_format == "flac":
+        cmd.extend(["-acodec", "flac"])
+
+    cmd.append(str(output_file))
+
+    logger.info(f"Processing audio with effects: {input_file.name}")
+    logger.debug(f"Audio filter: {audio_filter}")
+    logger.debug(f"Command: {' '.join(cmd)}")
+
+    result = subprocess.run(
+        cmd,
+        capture_output=True,
+        text=True,
+    )
+
+    if result.returncode != 0:
+        logger.error(f"ffmpeg error: {result.stderr}")
+        raise RuntimeError(f"ffmpeg failed: {result.stderr}")
+
+    logger.info(f"Audio output saved: {output_file.name}")
+    return output_file
