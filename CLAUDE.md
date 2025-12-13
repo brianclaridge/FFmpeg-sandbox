@@ -1,221 +1,96 @@
-# CLAUDE.md - FFmpeg-sandbox
+# CLAUDE.md - FFmpeg Sandbox
 
-## Important: After Every Change
-
-Run `task rebuild` after making any code changes to rebuild and restart the Docker container:
+## After Every Change
 
 ```bash
 task rebuild
 ```
 
-This cleans output/logs/metadata, rebuilds the Docker image, and restarts the container.
+Cleans output/logs/metadata, rebuilds Docker image, restarts container.
 
 ## Project Overview
 
-A Python-based Single Page Application for extracting and processing audio from video files with a visual effect chain (Volume → Tunnel → Frequency). Built with FastAPI and HTMX for a dynamic, server-rendered experience.
+FastAPI + HTMX single-page app for processing audio/video with visual effect chains. 13 effect categories (7 audio, 6 video) with YAML-driven presets.
 
 ## Tech Stack
 
-- **Backend**: FastAPI
-- **Frontend**: HTMX (hypermedia-driven)
-- **Templates**: Jinja2
-- **Audio/Video**: ffmpeg, yt-dlp
-- **Logging**: loguru
-- **Config**: PyYAML
+- **Backend**: FastAPI, Pydantic
+- **Frontend**: HTMX, Jinja2
+- **Processing**: ffmpeg, yt-dlp
+- **Config**: PyYAML (config.yml, presets.yml)
 - **Package Manager**: uv (Astral)
 
 ## Project Structure
 
 ```
-config.yml               # Application configuration
+config.yml               # App configuration
+presets.yml              # Effect presets (66 presets, 13 categories)
 .data/
 ├── input/               # Source files + per-file .yml metadata
-│   ├── yt-abc123.mp4    # Downloaded video (anonymized name)
-│   └── yt-abc123.yml    # Settings, history, source info
-├── output/              # Processed audio files
-└── logs/                # Application logs
+├── output/              # Processed files
+└── logs/                # App logs
 app/
-├── main.py              # FastAPI entry point, routes index
-├── config.py            # Config loader with dataclasses
-├── models.py            # Pydantic models, category presets, enums
+├── main.py              # FastAPI entry, index route
+├── config.py            # Config loader
+├── models.py            # Pydantic schemas (241 lines)
 ├── routers/
-│   ├── audio.py         # /process, /preview, /upload, effect chain endpoints
-│   ├── download.py      # /download/validate, /download/execute
-│   └── history.py       # /history endpoints
+│   ├── audio.py         # /process, /preview, effect chain endpoints
+│   ├── download.py      # yt-dlp download endpoints
+│   └── history.py       # History endpoints
 ├── services/
-│   ├── processor.py     # ffmpeg audio processing + file metadata
-│   ├── downloader.py    # yt-dlp video downloading
-│   ├── file_metadata.py # Per-file YAML metadata service
-│   ├── history.py       # Processing history (per-file)
-│   └── settings.py      # Effect chain settings (per-file)
+│   ├── __init__.py      # Public API exports
+│   ├── presets.py       # YAML preset loader with Pydantic validation
+│   ├── processor.py     # FFmpeg processing orchestration
+│   ├── metadata.py      # File introspection (duration, codecs)
+│   ├── filters_audio.py # Audio filter builders
+│   ├── filters_video.py # Video filter builders
+│   ├── filter_chain.py  # Filter chain aggregation
+│   ├── ffmpeg_executor.py # Subprocess wrapper
+│   ├── downloader.py    # yt-dlp downloading
+│   ├── file_metadata.py # Per-file YAML metadata
+│   ├── history.py       # Processing history
+│   └── settings.py      # User settings persistence
 ├── templates/
-│   ├── base.html        # Base layout with theme selector
-│   ├── index.html       # Main 3-column interface with ClipRangeController
-│   └── partials/
-│       ├── effect_chain.html       # Effect chain container
-│       ├── effect_chain_boxes.html # Clickable Volume/Tunnel/Frequency boxes
-│       ├── panel_volume.html       # Volume category controls
-│       ├── panel_tunnel.html       # Tunnel/echo category controls
-│       └── panel_frequency.html    # Frequency/EQ category controls
-└── static/
-    └── css/
-        ├── themes.css   # 10 dark theme definitions
-        └── styles.css   # Component styles
+│   ├── base.html        # Layout + theme selector
+│   ├── index.html       # Main interface
+│   └── partials/        # HTMX partials
+└── static/css/
+    ├── themes.css       # 10 dark themes
+    └── styles.css       # Component styles
 ```
 
 ## Key Commands
 
 ```bash
-# Install dependencies
-uv sync
-
-# Run development server
-uv run python -m app.main
-
-# Or use the entry point
-uv run audio-processor
-
-# Docker
-docker compose up -d
+uv sync                  # Install deps
+uv run python -m app.main  # Dev server
+docker compose up -d     # Docker
 ```
 
-## Configuration
+## Effect Categories
 
-All settings are externalized to `config.yml`:
+**Audio (7):** Volume, Tunnel, Frequency, Speed, Pitch, Noise Reduction, Compressor
 
-```yaml
-server:
-  host: "0.0.0.0"
-  port: 8000
-  version: "0.1.0"
-  reload: true
+**Video (6):** Brightness, Contrast, Saturation, Blur, Sharpen, Transform
 
-logging:
-  rotation: "10 MB"
-  retention: "7 days"
-  stderr_level: "INFO"
-  file_level: "DEBUG"
-
-history:
-  max_entries: 50
-
-download:
-  filename_max_length: 50
-  format: "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best"
-
-audio:
-  allowed_extensions: [".mp4", ".mkv", ".avi", ".mov", ".webm", ".mp3", ".wav", ".flac", ".m4a", ".ogg"]
-  preview_timeout: 30
-  mp3_quality: "4"
-  default_preset: "none"
-  default_start_time: "00:00:00"
-  default_end_time: "00:00:06"
-```
-
-## API Endpoints
-
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/` | Main page |
-| POST | `/process` | Process audio, returns preview partial |
-| POST | `/upload` | Upload file to input directory |
-| GET | `/preview/{filename}` | Serve processed audio file |
-| GET | `/duration/{filename}` | Get file metadata (duration, codecs, resolution) |
-| GET | `/clip-preview` | Stream audio clip for range slider |
-| GET | `/clip-video-preview` | Stream video clip for modal preview |
-| GET | `/partials/effect-chain` | Get effect chain UI component |
-| GET | `/partials/category-panel/{cat}` | Get category control panel |
-| POST | `/partials/category-preset/{cat}/{preset}` | Set category preset |
-| POST | `/download/validate` | Validate URL via yt-dlp |
-| POST | `/download/execute` | Download from URL |
-| GET | `/history` | Get history partial |
-| DELETE | `/history/{id}` | Delete history entry |
-| GET | `/history/{id}/apply` | Apply history settings to form |
-
-## Audio Processing
-
-The processor uses ffmpeg with this filter chain:
-
-```
-volume={vol},highpass=f={hp},lowpass=f={lp},aecho=0.8:0.85:{delays}:{decays}
-```
-
-### Effect Chain Categories
-
-The UI organizes processing into three independent categories:
-
-**Volume** (`VolumePreset`): 1x, 1.5x, 2x, 3x, 4x
-
-**Tunnel** (`TunnelPreset`): None, Subtle, Medium, Heavy, Extreme
-
-**Frequency** (`FrequencyPreset`): Flat, Bass Cut, Treble Cut, Narrow Band, Voice Clarity
-
-Each category has its own presets and controls. User selections persist per-file in `.data/input/{filename}.yml`.
-
-## UI Features
-
-### Visual Effect Chain
-- Three clickable boxes: Volume → Tunnel → Frequency
-- Clicking a box reveals its category control panel
-- Per-category preset pills for quick selection
-- Active category highlighted in the chain
-- Settings persist per-file in companion `.yml` metadata
-
-### File Metadata Display
-- Shows after file selection below the Process button
-- Displays: filename, duration, file size
-- For video: resolution, frame rate, video codec
-- For all: audio codec, sample rate, channels, bitrate
-
-### Clip Range Slider
-- Dual-handle slider for precise clip selection (millisecond precision)
-- **Defaults to full file duration** (0 to end)
-- Play/pause/stop controls for audio preview
-- Auto-fetches duration and metadata when file is selected
-
-### Video Preview Modal
-- Draggable modal window (defaults to bottom-right)
-- Appears only for video files
-- Loops the selected clip range
-- Follows current theme
-
-### Themes
-
-10 dark themes defined in `static/css/themes.css`:
-- Darcula (default), Dracula, Monokai, Nord, Solarized
-- Gruvbox, One Dark, Tokyo Night, Catppuccin, Neon
-
-Theme selection via `data-theme` attribute, persisted in localStorage.
-
-## Development Notes
-
-- Source files: `.data/input/` (or upload/URL download)
-- Per-file metadata: `.data/input/{filename}.yml` (settings + history)
-- Output files: `.data/output/`
-- Logs: `.data/logs/app.log` (retention configurable)
+All presets defined in `presets.yml`, validated against Pydantic schemas in `models.py`.
 
 ## Common Tasks
 
-### Add a new category preset
+### Add a new preset
 
-Each category has its own enum and preset dictionary in `app/models.py`:
+Edit `presets.yml`:
 
-```python
-# Add to enum
-class TunnelPreset(str, Enum):
-    # ... existing ...
-    NEW_PRESET = "new_preset"
-
-# Add to dictionary
-TUNNEL_PRESETS[TunnelPreset.NEW_PRESET] = TunnelConfig(
-    name="New Preset",
-    description="Description here",
-    delays=[10, 20, 30],
-    decays=[0.3, 0.25, 0.2],
-)
+```yaml
+audio:
+  volume:
+    new_preset:
+      name: "New Preset"
+      description: "Description here"
+      volume: 1.5
 ```
 
-Don't forget to also add to the `*_BY_STR` dictionary if accessing via string keys in templates.
+Restart container. Presets are validated on startup via `app/services/presets.py`.
 
 ### Add a new theme
 
@@ -224,32 +99,67 @@ Add to `app/static/css/themes.css`:
 ```css
 [data-theme="newtheme"] {
     --bg-primary: #xxx;
-    --bg-secondary: #xxx;
-    --bg-card: #xxx;
-    --bg-input: #xxx;
-    --text-primary: #xxx;
-    --text-secondary: #xxx;
-    --accent: #xxx;
-    --accent-hover: #xxx;
-    --success: #xxx;
-    --error: #xxx;
-    --slider-track: #xxx;
-    --slider-border: #xxx;
+    /* ... other vars */
 }
 ```
 
-Then add option to `templates/base.html` theme selector.
+Add option to `templates/base.html` theme selector.
 
-### Modify the filter chain
+### Modify filter chain
 
-Edit `app/services/processor.py` in the `process_audio` function.
+Edit `app/services/filter_chain.py` for chain logic, or individual `filters_audio.py`/`filters_video.py` for specific effects.
 
-### Add new form fields
+---
 
-1. Add field to `ProcessRequest` in `models.py`
-2. Add HTML input in `templates/index.html`
-3. Add handling in `routers/audio.py`
+## Development Roadmap
 
-### Update configuration
+### Phase 12: Complete Video Export UI
+**Priority:** High | **Status:** 60-70% done
 
-Edit `config.yml` and restart the application. All settings are loaded at startup via `app/config.py`.
+Missing:
+- Video player in preview.html (only shows audio)
+- Audio vs video export selection
+- Format selection (MP4, WebM, MKV)
+
+### Phase 13: Audio Effect QA
+**Priority:** Medium | **Status:** Backend ready
+
+- Validate pitch + speed interaction
+- Test noise reduction with real audio
+- Test extreme speed values (4x)
+
+### Phase 14: Preset Management
+**Priority:** Medium-High | **Status:** Not started
+
+- Save custom presets
+- Export/import as YAML
+- Preset categories (Podcast, Music, etc.)
+
+### Phase 15: Batch Processing
+**Priority:** Medium | **Status:** Not started
+
+- Multi-file upload
+- Apply chain to all files
+- Export as ZIP
+- Progress tracking
+
+### Phase 20: Output Format Options
+**Priority:** Medium | **Status:** Not started
+
+- Audio: MP3, WAV, FLAC, OGG, AAC
+- Video: MP4, WebM, MKV
+- Quality/bitrate selection
+
+### Lower Priority
+- Phase 16: Waveform/spectrogram visualization
+- Phase 17: Performance (caching, large files)
+- Phase 18: Mobile responsiveness
+- Phase 19: Keyboard shortcuts
+
+---
+
+## Technical Debt (Resolved)
+
+- ~~models.py 771 lines~~ → 241 lines (presets moved to YAML)
+- ~~processor.py 669 lines~~ → Split into 6 modules
+- ~~Repetitive preset lookups~~ → String-based YAML lookups
