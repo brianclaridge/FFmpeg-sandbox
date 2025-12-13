@@ -1,4 +1,87 @@
 /* ===========================================
+   Effects Tabs
+   =========================================== */
+
+.effects-tabs {
+    display: flex;
+    flex-direction: column;
+}
+
+.effects-tab-bar {
+    display: flex;
+    gap: 0.25rem;
+    margin-bottom: 0.75rem;
+    border-bottom: 2px solid var(--bg-secondary);
+}
+
+.effects-tab {
+    flex: 1;
+    padding: 0.6rem 1rem;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: -2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.effects-tab:hover {
+    color: var(--text-primary);
+    background: var(--bg-secondary);
+}
+
+.effects-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    background: transparent;
+}
+
+.effects-tab i {
+    font-size: 0.85rem;
+}
+
+.effects-tab-content {
+    /* Container for accordion content */
+}
+
+/* Video effects placeholder */
+.video-effects-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background: var(--bg-card);
+    border: 2px dashed var(--bg-secondary);
+    border-radius: var(--border-radius);
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+.video-effects-placeholder i {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+    opacity: 0.5;
+}
+
+.video-effects-placeholder p {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.video-effects-placeholder .placeholder-hint {
+    font-size: 0.75rem;
+    opacity: 0.7;
+}
+
+/* ===========================================
    Effect Chain UI
    =========================================== */
 
@@ -87,7 +170,7 @@
 
 .accordion-section {
     background: var(--bg-card);
-    border: 2px solid transparent;
+    border: 2px solid var(--bg-secondary);
     border-radius: var(--border-radius);
     overflow: hidden;
     transition: all 0.2s ease;

@@ -1,0 +1,250 @@
+<div id="effects-video-accordion" class="accordion">
+    <!-- Brightness Section -->
+    <div class="accordion-section {% if user_settings.active_category == 'brightness' %}expanded{% endif %}">
+        <div class="accordion-header"
+             hx-get="/partials/accordion/brightness"
+             hx-target="#effects-video-accordion"
+             hx-swap="outerHTML"
+             hx-vals="js:{filename: window.currentFilename || ''}">
+            <span class="accordion-icon"><i class="fa-solid fa-sun"></i></span>
+            <span class="accordion-label">Brightness</span>
+            <span class="accordion-preset">{{ brightness_presets.get(user_settings.brightness.preset, {}).name or user_settings.brightness.preset }}</span>
+            <span class="accordion-indicator">{% if user_settings.active_category == 'brightness' %}&#9660;{% else %}&#9654;{% endif %}</span>
+        </div>
+        {% if user_settings.active_category == 'brightness' %}
+        <div class="accordion-content">
+            <div class="preset-pills">
+                {% for preset_key, config in brightness_presets.items() %}
+                <button type="button"
+                        class="preset-pill {% if user_settings.brightness.preset == preset_key %}active{% endif %}"
+                        hx-post="/partials/accordion-preset/brightness/{{ preset_key }}"
+                        hx-target="#effects-video-accordion"
+                        hx-swap="outerHTML"
+                        hx-vals="js:{filename: window.currentFilename || ''}"
+                        onclick="document.getElementById('brightness_preset').value = '{{ preset_key }}'">
+                    {{ config.name }}
+                </button>
+                {% endfor %}
+            </div>
+            <div class="panel-controls">
+                <div class="form-group">
+                    <label for="brightness">Brightness: <span id="brightness-value">{{ brightness_current.brightness }}</span></label>
+                    <input type="range" name="brightness" id="brightness"
+                           min="-0.5" max="0.5" step="0.05"
+                           value="{{ brightness_current.brightness }}"
+                           oninput="document.getElementById('brightness-value').textContent = this.value">
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Connector Line -->
+    <div class="accordion-connector"></div>
+
+    <!-- Contrast Section -->
+    <div class="accordion-section {% if user_settings.active_category == 'contrast' %}expanded{% endif %}">
+        <div class="accordion-header"
+             hx-get="/partials/accordion/contrast"
+             hx-target="#effects-video-accordion"
+             hx-swap="outerHTML"
+             hx-vals="js:{filename: window.currentFilename || ''}">
+            <span class="accordion-icon"><i class="fa-solid fa-circle-half-stroke"></i></span>
+            <span class="accordion-label">Contrast</span>
+            <span class="accordion-preset">{{ contrast_presets.get(user_settings.contrast.preset, {}).name or user_settings.contrast.preset }}</span>
+            <span class="accordion-indicator">{% if user_settings.active_category == 'contrast' %}&#9660;{% else %}&#9654;{% endif %}</span>
+        </div>
+        {% if user_settings.active_category == 'contrast' %}
+        <div class="accordion-content">
+            <div class="preset-pills">
+                {% for preset_key, config in contrast_presets.items() %}
+                <button type="button"
+                        class="preset-pill {% if user_settings.contrast.preset == preset_key %}active{% endif %}"
+                        hx-post="/partials/accordion-preset/contrast/{{ preset_key }}"
+                        hx-target="#effects-video-accordion"
+                        hx-swap="outerHTML"
+                        hx-vals="js:{filename: window.currentFilename || ''}"
+                        onclick="document.getElementById('contrast_preset').value = '{{ preset_key }}'">
+                    {{ config.name }}
+                </button>
+                {% endfor %}
+            </div>
+            <div class="panel-controls">
+                <div class="form-group">
+                    <label for="contrast">Contrast: <span id="contrast-value">{{ contrast_current.contrast }}</span></label>
+                    <input type="range" name="contrast" id="contrast"
+                           min="0.5" max="2.0" step="0.1"
+                           value="{{ contrast_current.contrast }}"
+                           oninput="document.getElementById('contrast-value').textContent = this.value">
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Connector Line -->
+    <div class="accordion-connector"></div>
+
+    <!-- Saturation Section -->
+    <div class="accordion-section {% if user_settings.active_category == 'saturation' %}expanded{% endif %}">
+        <div class="accordion-header"
+             hx-get="/partials/accordion/saturation"
+             hx-target="#effects-video-accordion"
+             hx-swap="outerHTML"
+             hx-vals="js:{filename: window.currentFilename || ''}">
+            <span class="accordion-icon"><i class="fa-solid fa-palette"></i></span>
+            <span class="accordion-label">Saturation</span>
+            <span class="accordion-preset">{{ saturation_presets.get(user_settings.saturation.preset, {}).name or user_settings.saturation.preset }}</span>
+            <span class="accordion-indicator">{% if user_settings.active_category == 'saturation' %}&#9660;{% else %}&#9654;{% endif %}</span>
+        </div>
+        {% if user_settings.active_category == 'saturation' %}
+        <div class="accordion-content">
+            <div class="preset-pills">
+                {% for preset_key, config in saturation_presets.items() %}
+                <button type="button"
+                        class="preset-pill {% if user_settings.saturation.preset == preset_key %}active{% endif %}"
+                        hx-post="/partials/accordion-preset/saturation/{{ preset_key }}"
+                        hx-target="#effects-video-accordion"
+                        hx-swap="outerHTML"
+                        hx-vals="js:{filename: window.currentFilename || ''}"
+                        onclick="document.getElementById('saturation_preset').value = '{{ preset_key }}'">
+                    {{ config.name }}
+                </button>
+                {% endfor %}
+            </div>
+            <div class="panel-controls">
+                <div class="form-group">
+                    <label for="saturation">Saturation: <span id="saturation-value">{{ saturation_current.saturation }}</span></label>
+                    <input type="range" name="saturation" id="saturation"
+                           min="0" max="2.0" step="0.1"
+                           value="{{ saturation_current.saturation }}"
+                           oninput="document.getElementById('saturation-value').textContent = this.value">
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Connector Line -->
+    <div class="accordion-connector"></div>
+
+    <!-- Blur Section -->
+    <div class="accordion-section {% if user_settings.active_category == 'blur' %}expanded{% endif %}">
+        <div class="accordion-header"
+             hx-get="/partials/accordion/blur"
+             hx-target="#effects-video-accordion"
+             hx-swap="outerHTML"
+             hx-vals="js:{filename: window.currentFilename || ''}">
+            <span class="accordion-icon"><i class="fa-solid fa-water"></i></span>
+            <span class="accordion-label">Blur</span>
+            <span class="accordion-preset">{{ blur_presets.get(user_settings.blur.preset, {}).name or user_settings.blur.preset }}</span>
+            <span class="accordion-indicator">{% if user_settings.active_category == 'blur' %}&#9660;{% else %}&#9654;{% endif %}</span>
+        </div>
+        {% if user_settings.active_category == 'blur' %}
+        <div class="accordion-content">
+            <div class="preset-pills">
+                {% for preset_key, config in blur_presets.items() %}
+                <button type="button"
+                        class="preset-pill {% if user_settings.blur.preset == preset_key %}active{% endif %}"
+                        hx-post="/partials/accordion-preset/blur/{{ preset_key }}"
+                        hx-target="#effects-video-accordion"
+                        hx-swap="outerHTML"
+                        hx-vals="js:{filename: window.currentFilename || ''}"
+                        onclick="document.getElementById('blur_preset').value = '{{ preset_key }}'">
+                    {{ config.name }}
+                </button>
+                {% endfor %}
+            </div>
+            <div class="panel-controls">
+                <div class="form-group">
+                    <label for="blur_sigma">Blur Sigma: <span id="blur-sigma-value">{{ blur_current.sigma }}</span></label>
+                    <input type="range" name="blur_sigma" id="blur_sigma"
+                           min="0" max="10" step="0.5"
+                           value="{{ blur_current.sigma }}"
+                           oninput="document.getElementById('blur-sigma-value').textContent = this.value">
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Connector Line -->
+    <div class="accordion-connector"></div>
+
+    <!-- Sharpen Section -->
+    <div class="accordion-section {% if user_settings.active_category == 'sharpen' %}expanded{% endif %}">
+        <div class="accordion-header"
+             hx-get="/partials/accordion/sharpen"
+             hx-target="#effects-video-accordion"
+             hx-swap="outerHTML"
+             hx-vals="js:{filename: window.currentFilename || ''}">
+            <span class="accordion-icon"><i class="fa-solid fa-diamond"></i></span>
+            <span class="accordion-label">Sharpen</span>
+            <span class="accordion-preset">{{ sharpen_presets.get(user_settings.sharpen.preset, {}).name or user_settings.sharpen.preset }}</span>
+            <span class="accordion-indicator">{% if user_settings.active_category == 'sharpen' %}&#9660;{% else %}&#9654;{% endif %}</span>
+        </div>
+        {% if user_settings.active_category == 'sharpen' %}
+        <div class="accordion-content">
+            <div class="preset-pills">
+                {% for preset_key, config in sharpen_presets.items() %}
+                <button type="button"
+                        class="preset-pill {% if user_settings.sharpen.preset == preset_key %}active{% endif %}"
+                        hx-post="/partials/accordion-preset/sharpen/{{ preset_key }}"
+                        hx-target="#effects-video-accordion"
+                        hx-swap="outerHTML"
+                        hx-vals="js:{filename: window.currentFilename || ''}"
+                        onclick="document.getElementById('sharpen_preset').value = '{{ preset_key }}'">
+                    {{ config.name }}
+                </button>
+                {% endfor %}
+            </div>
+            <div class="panel-controls">
+                <div class="form-group">
+                    <label for="sharpen_amount">Sharpen Amount: <span id="sharpen-amount-value">{{ sharpen_current.amount }}</span></label>
+                    <input type="range" name="sharpen_amount" id="sharpen_amount"
+                           min="0" max="3" step="0.1"
+                           value="{{ sharpen_current.amount }}"
+                           oninput="document.getElementById('sharpen-amount-value').textContent = this.value">
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Connector Line -->
+    <div class="accordion-connector"></div>
+
+    <!-- Transform Section -->
+    <div class="accordion-section {% if user_settings.active_category == 'transform' %}expanded{% endif %}">
+        <div class="accordion-header"
+             hx-get="/partials/accordion/transform"
+             hx-target="#effects-video-accordion"
+             hx-swap="outerHTML"
+             hx-vals="js:{filename: window.currentFilename || ''}">
+            <span class="accordion-icon"><i class="fa-solid fa-rotate"></i></span>
+            <span class="accordion-label">Transform</span>
+            <span class="accordion-preset">{{ transform_presets.get(user_settings.transform.preset, {}).name or user_settings.transform.preset }}</span>
+            <span class="accordion-indicator">{% if user_settings.active_category == 'transform' %}&#9660;{% else %}&#9654;{% endif %}</span>
+        </div>
+        {% if user_settings.active_category == 'transform' %}
+        <div class="accordion-content">
+            <div class="preset-pills">
+                {% for preset_key, config in transform_presets.items() %}
+                <button type="button"
+                        class="preset-pill {% if user_settings.transform.preset == preset_key %}active{% endif %}"
+                        hx-post="/partials/accordion-preset/transform/{{ preset_key }}"
+                        hx-target="#effects-video-accordion"
+                        hx-swap="outerHTML"
+                        hx-vals="js:{filename: window.currentFilename || ''}"
+                        onclick="document.getElementById('transform_preset').value = '{{ preset_key }}'">
+                    {{ config.name }}
+                </button>
+                {% endfor %}
+            </div>
+            <div class="panel-controls">
+                <p class="transform-description">{{ transform_current.description }}</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>

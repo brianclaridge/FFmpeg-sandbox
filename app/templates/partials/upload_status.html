@@ -18,6 +18,11 @@
         if (typeof ClipRangeController !== 'undefined') {
             ClipRangeController.fetchDuration('{{ filename }}');
         }
+
+        // Auto-close the Add Source modal
+        if (typeof closeAddSourceModal === 'function') {
+            closeAddSourceModal();
+        }
     })();
 </script>
 {% else %}

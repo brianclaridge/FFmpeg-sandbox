@@ -1,6 +1,10 @@
 services:
-  audio-processor:
-    build: .
+  ffmpeg-sandbox:
+    build:
+      context: .
+      args:
+        GIT_HASH: ${GIT_HASH:-dev}
+        GIT_DATE: ${GIT_DATE:-}
     ports:
       - "8000:8000"
     volumes:
@@ -8,3 +12,9 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      start_period: 5s
+      retries: 3

@@ -15,14 +15,27 @@ from loguru import logger
 from app.config import INPUT_DIR, OUTPUT_DIR, config
 from app.models import (
     PresetLevel, PRESETS,
+    # Audio effects
     VolumePreset, VOLUME_PRESETS, VOLUME_PRESETS_BY_STR,
     TunnelPreset, TUNNEL_PRESETS, TUNNEL_PRESETS_BY_STR,
     FrequencyPreset, FREQUENCY_PRESETS, FREQUENCY_PRESETS_BY_STR,
+    SpeedPreset, SPEED_PRESETS, SPEED_PRESETS_BY_STR,
+    PitchPreset, PITCH_PRESETS, PITCH_PRESETS_BY_STR,
+    NoiseReductionPreset, NOISE_REDUCTION_PRESETS, NOISE_REDUCTION_PRESETS_BY_STR,
+    CompressorPreset, COMPRESSOR_PRESETS, COMPRESSOR_PRESETS_BY_STR,
+    # Video effects
+    BrightnessPreset, BRIGHTNESS_PRESETS, BRIGHTNESS_PRESETS_BY_STR,
+    ContrastPreset, CONTRAST_PRESETS, CONTRAST_PRESETS_BY_STR,
+    SaturationPreset, SATURATION_PRESETS, SATURATION_PRESETS_BY_STR,
+    BlurPreset, BLUR_PRESETS, BLUR_PRESETS_BY_STR,
+    SharpenPreset, SHARPEN_PRESETS, SHARPEN_PRESETS_BY_STR,
+    TransformPreset, TRANSFORM_PRESETS, TRANSFORM_PRESETS_BY_STR,
 )
 from app.services.settings import (
     load_user_settings,
     update_category_preset,
     update_active_category,
+    update_active_tab,
 )
 from app.services.processor import process_audio, get_input_files, get_file_duration, format_duration_ms, get_file_metadata
 from app.services.file_metadata import load_file_metadata
@@ -414,7 +427,7 @@ def _get_accordion_context(user_settings, filename: str | None = None) -> dict:
     try:
         volume_current = VOLUME_PRESETS[VolumePreset(user_settings.volume.preset)]
     except (ValueError, KeyError):
-        volume_current = VOLUME_PRESETS[VolumePreset("2x")]
+        volume_current = VOLUME_PRESETS[VolumePreset("none")]
 
     try:
         tunnel_current = TUNNEL_PRESETS[TunnelPreset(user_settings.tunnel.preset)]
@@ -426,37 +439,132 @@ def _get_accordion_context(user_settings, filename: str | None = None) -> dict:
     except (ValueError, KeyError):
         frequency_current = FREQUENCY_PRESETS[FrequencyPreset("flat")]
 
+    try:
+        speed_current = SPEED_PRESETS[SpeedPreset(user_settings.speed.preset)]
+    except (ValueError, KeyError):
+        speed_current = SPEED_PRESETS[SpeedPreset("none")]
+
+    try:
+        pitch_current = PITCH_PRESETS[PitchPreset(user_settings.pitch.preset)]
+    except (ValueError, KeyError):
+        pitch_current = PITCH_PRESETS[PitchPreset("none")]
+
+    try:
+        noise_reduction_current = NOISE_REDUCTION_PRESETS[NoiseReductionPreset(user_settings.noise_reduction.preset)]
+    except (ValueError, KeyError):
+        noise_reduction_current = NOISE_REDUCTION_PRESETS[NoiseReductionPreset("none")]
+
+    try:
+        compressor_current = COMPRESSOR_PRESETS[CompressorPreset(user_settings.compressor.preset)]
+    except (ValueError, KeyError):
+        compressor_current = COMPRESSOR_PRESETS[CompressorPreset("none")]
+
+    # Video effects
+    try:
+        brightness_current = BRIGHTNESS_PRESETS[BrightnessPreset(user_settings.brightness.preset)]
+    except (ValueError, KeyError):
+        brightness_current = BRIGHTNESS_PRESETS[BrightnessPreset("none")]
+
+    try:
+        contrast_current = CONTRAST_PRESETS[ContrastPreset(user_settings.contrast.preset)]
+    except (ValueError, KeyError):
+        contrast_current = CONTRAST_PRESETS[ContrastPreset("none")]
+
+    try:
+        saturation_current = SATURATION_PRESETS[SaturationPreset(user_settings.saturation.preset)]
+    except (ValueError, KeyError):
+        saturation_current = SATURATION_PRESETS[SaturationPreset("none")]
+
+    try:
+        blur_current = BLUR_PRESETS[BlurPreset(user_settings.blur.preset)]
+    except (ValueError, KeyError):
+        blur_current = BLUR_PRESETS[BlurPreset("none")]
+
+    try:
+        sharpen_current = SHARPEN_PRESETS[SharpenPreset(user_settings.sharpen.preset)]
+    except (ValueError, KeyError):
+        sharpen_current = SHARPEN_PRESETS[SharpenPreset("none")]
+
+    try:
+        transform_current = TRANSFORM_PRESETS[TransformPreset(user_settings.transform.preset)]
+    except (ValueError, KeyError):
+        transform_current = TRANSFORM_PRESETS[TransformPreset("none")]
+
     return {
         "user_settings": user_settings,
+        # Audio presets
         "volume_presets": VOLUME_PRESETS_BY_STR,
         "tunnel_presets": TUNNEL_PRESETS_BY_STR,
         "frequency_presets": FREQUENCY_PRESETS_BY_STR,
+        "speed_presets": SPEED_PRESETS_BY_STR,
+        "pitch_presets": PITCH_PRESETS_BY_STR,
+        "noise_reduction_presets": NOISE_REDUCTION_PRESETS_BY_STR,
+        "compressor_presets": COMPRESSOR_PRESETS_BY_STR,
+        # Video presets
+        "brightness_presets": BRIGHTNESS_PRESETS_BY_STR,
+        "contrast_presets": CONTRAST_PRESETS_BY_STR,
+        "saturation_presets": SATURATION_PRESETS_BY_STR,
+        "blur_presets": BLUR_PRESETS_BY_STR,
+        "sharpen_presets": SHARPEN_PRESETS_BY_STR,
+        "transform_presets": TRANSFORM_PRESETS_BY_STR,
+        # Current values
         "volume_current": volume_current,
         "tunnel_current": tunnel_current,
         "frequency_current": frequency_current,
+        "speed_current": speed_current,
+        "pitch_current": pitch_current,
+        "noise_reduction_current": noise_reduction_current,
+        "compressor_current": compressor_current,
+        "brightness_current": brightness_current,
+        "contrast_current": contrast_current,
+        "saturation_current": saturation_current,
+        "blur_current": blur_current,
+        "sharpen_current": sharpen_current,
+        "transform_current": transform_current,
         "current_filename": filename,
     }
 
 
 @router.get("/partials/effect-chain", response_class=HTMLResponse)
 async def get_effect_chain(request: Request, filename: str | None = None):
-    """Get the full effect chain UI component (accordion)."""
+    """Get the full effect chain UI component (tabs with accordion)."""
     user_settings = load_user_settings(filename)
     context = _get_accordion_context(user_settings, filename)
     context["request"] = request
-    return templates.TemplateResponse("partials/effect_chain_accordion.html", context)
+    return templates.TemplateResponse("partials/effects_tabs.html", context)
+
+
+@router.get("/partials/effects-tab/{tab}", response_class=HTMLResponse)
+async def get_effects_tab(request: Request, tab: str, filename: str | None = None):
+    """Switch between Audio and Video effects tabs."""
+    if tab not in ("audio", "video"):
+        raise HTTPException(status_code=404, detail="Tab not found")
+
+    user_settings = update_active_tab(tab, filename)
+    context = _get_accordion_context(user_settings, filename)
+    context["request"] = request
+
+    if tab == "video":
+        return templates.TemplateResponse("partials/effects_video_accordion.html", context)
+    else:
+        return templates.TemplateResponse("partials/effects_audio_accordion.html", context)
+
+
+AUDIO_CATEGORIES = ("volume", "tunnel", "frequency", "speed", "pitch", "noise_reduction", "compressor")
+VIDEO_CATEGORIES = ("brightness", "contrast", "saturation", "blur", "sharpen", "transform")
+ALL_CATEGORIES = AUDIO_CATEGORIES + VIDEO_CATEGORIES
 
 
 @router.get("/partials/category-panel/{category}", response_class=HTMLResponse)
 async def get_category_panel(request: Request, category: str, filename: str | None = None):
     """Get the control panel for a specific category (legacy endpoint - returns accordion)."""
-    if category not in ("volume", "tunnel", "frequency"):
+    if category not in ALL_CATEGORIES:
         raise HTTPException(status_code=404, detail="Category not found")
 
     user_settings = update_active_category(category, filename)
     context = _get_accordion_context(user_settings, filename)
     context["request"] = request
-    return templates.TemplateResponse("partials/effect_chain_accordion.html", context)
+    return templates.TemplateResponse("partials/effects_audio_accordion.html", context)
 
 
 @router.post("/partials/category-preset/{category}/{preset}", response_class=HTMLResponse)
@@ -465,30 +573,36 @@ async def set_category_preset(request: Request, category: str, preset: str, file
     user_settings = update_category_preset(category, preset, filename)
     context = _get_accordion_context(user_settings, filename)
     context["request"] = request
-    return templates.TemplateResponse("partials/effect_chain_accordion.html", context)
+    return templates.TemplateResponse("partials/effects_audio_accordion.html", context)
 
 
 @router.get("/partials/accordion/{category}", response_class=HTMLResponse)
 async def get_accordion_section(request: Request, category: str, filename: str | None = None):
     """Expand an accordion section (collapses others)."""
-    if category not in ("volume", "tunnel", "frequency"):
+    if category not in ALL_CATEGORIES:
         raise HTTPException(status_code=404, detail="Category not found")
 
     user_settings = update_active_category(category, filename)
     context = _get_accordion_context(user_settings, filename)
     context["request"] = request
 
-    return templates.TemplateResponse("partials/effect_chain_accordion.html", context)
+    # Return correct template based on category type
+    if category in VIDEO_CATEGORIES:
+        return templates.TemplateResponse("partials/effects_video_accordion.html", context)
+    return templates.TemplateResponse("partials/effects_audio_accordion.html", context)
 
 
 @router.post("/partials/accordion-preset/{category}/{preset}", response_class=HTMLResponse)
 async def set_accordion_preset(request: Request, category: str, preset: str, filename: str = Form("")):
     """Update a category's preset and return updated accordion."""
-    if category not in ("volume", "tunnel", "frequency"):
+    if category not in ALL_CATEGORIES:
         raise HTTPException(status_code=404, detail="Category not found")
 
     user_settings = update_category_preset(category, preset, filename)
     context = _get_accordion_context(user_settings, filename)
     context["request"] = request
 
-    return templates.TemplateResponse("partials/effect_chain_accordion.html", context)
+    # Return correct template based on category type
+    if category in VIDEO_CATEGORIES:
+        return templates.TemplateResponse("partials/effects_video_accordion.html", context)
+    return templates.TemplateResponse("partials/effects_audio_accordion.html", context)

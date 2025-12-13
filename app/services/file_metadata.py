@@ -76,9 +76,22 @@ def get_default_settings() -> dict[str, Any]:
     """Return default effect chain settings."""
     return {
         "active_category": "volume",
+        "active_tab": "audio",
+        # Audio effects
         "volume": {"preset": "none", "custom_values": {}},
         "tunnel": {"preset": "none", "custom_values": {}},
         "frequency": {"preset": "flat", "custom_values": {}},
+        "speed": {"preset": "none", "custom_values": {}},
+        "pitch": {"preset": "none", "custom_values": {}},
+        "noise_reduction": {"preset": "none", "custom_values": {}},
+        "compressor": {"preset": "none", "custom_values": {}},
+        # Video effects
+        "brightness": {"preset": "none", "custom_values": {}},
+        "contrast": {"preset": "none", "custom_values": {}},
+        "saturation": {"preset": "none", "custom_values": {}},
+        "blur": {"preset": "none", "custom_values": {}},
+        "sharpen": {"preset": "none", "custom_values": {}},
+        "transform": {"preset": "none", "custom_values": {}},
     }
 
 
@@ -144,6 +157,16 @@ def update_active_category(filename: str, category: str) -> dict[str, Any]:
     metadata = load_file_metadata(filename)
     settings = metadata.get("settings", get_default_settings())
     settings["active_category"] = category
+    metadata["settings"] = settings
+    save_file_metadata(filename, metadata)
+    return settings
+
+
+def update_active_tab(filename: str, tab: str) -> dict[str, Any]:
+    """Update which effects tab (audio/video) is active for a file."""
+    metadata = load_file_metadata(filename)
+    settings = metadata.get("settings", get_default_settings())
+    settings["active_tab"] = tab
     metadata["settings"] = settings
     save_file_metadata(filename, metadata)
     return settings

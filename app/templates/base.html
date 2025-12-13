@@ -25,6 +25,11 @@
                         <i class="fa-brands fa-github"></i>
                         brianclaridge/ffmpeg-sandbox
                     </a>
+                    {% if commit_date and commit_hash %}
+                    <a href="https://github.com/brianclaridge/ffmpeg-sandbox/commit/{{ commit_hash }}" target="_blank" class="version-link">
+                        version: {{ commit_date }} ({{ commit_hash }})
+                    </a>
+                    {% endif %}
                 </h1>
                 <span class="header-attribution">
                     Built with FastAPI + HTMX + <a href="https://fontawesome.com" target="_blank">Font Awesome</a> + <a href="https://github.com/brianclaridge/.claude" target="_blank">.claude</a>

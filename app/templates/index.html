@@ -17,56 +17,10 @@
                 </select>
             </div>
 
-            <!-- File Upload Section -->
-            <div class="upload-section">
-                <div class="section-divider">
-                    <span>or upload</span>
-                </div>
-
-                <div id="upload-zone" class="upload-zone" onclick="document.getElementById('file-input').click()">
-                    <input type="file"
-                           id="file-input"
-                           name="file"
-                           accept=".mp4,.mkv,.avi,.mov,.webm,.mp3,.wav,.flac,.m4a,.ogg"
-                           hx-post="/upload"
-                           hx-target="#upload-status"
-                           hx-swap="innerHTML"
-                           hx-encoding="multipart/form-data"
-                           style="display: none;">
-                    <div class="upload-icon">&#8679;</div>
-                    <div class="upload-text">
-                        <strong>Click</strong> or drag
-                    </div>
-                </div>
-
-                <div id="upload-status"></div>
-            </div>
-
-            <!-- URL Download Section -->
-            <div class="url-section">
-                <div class="section-divider">
-                    <span>or URL</span>
-                </div>
-
-                <div class="url-input-group-vertical">
-                    <input type="text"
-                           id="download_url"
-                           name="download_url"
-                           placeholder="Paste video URL..."
-                           class="url-input">
-                    <button type="button"
-                            class="btn-download"
-                            hx-post="/download/validate"
-                            hx-include="#download_url"
-                            hx-target="#download-status"
-                            hx-swap="innerHTML">
-                        <span class="btn-text">Check URL</span>
-                        <span class="htmx-indicator">Checking...</span>
-                    </button>
-                </div>
-
-                <div id="download-status"></div>
-            </div>
+            <button type="button" class="btn-primary btn-add-source" onclick="openAddSourceModal()">
+                <i class="fa-solid fa-plus"></i>
+                <span>Add Source</span>
+            </button>
 
             <!-- File Metadata Section -->
             <div id="file-metadata" class="file-metadata" style="display: none;">
@@ -166,8 +120,8 @@
                 </div>
             </div>
 
-            <!-- Effect Chain Section -->
-            <h2 class="section-divider-heading">Effect Chain</h2>
+            <!-- Effects Section -->
+            <h2 class="section-divider-heading">Effects</h2>
 
             <div class="process-row effect-chain-process">
                 <button type="submit" class="btn-primary">
@@ -176,9 +130,9 @@
                 </button>
             </div>
 
-            <!-- Effect Chain Accordion -->
-            <div id="effect-chain-area">
-                {% include "partials/effect_chain_accordion.html" %}
+            <!-- Effects Tabs and Accordion -->
+            <div id="effects-area">
+                {% include "partials/effects_tabs.html" %}
             </div>
 
             <!-- Hidden preset inputs for form submission -->
@@ -220,6 +174,62 @@
         </section>
     </div>
 </form>
+
+<!-- Add Source Modal -->
+<div class="modal-backdrop" id="add-source-modal">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="modal-title">Add Source</span>
+            <button type="button" class="modal-close" onclick="closeAddSourceModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <!-- File Upload Section -->
+            <div class="upload-section">
+                <div id="upload-zone" class="upload-zone" onclick="document.getElementById('file-input').click()">
+                    <input type="file"
+                           id="file-input"
+                           name="file"
+                           accept=".mp4,.mkv,.avi,.mov,.webm,.mp3,.wav,.flac,.m4a,.ogg"
+                           hx-post="/upload"
+                           hx-target="#upload-status"
+                           hx-swap="innerHTML"
+                           hx-encoding="multipart/form-data"
+                           style="display: none;">
+                    <div class="upload-icon">&#8679;</div>
+                    <div class="upload-text">
+                        <strong>Click</strong> or drag
+                    </div>
+                </div>
+                <div id="upload-status"></div>
+            </div>
+
+            <!-- URL Download Section -->
+            <div class="url-section">
+                <div class="section-divider">
+                    <span>or paste URL</span>
+                </div>
+
+                <div class="url-input-group-vertical">
+                    <input type="text"
+                           id="download_url"
+                           name="download_url"
+                           placeholder="Paste video URL..."
+                           class="url-input">
+                    <button type="button"
+                            class="btn-download"
+                            hx-post="/download/validate"
+                            hx-include="#download_url"
+                            hx-target="#download-status"
+                            hx-swap="innerHTML">
+                        <span class="btn-text">Check URL</span>
+                        <span class="htmx-indicator">Checking...</span>
+                    </button>
+                </div>
+                <div id="download-status"></div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
 // Clip Range Slider Controller
@@ -814,6 +824,37 @@ document.addEventListener('DOMContentLoaded', function() {
             ClipRangeController.setRange(startMs, endMs);
         }
     });
+
+    // Add Source Modal - backdrop click to close
+    var modalBackdrop = document.getElementById('add-source-modal');
+    if (modalBackdrop) {
+        modalBackdrop.addEventListener('click', function(e) {
+            if (e.target === modalBackdrop) {
+                closeAddSourceModal();
+            }
+        });
+    }
+
+    // Add Source Modal - ESC key to close
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            var modal = document.getElementById('add-source-modal');
+            if (modal && modal.classList.contains('active')) {
+                closeAddSourceModal();
+            }
+        }
+    });
 });
+
+// Add Source Modal Controller
+function openAddSourceModal() {
+    document.getElementById('add-source-modal').classList.add('active');
+    document.body.classList.add('modal-open');
+}
+
+function closeAddSourceModal() {
+    document.getElementById('add-source-modal').classList.remove('active');
+    document.body.classList.remove('modal-open');
+}
 </script>
 {% endblock %}
