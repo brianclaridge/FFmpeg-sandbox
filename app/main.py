@@ -166,7 +166,7 @@ async def index(request: Request):
     try:
         frequency_preset = FREQUENCY_PRESETS[FrequencyPreset(user_settings.frequency.preset)]
     except (ValueError, KeyError):
-        frequency_preset = FREQUENCY_PRESETS[FrequencyPreset.FLAT]
+        frequency_preset = FREQUENCY_PRESETS[FrequencyPreset.NONE]
 
     # New audio effects
     try:

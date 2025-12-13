@@ -66,7 +66,7 @@ def _get_accordion_context(user_settings, filename: str | None = None) -> dict:
     try:
         frequency_current = FREQUENCY_PRESETS[FrequencyPreset(user_settings.frequency.preset)]
     except (ValueError, KeyError):
-        frequency_current = FREQUENCY_PRESETS[FrequencyPreset("flat")]
+        frequency_current = FREQUENCY_PRESETS[FrequencyPreset("none")]
 
     return {
         "user_settings": user_settings,

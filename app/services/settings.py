@@ -28,7 +28,7 @@ def load_user_settings(filename: str | None = None) -> UserSettings:
         return UserSettings(
             volume=CategorySettings(**settings_data.get("volume", {"preset": "none"})),
             tunnel=CategorySettings(**settings_data.get("tunnel", {"preset": "none"})),
-            frequency=CategorySettings(**settings_data.get("frequency", {"preset": "flat"})),
+            frequency=CategorySettings(**settings_data.get("frequency", {"preset": "none"})),
             speed=CategorySettings(**settings_data.get("speed", {"preset": "none"})),
             pitch=CategorySettings(**settings_data.get("pitch", {"preset": "none"})),
             noise_reduction=CategorySettings(**settings_data.get("noise_reduction", {"preset": "none"})),

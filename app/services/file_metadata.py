@@ -80,7 +80,7 @@ def get_default_settings() -> dict[str, Any]:
         # Audio effects
         "volume": {"preset": "none", "custom_values": {}},
         "tunnel": {"preset": "none", "custom_values": {}},
-        "frequency": {"preset": "flat", "custom_values": {}},
+        "frequency": {"preset": "none", "custom_values": {}},
         "speed": {"preset": "none", "custom_values": {}},
         "pitch": {"preset": "none", "custom_values": {}},
         "noise_reduction": {"preset": "none", "custom_values": {}},
@@ -183,9 +183,9 @@ def add_history_entry(
     lowpass: int,
     delays: str,
     decays: str,
-    volume_preset: str = "2x",
+    volume_preset: str = "none",
     tunnel_preset: str = "none",
-    frequency_preset: str = "flat",
+    frequency_preset: str = "none",
 ) -> dict[str, Any]:
     """Add a processing history entry to a file's metadata."""
     metadata = load_file_metadata(filename)

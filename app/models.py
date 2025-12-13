@@ -175,6 +175,7 @@ TUNNEL_PRESETS: dict[TunnelPreset, TunnelConfig] = {
 # ============ CATEGORY: FREQUENCY ============
 class FrequencyPreset(str, Enum):
     """Frequency/EQ presets."""
+    NONE = "none"
     FLAT = "flat"
     BASS_CUT = "bass_cut"
     TREBLE_CUT = "treble_cut"
@@ -191,6 +192,12 @@ class FrequencyConfig(BaseModel):
 
 
 FREQUENCY_PRESETS: dict[FrequencyPreset, FrequencyConfig] = {
+    FrequencyPreset.NONE: FrequencyConfig(
+        name="None",
+        description="No frequency filtering",
+        highpass=20,
+        lowpass=20000,
+    ),
     FrequencyPreset.FLAT: FrequencyConfig(
         name="Flat",
         description="Full spectrum",
@@ -721,7 +728,7 @@ class UserSettings(BaseModel):
     # Audio effects
     volume: CategorySettings = CategorySettings(preset="none")
     tunnel: CategorySettings = CategorySettings(preset="none")
-    frequency: CategorySettings = CategorySettings(preset="flat")
+    frequency: CategorySettings = CategorySettings(preset="none")
     speed: CategorySettings = CategorySettings(preset="none")
     pitch: CategorySettings = CategorySettings(preset="none")
     noise_reduction: CategorySettings = CategorySettings(preset="none")
@@ -767,4 +774,4 @@ class HistoryEntry(BaseModel):
     # Effect chain preset names
     volume_preset: str = "none"
     tunnel_preset: str = "none"
-    frequency_preset: str = "flat"
+    frequency_preset: str = "none"

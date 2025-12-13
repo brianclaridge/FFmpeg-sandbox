@@ -87,7 +87,7 @@ async def process(
     try:
         frequency_config = FREQUENCY_PRESETS[FrequencyPreset(user_settings.frequency.preset)]
     except (ValueError, KeyError):
-        frequency_config = FREQUENCY_PRESETS[FrequencyPreset.FLAT]
+        frequency_config = FREQUENCY_PRESETS[FrequencyPreset.NONE]
 
     try:
         speed_config = SPEED_PRESETS[SpeedPreset(user_settings.speed.preset)]
@@ -281,9 +281,9 @@ async def extract(
             lowpass=20000,
             delays="1",
             decays="0",
-            volume_preset="1x",
+            volume_preset="none",
             tunnel_preset="none",
-            frequency_preset="flat",
+            frequency_preset="none",
         )
 
         return templates.TemplateResponse(
@@ -564,7 +564,7 @@ def _get_accordion_context(user_settings, filename: str | None = None) -> dict:
     try:
         frequency_current = FREQUENCY_PRESETS[FrequencyPreset(user_settings.frequency.preset)]
     except (ValueError, KeyError):
-        frequency_current = FREQUENCY_PRESETS[FrequencyPreset("flat")]
+        frequency_current = FREQUENCY_PRESETS[FrequencyPreset("none")]
 
     try:
         speed_current = SPEED_PRESETS[SpeedPreset(user_settings.speed.preset)]

@@ -68,9 +68,9 @@ def _convert_to_entries(history_data: list[dict], input_file: str) -> list[Histo
                 lowpass=params.get("lowpass", 4500),
                 delays=params.get("delays", "15|25|35|50"),
                 decays=params.get("decays", "0.35|0.3|0.25|0.2"),
-                volume_preset=params.get("volume_preset", "2x"),
+                volume_preset=params.get("volume_preset", "none"),
                 tunnel_preset=params.get("tunnel_preset", "none"),
-                frequency_preset=params.get("frequency_preset", "flat"),
+                frequency_preset=params.get("frequency_preset", "none"),
             ))
         except Exception as e:
             logger.warning(f"Failed to convert history entry: {e}")
@@ -88,9 +88,9 @@ def add_history_entry(
     lowpass: int,
     delays: str,
     decays: str,
-    volume_preset: str = "2x",
+    volume_preset: str = "none",
     tunnel_preset: str = "none",
-    frequency_preset: str = "flat",
+    frequency_preset: str = "none",
 ) -> HistoryEntry:
     """Add a new entry to processing history for a file."""
     entry_id = str(uuid.uuid4())[:8]
