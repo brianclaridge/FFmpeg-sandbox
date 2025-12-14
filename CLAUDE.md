@@ -23,16 +23,31 @@ FastAPI + HTMX single-page app for processing audio/video with visual filter cha
 ## Project Structure
 
 ```
-config.yml               # App configuration
-presets.yml              # Filter presets (66 presets, 13 categories)
+Root Files:
+├── config.yml           # App configuration
+├── presets.yml          # Filter presets (66 presets, 13 categories)
+├── Dockerfile           # Container build
+├── docker-compose.yml   # Container orchestration
+├── docker-entrypoint.sh # Container startup script
+├── Taskfile.yml         # Task runner commands
+├── pyproject.toml       # Python dependencies (uv)
+└── scripts/             # Development utilities
+    ├── debug-path.ps1
+    ├── diagnose-logs.ps1
+    ├── docker-compose-wrapper.ps1
+    ├── health-check.ps1
+    ├── setup-dirs.ps1
+    └── test-ytdlp.ps1
+
 .data/
 ├── input/               # Source files + per-file .yml metadata
 ├── output/              # Processed files
 └── logs/                # App logs
+
 app/
 ├── main.py              # FastAPI entry, index route
 ├── config.py            # Config loader
-├── models.py            # Pydantic schemas (241 lines)
+├── models.py            # Pydantic schemas (240 lines)
 ├── routers/
 │   ├── audio.py         # /process, /preview, filter chain endpoints
 │   ├── download.py      # yt-dlp download endpoints
@@ -53,10 +68,28 @@ app/
 ├── templates/
 │   ├── base.html        # Layout + theme selector
 │   ├── index.html       # Main interface
-│   └── partials/        # HTMX partials
+│   └── partials/
+│       ├── download_complete.html   # Download success message
+│       ├── download_status.html     # Download progress
+│       ├── filters_audio_accordion.html  # Audio filter UI
+│       ├── filters_tabs.html        # Audio/Video tab switcher
+│       ├── filters_video_accordion.html  # Video filter UI
+│       ├── history.html             # Processing history list
+│       ├── history_preview.html     # History item preview
+│       ├── preview.html             # Audio/video preview player
+│       ├── slider_form.html         # Clip range slider
+│       └── upload_status.html       # File upload feedback
 └── static/css/
-    ├── themes.css       # 10 dark themes
-    └── styles.css       # Component styles
+    ├── base.css         # CSS reset, variables
+    ├── buttons.css      # Button components
+    ├── components.css   # Reusable UI components
+    ├── filter-chain.css # Filter chain styling
+    ├── forms.css        # Form elements
+    ├── layout.css       # Page layout, grid
+    ├── media.css        # Audio/video player styles
+    ├── modal.css        # Modal dialogs
+    ├── styles.css       # Main stylesheet (imports)
+    └── themes.css       # 10 dark themes
 ```
 
 ## Key Commands
@@ -113,14 +146,6 @@ Edit `app/services/filter_chain.py` for chain logic, or individual `filters_audi
 
 ## Development Roadmap
 
-### Phase 12: Complete Video Export UI
-**Priority:** High | **Status:** 60-70% done
-
-Missing:
-- Video player in preview.html (only shows audio)
-- Audio vs video export selection
-- Format selection (MP4, WebM, MKV)
-
 ### Phase 13: Audio Filter QA
 **Priority:** Medium | **Status:** Backend ready
 
@@ -160,6 +185,6 @@ Missing:
 
 ## Technical Debt (Resolved)
 
-- ~~models.py 771 lines~~ → 241 lines (presets moved to YAML)
+- ~~models.py 771 lines~~ → 240 lines (presets moved to YAML)
 - ~~processor.py 669 lines~~ → Split into 6 modules
 - ~~Repetitive preset lookups~~ → String-based YAML lookups

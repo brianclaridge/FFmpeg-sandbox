@@ -97,23 +97,44 @@ Theme selection saved in localStorage.
 ## Project Structure
 
 ```text
-config.yml               # App configuration
-presets.yml              # Filter presets (66 presets, 13 categories)
+Root Files:
+├── config.yml           # App configuration
+├── presets.yml          # Filter presets (66 presets, 13 categories)
+├── Dockerfile           # Container build
+├── docker-compose.yml   # Container orchestration
+├── Taskfile.yml         # Task runner commands
+└── pyproject.toml       # Python dependencies (uv)
+
 .data/
 ├── input/               # Source files + per-file metadata
 ├── output/              # Processed files
 └── logs/                # App logs
+
 app/
 ├── main.py              # FastAPI entry point
-├── models.py            # Pydantic schemas
-├── routers/             # API endpoints
-└── services/
-    ├── presets.py       # YAML preset loader
-    ├── processor.py     # FFmpeg orchestration
-    ├── metadata.py      # File introspection
-    ├── filters_audio.py # Audio filter builders
-    ├── filters_video.py # Video filter builders
-    └── filter_chain.py  # Filter aggregation
+├── config.py            # Config loader
+├── models.py            # Pydantic schemas (240 lines)
+├── routers/
+│   ├── audio.py         # Processing endpoints
+│   ├── download.py      # yt-dlp endpoints
+│   └── history.py       # History endpoints
+├── services/
+│   ├── presets.py       # YAML preset loader
+│   ├── processor.py     # FFmpeg orchestration
+│   ├── metadata.py      # File introspection
+│   ├── filters_audio.py # Audio filter builders
+│   ├── filters_video.py # Video filter builders
+│   ├── filter_chain.py  # Filter aggregation
+│   ├── ffmpeg_executor.py # Subprocess wrapper
+│   ├── downloader.py    # yt-dlp downloading
+│   ├── file_metadata.py # Per-file metadata
+│   ├── history.py       # Processing history
+│   └── settings.py      # User settings
+├── templates/
+│   ├── base.html        # Layout + themes
+│   ├── index.html       # Main interface
+│   └── partials/        # 10 HTMX partials
+└── static/css/          # 10 modular CSS files
 ```
 
 ## License
