@@ -124,6 +124,10 @@
             <h2 class="section-divider-heading">Filters</h2>
 
             <div class="process-row filter-chain-process">
+                <button type="submit" class="btn-primary">
+                    <span class="htmx-indicator">Processing...</span>
+                    <span class="btn-text">Process</span>
+                </button>
                 <div class="format-selection" id="format-selection">
                     <label for="output_format">Format:</label>
                     <select name="output_format" id="output_format">
@@ -139,10 +143,6 @@
                         </optgroup>
                     </select>
                 </div>
-                <button type="submit" class="btn-primary">
-                    <span class="htmx-indicator">Processing...</span>
-                    <span class="btn-text">Process</span>
-                </button>
             </div>
 
             <!-- Filters Tabs and Accordion -->
@@ -179,11 +179,15 @@
                 <video id="clip-preview-video" controls loop preload="none"></video>
                 <div class="video-controls">
                     <button type="button" id="video-play-btn" class="video-ctrl-btn" title="Play/Pause">
-                        <span class="play-icon">&#9654;</span>
-                        <span class="pause-icon" style="display:none;">&#10074;&#10074;</span>
+                        <i class="fa-solid fa-play play-icon"></i>
+                        <i class="fa-solid fa-pause pause-icon" style="display:none;"></i>
                     </button>
-                    <button type="button" id="video-stop-btn" class="video-ctrl-btn" title="Stop">&#9632;</button>
-                    <button type="button" id="video-loop-btn" class="video-ctrl-btn loop-btn active" title="Toggle Loop">&#8734;</button>
+                    <button type="button" id="video-stop-btn" class="video-ctrl-btn" title="Stop">
+                        <i class="fa-solid fa-stop"></i>
+                    </button>
+                    <button type="button" id="video-loop-btn" class="video-ctrl-btn loop-btn active" title="Toggle Loop">
+                        <i class="fa-solid fa-repeat"></i>
+                    </button>
                 </div>
             </div>
 
