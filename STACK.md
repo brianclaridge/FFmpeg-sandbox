@@ -43,11 +43,24 @@ Each input file gets a companion `.yml` with:
 - Effect chain settings (volume/tunnel/frequency presets)
 - Processing history
 
-### Effect Chain Categories
+### Filter Categories (13 total)
 
-- **Volume**: None (passthrough), 1x, 1.5x, 2x, 3x, 4x
+**Audio Filters (7):**
+- **Volume**: None, 0.25x, 0.5x, 1x, 1.5x, 2x, 3x, 4x
 - **Tunnel**: None, Subtle, Medium, Heavy, Extreme (echo/reverb)
 - **Frequency**: Flat, Bass Cut, Treble Cut, Narrow Band, Voice Clarity
+- **Speed**: 0.5x, 0.75x, 1x, 1.25x, 1.5x, 2x
+- **Pitch**: Low (-4), Normal, High (+4), Chipmunk (+8)
+- **Noise Reduction**: None, Light, Medium, Heavy
+- **Compressor**: None, Light, Podcast, Broadcast
+
+**Video Filters (6):**
+- **Brightness**: Dark (-0.2), Normal, Bright (+0.2)
+- **Contrast**: Low (0.8), Normal, High (1.3)
+- **Saturation**: Grayscale, Muted, Normal, Vivid
+- **Blur**: None, Light (σ=1), Medium (σ=3), Heavy (σ=6)
+- **Sharpen**: None, Light, Medium, Strong
+- **Transform**: Flip H/V, Rotate 90/180/270°
 
 ## Rationale
 

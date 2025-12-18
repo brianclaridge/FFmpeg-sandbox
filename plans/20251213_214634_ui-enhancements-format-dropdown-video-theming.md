@@ -1,7 +1,7 @@
 # Plan: UI Enhancements - Format Dropdown Position & Video Player Theming
 
 **Date:** 2025-12-13
-**Status:** Ready for approval
+**Status:** Completed (verified 2025-12-17)
 
 ## Objectives
 
@@ -150,13 +150,13 @@ No JavaScript changes required.
 
 ## Implementation Checklist
 
-- [ ] Reorder format dropdown and process button in index.html
-- [ ] Update .video-controls background in media.css
-- [ ] Update .video-ctrl-btn colors in media.css
-- [ ] Update .loop-btn.active colors in media.css
-- [ ] Replace Unicode icons with Font Awesome in index.html
-- [ ] Test all 10 themes for visual consistency
-- [ ] Verify play/pause toggle still works
+- [x] Reorder format dropdown and process button in index.html
+- [x] Update .video-controls background in media.css
+- [x] Update .video-ctrl-btn colors in media.css
+- [x] Update .loop-btn.active colors in media.css
+- [x] Replace Unicode icons with Font Awesome in index.html
+- [x] Test all 10 themes for visual consistency
+- [x] Verify play/pause toggle still works
 
 ## Success Criteria
 
