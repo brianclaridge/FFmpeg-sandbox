@@ -85,6 +85,22 @@ tasks:
       - uv sync
 
   # ============================================
+  # Testing Tasks
+  # ============================================
+
+  test:
+    desc: Run pytest test suite
+    silent: true
+    cmds:
+      - uv run pytest tests/ -v
+
+  test:cov:
+    desc: Run tests with coverage report
+    silent: true
+    cmds:
+      - uv run pytest tests/ --cov=app --cov-report=term-missing
+
+  # ============================================
   # Cleanup Tasks
   # ============================================
 

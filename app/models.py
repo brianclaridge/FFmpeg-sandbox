@@ -105,22 +105,22 @@ class SpeedConfig(BaseModel):
     """Configuration for speed preset."""
     name: str
     description: str
-    speed: float
+    speed: float = Field(ge=0.25, le=4.0, description="Speed multiplier (0.25-4.0)")
 
 
 class PitchConfig(BaseModel):
     """Configuration for pitch preset."""
     name: str
     description: str
-    semitones: float
+    semitones: float = Field(ge=-12.0, le=12.0, description="Pitch shift in semitones (-12 to +12)")
 
 
 class NoiseReductionConfig(BaseModel):
     """Configuration for noise reduction preset."""
     name: str
     description: str
-    noise_floor: float
-    noise_reduction: float
+    noise_floor: float = Field(ge=-80.0, le=-20.0, description="Noise floor in dB (-80 to -20)")
+    noise_reduction: float = Field(ge=0.0, le=1.0, description="Reduction amount (0.0-1.0)")
 
 
 class CompressorConfig(BaseModel):
