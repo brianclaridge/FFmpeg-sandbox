@@ -42,6 +42,7 @@ class HistoryConfig:
 
 @dataclass
 class DownloadConfig:
+    max_download_size: str = "0.5gb"
     filename_max_length: int = 50
     format: str = "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best"
 
