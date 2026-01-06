@@ -1,4 +1,15 @@
 <div id="filters-audio-accordion" class="accordion">
+    {% if save_success %}
+    <div class="save-success-toast">
+        <i class="fa-solid fa-check-circle"></i> Preset "{{ saved_preset_name }}" saved successfully
+    </div>
+    {% endif %}
+    {% if delete_success %}
+    <div class="delete-success-toast">
+        <i class="fa-solid fa-check-circle"></i> Preset deleted
+    </div>
+    {% endif %}
+
     <!-- Volume Section -->
     <div class="accordion-section {% if user_settings.active_category == 'volume' %}expanded{% endif %}">
         <div class="accordion-header"
@@ -17,7 +28,7 @@
             <div class="preset-pills" id="volume-preset-pills">
                 {% for preset_key, config in volume_presets.items() %}
                 <button type="button"
-                        class="preset-pill {% if user_settings.volume.preset == preset_key %}active{% endif %}"
+                        class="preset-pill {% if user_settings.volume.preset == preset_key %}active{% endif %}{% if config.is_user_preset %} user-preset{% endif %}"
                         data-volume="{{ config.volume }}"
                         data-name="{{ config.name }}"
                         hx-post="/partials/accordion-preset/volume/{{ preset_key }}"
@@ -25,8 +36,19 @@
                         hx-swap="outerHTML"
                         hx-vals="js:{filename: window.currentFilename || '', current_category: '{{ user_settings.active_category }}'}"
                         onclick="document.getElementById('volume_preset').value = '{{ preset_key }}'">
-                    {{ config.name }}
+                    {{ config.name }}{% if config.is_user_preset %}<span class="user-preset-badge">*</span>{% endif %}
                 </button>
+                {% if config.is_user_preset and user_settings.volume.preset == preset_key %}
+                <button type="button" class="preset-delete-btn"
+                        hx-delete="/presets/audio/volume/{{ preset_key }}"
+                        hx-target="#filters-audio-accordion"
+                        hx-swap="outerHTML"
+                        hx-vals="js:{filename: window.currentFilename || ''}"
+                        hx-confirm="Delete preset '{{ config.name }}'?"
+                        title="Delete this preset">
+                    <i class="fa-solid fa-trash-can"></i>
+                </button>
+                {% endif %}
                 {% endfor %}
             </div>
             <div class="panel-controls">
@@ -37,6 +59,14 @@
                            value="{{ volume_current.volume }}"
                            oninput="document.getElementById('volume-value').textContent = this.value; updatePresetLabel('volume', {volume: this.value})">
                 </div>
+                <button type="button" class="btn btn-sm btn-save-preset"
+                        hx-get="/partials/save-preset-modal/audio/volume"
+                        hx-target="#modal-container"
+                        hx-swap="innerHTML"
+                        hx-vals="js:{filename: window.currentFilename || ''}"
+                        onclick="updateSavePresetValues('volume')">
+                    <i class="fa-solid fa-floppy-disk"></i> Save as Preset
+                </button>
             </div>
         </div>
         {% endif %}
@@ -63,7 +93,7 @@
             <div class="preset-pills" id="tunnel-preset-pills">
                 {% for preset_key, config in tunnel_presets.items() %}
                 <button type="button"
-                        class="preset-pill {% if user_settings.tunnel.preset == preset_key %}active{% endif %}"
+                        class="preset-pill {% if user_settings.tunnel.preset == preset_key %}active{% endif %}{% if config.is_user_preset %} user-preset{% endif %}"
                         data-delays="{{ config.delays | join('|') }}"
                         data-decays="{{ config.decays | join('|') }}"
                         data-name="{{ config.name }}"
@@ -72,8 +102,19 @@
                         hx-swap="outerHTML"
                         hx-vals="js:{filename: window.currentFilename || '', current_category: '{{ user_settings.active_category }}'}"
                         onclick="document.getElementById('tunnel_preset').value = '{{ preset_key }}'">
-                    {{ config.name }}
+                    {{ config.name }}{% if config.is_user_preset %}<span class="user-preset-badge">*</span>{% endif %}
                 </button>
+                {% if config.is_user_preset and user_settings.tunnel.preset == preset_key %}
+                <button type="button" class="preset-delete-btn"
+                        hx-delete="/presets/audio/tunnel/{{ preset_key }}"
+                        hx-target="#filters-audio-accordion"
+                        hx-swap="outerHTML"
+                        hx-vals="js:{filename: window.currentFilename || ''}"
+                        hx-confirm="Delete preset '{{ config.name }}'?"
+                        title="Delete this preset">
+                    <i class="fa-solid fa-trash-can"></i>
+                </button>
+                {% endif %}
                 {% endfor %}
             </div>
             <div class="panel-controls">
@@ -91,6 +132,14 @@
                            placeholder="0.35|0.3|0.25|0.2"
                            oninput="updatePresetLabel('tunnel', {delays: document.getElementById('delays').value, decays: this.value})">
                 </div>
+                <button type="button" class="btn btn-sm btn-save-preset"
+                        hx-get="/partials/save-preset-modal/audio/tunnel"
+                        hx-target="#modal-container"
+                        hx-swap="innerHTML"
+                        hx-vals="js:{filename: window.currentFilename || ''}"
+                        onclick="updateSavePresetValues('tunnel')">
+                    <i class="fa-solid fa-floppy-disk"></i> Save as Preset
+                </button>
             </div>
         </div>
         {% endif %}
@@ -117,7 +166,7 @@
             <div class="preset-pills" id="frequency-preset-pills">
                 {% for preset_key, config in frequency_presets.items() %}
                 <button type="button"
-                        class="preset-pill {% if user_settings.frequency.preset == preset_key %}active{% endif %}"
+                        class="preset-pill {% if user_settings.frequency.preset == preset_key %}active{% endif %}{% if config.is_user_preset %} user-preset{% endif %}"
                         data-highpass="{{ config.highpass }}"
                         data-lowpass="{{ config.lowpass }}"
                         data-name="{{ config.name }}"
@@ -126,8 +175,19 @@
                         hx-swap="outerHTML"
                         hx-vals="js:{filename: window.currentFilename || '', current_category: '{{ user_settings.active_category }}'}"
                         onclick="document.getElementById('frequency_preset').value = '{{ preset_key }}'">
-                    {{ config.name }}
+                    {{ config.name }}{% if config.is_user_preset %}<span class="user-preset-badge">*</span>{% endif %}
                 </button>
+                {% if config.is_user_preset and user_settings.frequency.preset == preset_key %}
+                <button type="button" class="preset-delete-btn"
+                        hx-delete="/presets/audio/frequency/{{ preset_key }}"
+                        hx-target="#filters-audio-accordion"
+                        hx-swap="outerHTML"
+                        hx-vals="js:{filename: window.currentFilename || ''}"
+                        hx-confirm="Delete preset '{{ config.name }}'?"
+                        title="Delete this preset">
+                    <i class="fa-solid fa-trash-can"></i>
+                </button>
+                {% endif %}
                 {% endfor %}
             </div>
             <div class="panel-controls">
@@ -145,6 +205,14 @@
                            value="{{ frequency_current.lowpass }}"
                            oninput="document.getElementById('lowpass-value').textContent = this.value; updatePresetLabel('frequency', {highpass: document.getElementById('highpass').value, lowpass: this.value})">
                 </div>
+                <button type="button" class="btn btn-sm btn-save-preset"
+                        hx-get="/partials/save-preset-modal/audio/frequency"
+                        hx-target="#modal-container"
+                        hx-swap="innerHTML"
+                        hx-vals="js:{filename: window.currentFilename || ''}"
+                        onclick="updateSavePresetValues('frequency')">
+                    <i class="fa-solid fa-floppy-disk"></i> Save as Preset
+                </button>
             </div>
         </div>
         {% endif %}
@@ -171,7 +239,7 @@
             <div class="preset-pills" id="speed-preset-pills">
                 {% for preset_key, config in speed_presets.items() %}
                 <button type="button"
-                        class="preset-pill {% if user_settings.speed.preset == preset_key %}active{% endif %}"
+                        class="preset-pill {% if user_settings.speed.preset == preset_key %}active{% endif %}{% if config.is_user_preset %} user-preset{% endif %}"
                         data-speed="{{ config.speed }}"
                         data-name="{{ config.name }}"
                         hx-post="/partials/accordion-preset/speed/{{ preset_key }}"
@@ -179,8 +247,19 @@
                         hx-swap="outerHTML"
                         hx-vals="js:{filename: window.currentFilename || '', current_category: '{{ user_settings.active_category }}'}"
                         onclick="document.getElementById('speed_preset').value = '{{ preset_key }}'">
-                    {{ config.name }}
+                    {{ config.name }}{% if config.is_user_preset %}<span class="user-preset-badge">*</span>{% endif %}
                 </button>
+                {% if config.is_user_preset and user_settings.speed.preset == preset_key %}
+                <button type="button" class="preset-delete-btn"
+                        hx-delete="/presets/audio/speed/{{ preset_key }}"
+                        hx-target="#filters-audio-accordion"
+                        hx-swap="outerHTML"
+                        hx-vals="js:{filename: window.currentFilename || ''}"
+                        hx-confirm="Delete preset '{{ config.name }}'?"
+                        title="Delete this preset">
+                    <i class="fa-solid fa-trash-can"></i>
+                </button>
+                {% endif %}
                 {% endfor %}
             </div>
             <div class="panel-controls">
@@ -191,6 +270,14 @@
                            value="{{ speed_current.speed }}"
                            oninput="document.getElementById('speed-value').textContent = this.value; updatePresetLabel('speed', {speed: this.value})">
                 </div>
+                <button type="button" class="btn btn-sm btn-save-preset"
+                        hx-get="/partials/save-preset-modal/audio/speed"
+                        hx-target="#modal-container"
+                        hx-swap="innerHTML"
+                        hx-vals="js:{filename: window.currentFilename || ''}"
+                        onclick="updateSavePresetValues('speed')">
+                    <i class="fa-solid fa-floppy-disk"></i> Save as Preset
+                </button>
             </div>
         </div>
         {% endif %}
@@ -217,7 +304,7 @@
             <div class="preset-pills" id="pitch-preset-pills">
                 {% for preset_key, config in pitch_presets.items() %}
                 <button type="button"
-                        class="preset-pill {% if user_settings.pitch.preset == preset_key %}active{% endif %}"
+                        class="preset-pill {% if user_settings.pitch.preset == preset_key %}active{% endif %}{% if config.is_user_preset %} user-preset{% endif %}"
                         data-semitones="{{ config.semitones }}"
                         data-name="{{ config.name }}"
                         hx-post="/partials/accordion-preset/pitch/{{ preset_key }}"
@@ -225,8 +312,19 @@
                         hx-swap="outerHTML"
                         hx-vals="js:{filename: window.currentFilename || '', current_category: '{{ user_settings.active_category }}'}"
                         onclick="document.getElementById('pitch_preset').value = '{{ preset_key }}'">
-                    {{ config.name }}
+                    {{ config.name }}{% if config.is_user_preset %}<span class="user-preset-badge">*</span>{% endif %}
                 </button>
+                {% if config.is_user_preset and user_settings.pitch.preset == preset_key %}
+                <button type="button" class="preset-delete-btn"
+                        hx-delete="/presets/audio/pitch/{{ preset_key }}"
+                        hx-target="#filters-audio-accordion"
+                        hx-swap="outerHTML"
+                        hx-vals="js:{filename: window.currentFilename || ''}"
+                        hx-confirm="Delete preset '{{ config.name }}'?"
+                        title="Delete this preset">
+                    <i class="fa-solid fa-trash-can"></i>
+                </button>
+                {% endif %}
                 {% endfor %}
             </div>
             <div class="panel-controls">
@@ -237,6 +335,14 @@
                            value="{{ pitch_current.semitones }}"
                            oninput="document.getElementById('pitch-value').textContent = this.value; updatePresetLabel('pitch', {semitones: this.value})">
                 </div>
+                <button type="button" class="btn btn-sm btn-save-preset"
+                        hx-get="/partials/save-preset-modal/audio/pitch"
+                        hx-target="#modal-container"
+                        hx-swap="innerHTML"
+                        hx-vals="js:{filename: window.currentFilename || ''}"
+                        onclick="updateSavePresetValues('pitch')">
+                    <i class="fa-solid fa-floppy-disk"></i> Save as Preset
+                </button>
             </div>
         </div>
         {% endif %}
@@ -263,7 +369,7 @@
             <div class="preset-pills" id="noise_reduction-preset-pills">
                 {% for preset_key, config in noise_reduction_presets.items() %}
                 <button type="button"
-                        class="preset-pill {% if user_settings.noise_reduction.preset == preset_key %}active{% endif %}"
+                        class="preset-pill {% if user_settings.noise_reduction.preset == preset_key %}active{% endif %}{% if config.is_user_preset %} user-preset{% endif %}"
                         data-noise-floor="{{ config.noise_floor }}"
                         data-name="{{ config.name }}"
                         hx-post="/partials/accordion-preset/noise_reduction/{{ preset_key }}"
@@ -271,8 +377,19 @@
                         hx-swap="outerHTML"
                         hx-vals="js:{filename: window.currentFilename || '', current_category: '{{ user_settings.active_category }}'}"
                         onclick="document.getElementById('noise_reduction_preset').value = '{{ preset_key }}'">
-                    {{ config.name }}
+                    {{ config.name }}{% if config.is_user_preset %}<span class="user-preset-badge">*</span>{% endif %}
                 </button>
+                {% if config.is_user_preset and user_settings.noise_reduction.preset == preset_key %}
+                <button type="button" class="preset-delete-btn"
+                        hx-delete="/presets/audio/noise_reduction/{{ preset_key }}"
+                        hx-target="#filters-audio-accordion"
+                        hx-swap="outerHTML"
+                        hx-vals="js:{filename: window.currentFilename || ''}"
+                        hx-confirm="Delete preset '{{ config.name }}'?"
+                        title="Delete this preset">
+                    <i class="fa-solid fa-trash-can"></i>
+                </button>
+                {% endif %}
                 {% endfor %}
             </div>
             <div class="panel-controls">
@@ -283,6 +400,14 @@
                            value="{{ noise_reduction_current.noise_floor }}"
                            oninput="document.getElementById('noise-floor-value').textContent = this.value; updatePresetLabel('noise_reduction', {'noise-floor': this.value})">
                 </div>
+                <button type="button" class="btn btn-sm btn-save-preset"
+                        hx-get="/partials/save-preset-modal/audio/noise_reduction"
+                        hx-target="#modal-container"
+                        hx-swap="innerHTML"
+                        hx-vals="js:{filename: window.currentFilename || ''}"
+                        onclick="updateSavePresetValues('noise_reduction')">
+                    <i class="fa-solid fa-floppy-disk"></i> Save as Preset
+                </button>
             </div>
         </div>
         {% endif %}
@@ -309,7 +434,7 @@
             <div class="preset-pills" id="compressor-preset-pills">
                 {% for preset_key, config in compressor_presets.items() %}
                 <button type="button"
-                        class="preset-pill {% if user_settings.compressor.preset == preset_key %}active{% endif %}"
+                        class="preset-pill {% if user_settings.compressor.preset == preset_key %}active{% endif %}{% if config.is_user_preset %} user-preset{% endif %}"
                         data-threshold="{{ config.threshold }}"
                         data-ratio="{{ config.ratio }}"
                         data-name="{{ config.name }}"
@@ -318,8 +443,19 @@
                         hx-swap="outerHTML"
                         hx-vals="js:{filename: window.currentFilename || '', current_category: '{{ user_settings.active_category }}'}"
                         onclick="document.getElementById('compressor_preset').value = '{{ preset_key }}'">
-                    {{ config.name }}
+                    {{ config.name }}{% if config.is_user_preset %}<span class="user-preset-badge">*</span>{% endif %}
                 </button>
+                {% if config.is_user_preset and user_settings.compressor.preset == preset_key %}
+                <button type="button" class="preset-delete-btn"
+                        hx-delete="/presets/audio/compressor/{{ preset_key }}"
+                        hx-target="#filters-audio-accordion"
+                        hx-swap="outerHTML"
+                        hx-vals="js:{filename: window.currentFilename || ''}"
+                        hx-confirm="Delete preset '{{ config.name }}'?"
+                        title="Delete this preset">
+                    <i class="fa-solid fa-trash-can"></i>
+                </button>
+                {% endif %}
                 {% endfor %}
             </div>
             <div class="panel-controls">
@@ -337,6 +473,14 @@
                            value="{{ compressor_current.ratio }}"
                            oninput="document.getElementById('ratio-value').textContent = this.value; updatePresetLabel('compressor', {threshold: document.getElementById('threshold').value, ratio: this.value})">
                 </div>
+                <button type="button" class="btn btn-sm btn-save-preset"
+                        hx-get="/partials/save-preset-modal/audio/compressor"
+                        hx-target="#modal-container"
+                        hx-swap="innerHTML"
+                        hx-vals="js:{filename: window.currentFilename || ''}"
+                        onclick="updateSavePresetValues('compressor')">
+                    <i class="fa-solid fa-floppy-disk"></i> Save as Preset
+                </button>
             </div>
         </div>
         {% endif %}

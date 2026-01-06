@@ -1,0 +1,65 @@
+<div id="preset-management" class="preset-management">
+    <div class="preset-management-header">
+        <h4><i class="fa-solid fa-sliders"></i> Preset Management</h4>
+    </div>
+
+    <div class="preset-management-actions">
+        <!-- Export Section -->
+        <div class="preset-action-group">
+            <label>Export Presets</label>
+            <div class="preset-action-row">
+                <select id="export-filter-type" class="form-control form-control-sm">
+                    <option value="">All Types</option>
+                    <option value="audio">Audio Only</option>
+                    <option value="video">Video Only</option>
+                </select>
+                <label class="checkbox-inline">
+                    <input type="checkbox" id="export-include-system"> Include system presets
+                </label>
+                <a id="export-link" href="/presets/export" class="btn btn-sm btn-secondary" download>
+                    <i class="fa-solid fa-download"></i> Export YAML
+                </a>
+            </div>
+        </div>
+
+        <!-- Import Section -->
+        <div class="preset-action-group">
+            <label>Import Presets</label>
+            <form id="import-form"
+                  hx-post="/presets/import"
+                  hx-target="#import-result-container"
+                  hx-swap="innerHTML"
+                  hx-encoding="multipart/form-data">
+                <div class="preset-action-row">
+                    <input type="file" name="file" id="import-file"
+                           accept=".yml,.yaml" required
+                           class="form-control form-control-sm">
+                    <label class="checkbox-inline">
+                        <input type="checkbox" name="merge" value="true" checked> Merge with existing
+                    </label>
+                    <button type="submit" class="btn btn-sm btn-primary">
+                        <i class="fa-solid fa-upload"></i> Import
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="import-result-container"></div>
+</div>
+
+<script>
+// Update export link based on selections
+document.getElementById('export-filter-type')?.addEventListener('change', updateExportLink);
+document.getElementById('export-include-system')?.addEventListener('change', updateExportLink);
+
+function updateExportLink() {
+    const filterType = document.getElementById('export-filter-type').value;
+    const includeSystem = document.getElementById('export-include-system').checked;
+    let url = '/presets/export?';
+    const params = [];
+    if (filterType) params.push('filter_type=' + filterType);
+    if (includeSystem) params.push('include_system=true');
+    document.getElementById('export-link').href = url + params.join('&');
+}
+</script>

@@ -1,0 +1,83 @@
+<div id="save-preset-modal" class="modal-overlay" onclick="if(event.target === this) closeSavePresetModal()">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fa-solid fa-floppy-disk"></i> Save Preset</h3>
+            <button type="button" class="modal-close" onclick="closeSavePresetModal()">&times;</button>
+        </div>
+        <form id="save-preset-form"
+              hx-post="/presets/save"
+              hx-target="#filters-{{ filter_type }}-accordion"
+              hx-swap="outerHTML"
+              hx-on::after-request="if(event.detail.successful) closeSavePresetModal()">
+            <input type="hidden" name="filter_type" value="{{ filter_type }}">
+            <input type="hidden" name="category" value="{{ category }}">
+            <input type="hidden" name="filename" value="{{ current_filename or '' }}">
+
+            <div class="form-group">
+                <label for="preset-name">Preset Name</label>
+                <input type="text" id="preset-name" name="name"
+                       placeholder="My Custom Preset" required
+                       class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label for="preset-description">Description (optional)</label>
+                <input type="text" id="preset-description" name="description"
+                       placeholder="Describe what this preset does"
+                       class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label for="preset-folder">Folder</label>
+                <select id="preset-folder" name="preset_category" class="form-control">
+                    <option value="Custom" selected>Custom</option>
+                    <option value="Podcast">Podcast</option>
+                    <option value="Music">Music</option>
+                    <option value="Voice">Voice</option>
+                    <option value="Video">Video</option>
+                </select>
+            </div>
+
+            <!-- Hidden fields for current values based on category -->
+            {% if category == 'volume' %}
+            <input type="hidden" name="volume" id="save-volume" value="{{ current_config.volume }}">
+            {% elif category == 'tunnel' %}
+            <input type="hidden" name="delays" id="save-delays" value="{{ current_config.delays | join('|') }}">
+            <input type="hidden" name="decays" id="save-decays" value="{{ current_config.decays | join('|') }}">
+            {% elif category == 'frequency' %}
+            <input type="hidden" name="highpass" id="save-highpass" value="{{ current_config.highpass }}">
+            <input type="hidden" name="lowpass" id="save-lowpass" value="{{ current_config.lowpass }}">
+            {% elif category == 'speed' %}
+            <input type="hidden" name="speed" id="save-speed" value="{{ current_config.speed }}">
+            {% elif category == 'pitch' %}
+            <input type="hidden" name="semitones" id="save-semitones" value="{{ current_config.semitones }}">
+            {% elif category == 'noise_reduction' %}
+            <input type="hidden" name="noise_floor" id="save-noise-floor" value="{{ current_config.noise_floor }}">
+            <input type="hidden" name="noise_reduction" id="save-noise-reduction" value="{{ current_config.noise_reduction }}">
+            {% elif category == 'compressor' %}
+            <input type="hidden" name="threshold" id="save-threshold" value="{{ current_config.threshold }}">
+            <input type="hidden" name="ratio" id="save-ratio" value="{{ current_config.ratio }}">
+            <input type="hidden" name="attack" id="save-attack" value="{{ current_config.attack }}">
+            <input type="hidden" name="release" id="save-release" value="{{ current_config.release }}">
+            <input type="hidden" name="makeup" id="save-makeup" value="{{ current_config.makeup }}">
+            {% elif category == 'brightness' %}
+            <input type="hidden" name="brightness" id="save-brightness" value="{{ current_config.brightness }}">
+            {% elif category == 'contrast' %}
+            <input type="hidden" name="contrast" id="save-contrast" value="{{ current_config.contrast }}">
+            {% elif category == 'saturation' %}
+            <input type="hidden" name="saturation" id="save-saturation" value="{{ current_config.saturation }}">
+            {% elif category == 'blur' %}
+            <input type="hidden" name="sigma" id="save-sigma" value="{{ current_config.sigma }}">
+            {% elif category == 'sharpen' %}
+            <input type="hidden" name="amount" id="save-amount" value="{{ current_config.amount }}">
+            {% elif category == 'transform' %}
+            <input type="hidden" name="filter" id="save-filter" value="{{ current_config.filter }}">
+            {% endif %}
+
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeSavePresetModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary"><i class="fa-solid fa-save"></i> Save Preset</button>
+            </div>
+        </form>
+    </div>
+</div>

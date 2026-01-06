@@ -28,6 +28,15 @@ from app.services.presets import (
     get_blur_presets,
     get_sharpen_presets,
     get_transform_presets,
+    get_presets_by_preset_category,
+    reload_presets,
+)
+from app.services.user_presets import (
+    save_user_preset,
+    delete_user_preset,
+    export_presets,
+    import_presets,
+    generate_preset_key,
 )
 from app.services.settings import (
     load_user_settings,
@@ -683,3 +692,283 @@ async def set_accordion_preset(request: Request, category: str, preset: str, fil
     if category in VIDEO_CATEGORIES:
         return templates.TemplateResponse("partials/filters_video_accordion.html", context)
     return templates.TemplateResponse("partials/filters_audio_accordion.html", context)
+
+
+# ============ PRESET MANAGEMENT ENDPOINTS ============
+
+@router.get("/partials/save-preset-modal/{filter_type}/{category}", response_class=HTMLResponse)
+async def get_save_preset_modal(
+    request: Request,
+    filter_type: str,
+    category: str,
+    filename: str | None = None,
+):
+    """Return the save preset modal HTML."""
+    if filter_type not in ("audio", "video"):
+        raise HTTPException(status_code=400, detail="Invalid filter type")
+
+    valid_categories = AUDIO_CATEGORIES if filter_type == "audio" else VIDEO_CATEGORIES
+    if category not in valid_categories:
+        raise HTTPException(status_code=400, detail="Invalid category")
+
+    # Get current slider values from user settings
+    user_settings = load_user_settings(filename)
+    current_preset_key = getattr(user_settings, category).preset
+
+    # Get the current config values for default population
+    preset_getters = {
+        "volume": get_volume_presets,
+        "tunnel": get_tunnel_presets,
+        "frequency": get_frequency_presets,
+        "speed": get_speed_presets,
+        "pitch": get_pitch_presets,
+        "noise_reduction": get_noise_reduction_presets,
+        "compressor": get_compressor_presets,
+        "brightness": get_brightness_presets,
+        "contrast": get_contrast_presets,
+        "saturation": get_saturation_presets,
+        "blur": get_blur_presets,
+        "sharpen": get_sharpen_presets,
+        "transform": get_transform_presets,
+    }
+
+    presets = preset_getters[category]()
+    current_config = presets.get(current_preset_key) or presets.get("none")
+
+    return templates.TemplateResponse(
+        "partials/save_preset_modal.html",
+        {
+            "request": request,
+            "filter_type": filter_type,
+            "category": category,
+            "current_config": current_config,
+            "current_filename": filename,
+        },
+    )
+
+
+@router.post("/presets/save", response_class=HTMLResponse)
+async def save_preset(
+    request: Request,
+    filter_type: str = Form(...),
+    category: str = Form(...),
+    name: str = Form(...),
+    description: str = Form(""),
+    preset_category: str = Form("Custom"),
+    filename: str = Form(""),
+    # Audio filter fields
+    volume: float | None = Form(None),
+    highpass: int | None = Form(None),
+    lowpass: int | None = Form(None),
+    delays: str | None = Form(None),
+    decays: str | None = Form(None),
+    speed: float | None = Form(None),
+    semitones: float | None = Form(None),
+    noise_floor: float | None = Form(None),
+    noise_reduction: float | None = Form(None),
+    threshold: float | None = Form(None),
+    ratio: float | None = Form(None),
+    attack: float | None = Form(None),
+    release: float | None = Form(None),
+    makeup: float | None = Form(None),
+    # Video filter fields
+    brightness: float | None = Form(None),
+    contrast: float | None = Form(None),
+    saturation: float | None = Form(None),
+    sigma: float | None = Form(None),
+    amount: float | None = Form(None),
+    filter_value: str | None = Form(None, alias="filter"),
+):
+    """Save a new user preset from form data."""
+    if filter_type not in ("audio", "video"):
+        raise HTTPException(status_code=400, detail="Invalid filter type")
+
+    valid_categories = AUDIO_CATEGORIES if filter_type == "audio" else VIDEO_CATEGORIES
+    if category not in valid_categories:
+        raise HTTPException(status_code=400, detail="Invalid category")
+
+    if not name or not name.strip():
+        raise HTTPException(status_code=400, detail="Preset name is required")
+
+    preset_key = generate_preset_key(name)
+
+    # Build preset data based on category
+    preset_data = {
+        "name": name.strip(),
+        "description": description.strip() if description else f"Custom {category} preset",
+        "preset_category": preset_category,
+    }
+
+    # Add category-specific fields
+    if category == "volume" and volume is not None:
+        preset_data["volume"] = volume
+    elif category == "tunnel" and delays is not None and decays is not None:
+        preset_data["delays"] = [int(d) for d in delays.split("|") if d]
+        preset_data["decays"] = [float(d) for d in decays.split("|") if d]
+    elif category == "frequency" and highpass is not None and lowpass is not None:
+        preset_data["highpass"] = highpass
+        preset_data["lowpass"] = lowpass
+    elif category == "speed" and speed is not None:
+        preset_data["speed"] = speed
+    elif category == "pitch" and semitones is not None:
+        preset_data["semitones"] = semitones
+    elif category == "noise_reduction" and noise_floor is not None and noise_reduction is not None:
+        preset_data["noise_floor"] = noise_floor
+        preset_data["noise_reduction"] = noise_reduction
+    elif category == "compressor":
+        if all(v is not None for v in [threshold, ratio, attack, release, makeup]):
+            preset_data["threshold"] = threshold
+            preset_data["ratio"] = ratio
+            preset_data["attack"] = attack
+            preset_data["release"] = release
+            preset_data["makeup"] = makeup
+    elif category == "brightness" and brightness is not None:
+        preset_data["brightness"] = brightness
+    elif category == "contrast" and contrast is not None:
+        preset_data["contrast"] = contrast
+    elif category == "saturation" and saturation is not None:
+        preset_data["saturation"] = saturation
+    elif category == "blur" and sigma is not None:
+        preset_data["sigma"] = sigma
+    elif category == "sharpen" and amount is not None:
+        preset_data["amount"] = amount
+    elif category == "transform" and filter_value is not None:
+        preset_data["filter"] = filter_value
+
+    success = save_user_preset(filter_type, category, preset_key, preset_data)
+
+    if success:
+        reload_presets()
+        user_settings = update_category_preset(category, preset_key, filename)
+        context = _get_accordion_context(user_settings, filename)
+        context["request"] = request
+        context["save_success"] = True
+        context["saved_preset_name"] = name.strip()
+
+        if filter_type == "video":
+            return templates.TemplateResponse("partials/filters_video_accordion.html", context)
+        return templates.TemplateResponse("partials/filters_audio_accordion.html", context)
+    else:
+        raise HTTPException(status_code=500, detail="Failed to save preset")
+
+
+@router.delete("/presets/{filter_type}/{category}/{preset_key}", response_class=HTMLResponse)
+async def delete_preset(
+    request: Request,
+    filter_type: str,
+    category: str,
+    preset_key: str,
+    filename: str | None = None,
+):
+    """Delete a user preset."""
+    if filter_type not in ("audio", "video"):
+        raise HTTPException(status_code=400, detail="Invalid filter type")
+
+    valid_categories = AUDIO_CATEGORIES if filter_type == "audio" else VIDEO_CATEGORIES
+    if category not in valid_categories:
+        raise HTTPException(status_code=400, detail="Invalid category")
+
+    success = delete_user_preset(filter_type, category, preset_key)
+
+    if success:
+        reload_presets()
+        # Reset to "none" preset after deletion
+        user_settings = update_category_preset(category, "none", filename)
+        context = _get_accordion_context(user_settings, filename)
+        context["request"] = request
+        context["delete_success"] = True
+
+        if filter_type == "video":
+            return templates.TemplateResponse("partials/filters_video_accordion.html", context)
+        return templates.TemplateResponse("partials/filters_audio_accordion.html", context)
+    else:
+        raise HTTPException(status_code=404, detail="Preset not found")
+
+
+@router.get("/presets/export")
+async def export_presets_endpoint(
+    filter_type: str | None = None,
+    category: str | None = None,
+    include_system: bool = False,
+):
+    """Export presets as YAML file download."""
+    yaml_content = export_presets(
+        filter_type=filter_type,
+        filter_category=category,
+        include_system=include_system,
+    )
+
+    # Generate filename
+    if filter_type and category:
+        filename = f"{filter_type}_{category}_presets.yml"
+    elif filter_type:
+        filename = f"{filter_type}_presets.yml"
+    else:
+        filename = "user_presets.yml" if not include_system else "all_presets.yml"
+
+    return StreamingResponse(
+        iter([yaml_content]),
+        media_type="application/x-yaml",
+        headers={"Content-Disposition": f"attachment; filename={filename}"},
+    )
+
+
+@router.post("/presets/import", response_class=HTMLResponse)
+async def import_presets_endpoint(
+    request: Request,
+    file: UploadFile = File(...),
+    merge: bool = Form(True),
+    filename: str = Form(""),
+):
+    """Import presets from uploaded YAML file."""
+    if not file.filename or not file.filename.endswith((".yml", ".yaml")):
+        return templates.TemplateResponse(
+            "partials/import_result.html",
+            {
+                "request": request,
+                "success": False,
+                "error": "Please upload a .yml or .yaml file",
+            },
+        )
+
+    try:
+        content = await file.read()
+        yaml_content = content.decode("utf-8")
+    except Exception as e:
+        return templates.TemplateResponse(
+            "partials/import_result.html",
+            {
+                "request": request,
+                "success": False,
+                "error": f"Failed to read file: {e}",
+            },
+        )
+
+    result = import_presets(yaml_content, merge=merge)
+
+    if result["errors"]:
+        return templates.TemplateResponse(
+            "partials/import_result.html",
+            {
+                "request": request,
+                "success": False,
+                "error": "; ".join(result["errors"][:3]),
+                "result": result,
+            },
+        )
+
+    reload_presets()
+    user_settings = load_user_settings(filename)
+    context = _get_accordion_context(user_settings, filename)
+    context["request"] = request
+    context["import_success"] = True
+    context["import_result"] = result
+
+    return templates.TemplateResponse(
+        "partials/import_result.html",
+        {
+            "request": request,
+            "success": True,
+            "result": result,
+        },
+    )

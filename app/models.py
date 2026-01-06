@@ -83,6 +83,8 @@ class VolumeConfig(BaseModel):
     name: str
     description: str
     volume: float
+    preset_category: str = "General"
+    is_user_preset: bool = False
 
 
 class TunnelConfig(BaseModel):
@@ -91,6 +93,8 @@ class TunnelConfig(BaseModel):
     description: str
     delays: list[int]
     decays: list[float]
+    preset_category: str = "General"
+    is_user_preset: bool = False
 
 
 class FrequencyConfig(BaseModel):
@@ -99,6 +103,8 @@ class FrequencyConfig(BaseModel):
     description: str
     highpass: int
     lowpass: int
+    preset_category: str = "General"
+    is_user_preset: bool = False
 
 
 class SpeedConfig(BaseModel):
@@ -106,6 +112,8 @@ class SpeedConfig(BaseModel):
     name: str
     description: str
     speed: float = Field(ge=0.25, le=4.0, description="Speed multiplier (0.25-4.0)")
+    preset_category: str = "General"
+    is_user_preset: bool = False
 
 
 class PitchConfig(BaseModel):
@@ -113,6 +121,8 @@ class PitchConfig(BaseModel):
     name: str
     description: str
     semitones: float = Field(ge=-12.0, le=12.0, description="Pitch shift in semitones (-12 to +12)")
+    preset_category: str = "General"
+    is_user_preset: bool = False
 
 
 class NoiseReductionConfig(BaseModel):
@@ -121,6 +131,8 @@ class NoiseReductionConfig(BaseModel):
     description: str
     noise_floor: float = Field(ge=-80.0, le=-20.0, description="Noise floor in dB (-80 to -20)")
     noise_reduction: float = Field(ge=0.0, le=1.0, description="Reduction amount (0.0-1.0)")
+    preset_category: str = "General"
+    is_user_preset: bool = False
 
 
 class CompressorConfig(BaseModel):
@@ -132,6 +144,8 @@ class CompressorConfig(BaseModel):
     attack: float
     release: float
     makeup: float
+    preset_category: str = "General"
+    is_user_preset: bool = False
 
 
 # ============ VIDEO FILTER CONFIG SCHEMAS ============
@@ -141,6 +155,8 @@ class BrightnessConfig(BaseModel):
     name: str
     description: str
     brightness: float
+    preset_category: str = "General"
+    is_user_preset: bool = False
 
 
 class ContrastConfig(BaseModel):
@@ -148,6 +164,8 @@ class ContrastConfig(BaseModel):
     name: str
     description: str
     contrast: float
+    preset_category: str = "General"
+    is_user_preset: bool = False
 
 
 class SaturationConfig(BaseModel):
@@ -155,6 +173,8 @@ class SaturationConfig(BaseModel):
     name: str
     description: str
     saturation: float
+    preset_category: str = "General"
+    is_user_preset: bool = False
 
 
 class BlurConfig(BaseModel):
@@ -162,6 +182,8 @@ class BlurConfig(BaseModel):
     name: str
     description: str
     sigma: float
+    preset_category: str = "General"
+    is_user_preset: bool = False
 
 
 class SharpenConfig(BaseModel):
@@ -169,6 +191,8 @@ class SharpenConfig(BaseModel):
     name: str
     description: str
     amount: float
+    preset_category: str = "General"
+    is_user_preset: bool = False
 
 
 class TransformConfig(BaseModel):
@@ -176,6 +200,8 @@ class TransformConfig(BaseModel):
     name: str
     description: str
     filter: str
+    preset_category: str = "General"
+    is_user_preset: bool = False
 
 
 # ============ USER SETTINGS ============

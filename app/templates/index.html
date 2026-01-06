@@ -206,6 +206,9 @@
     </div>
 </form>
 
+<!-- Modal Container for dynamic modals (save preset, etc.) -->
+<div id="modal-container"></div>
+
 <!-- Add Source Modal -->
 <div class="modal-backdrop" id="add-source-modal">
     <div class="modal">
@@ -978,5 +981,103 @@ function closeAddSourceModal() {
     document.getElementById('add-source-modal').classList.remove('active');
     document.body.classList.remove('modal-open');
 }
+
+// Save Preset Modal Controller
+function closeSavePresetModal() {
+    var container = document.getElementById('modal-container');
+    if (container) {
+        container.innerHTML = '';
+    }
+    document.body.classList.remove('modal-open');
+}
+
+// Update hidden form fields with current slider values before opening modal
+function updateSavePresetValues(category) {
+    // Map of category to the form field IDs and their source slider IDs
+    var categoryFields = {
+        // Audio filters
+        'volume': {
+            'preset-save-volume': 'volume-slider'
+        },
+        'tunnel': {
+            'preset-save-delays-0': 'delay-0-slider',
+            'preset-save-delays-1': 'delay-1-slider',
+            'preset-save-delays-2': 'delay-2-slider',
+            'preset-save-delays-3': 'delay-3-slider',
+            'preset-save-decays-0': 'decay-0-slider',
+            'preset-save-decays-1': 'decay-1-slider',
+            'preset-save-decays-2': 'decay-2-slider',
+            'preset-save-decays-3': 'decay-3-slider'
+        },
+        'frequency': {
+            'preset-save-highpass': 'highpass-slider',
+            'preset-save-lowpass': 'lowpass-slider'
+        },
+        'speed': {
+            'preset-save-speed': 'speed-slider'
+        },
+        'pitch': {
+            'preset-save-semitones': 'pitch-slider'
+        },
+        'noise_reduction': {
+            'preset-save-noise-floor': 'noise-floor-slider',
+            'preset-save-noise-reduction-amount': 'noise-reduction-amount-slider'
+        },
+        'compressor': {
+            'preset-save-threshold': 'threshold-slider',
+            'preset-save-ratio': 'ratio-slider',
+            'preset-save-attack': 'attack-slider',
+            'preset-save-release': 'release-slider',
+            'preset-save-makeup': 'makeup-slider'
+        },
+        // Video filters
+        'brightness': {
+            'preset-save-brightness': 'brightness-slider'
+        },
+        'contrast': {
+            'preset-save-contrast': 'contrast-slider'
+        },
+        'saturation': {
+            'preset-save-saturation': 'saturation-slider'
+        },
+        'blur': {
+            'preset-save-blur-strength': 'blur-strength-slider'
+        },
+        'sharpen': {
+            'preset-save-sharpen-luma': 'sharpen-luma-slider',
+            'preset-save-sharpen-chroma': 'sharpen-chroma-slider'
+        },
+        'transform': {
+            'preset-save-rotation': 'rotation-slider',
+            'preset-save-scale': 'scale-slider'
+        }
+    };
+
+    var fields = categoryFields[category];
+    if (!fields) return;
+
+    // Wait for the modal to be loaded, then populate values
+    setTimeout(function() {
+        for (var hiddenFieldId in fields) {
+            var sliderId = fields[hiddenFieldId];
+            var slider = document.getElementById(sliderId);
+            var hiddenField = document.getElementById(hiddenFieldId);
+
+            if (slider && hiddenField) {
+                hiddenField.value = slider.value;
+            }
+        }
+    }, 100);
+}
+
+// ESC key to close save preset modal
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        var saveModal = document.getElementById('save-preset-modal');
+        if (saveModal) {
+            closeSavePresetModal();
+        }
+    }
+});
 </script>
 {% endblock %}

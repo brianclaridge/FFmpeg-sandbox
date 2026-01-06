@@ -116,6 +116,19 @@ def load_presets(presets_file: Path | str = "presets.yml") -> dict[str, dict[str
         validated_presets["video"][category] = category_presets
         logger.debug(f"Loaded {len(category_presets)} {category} presets")
 
+    # Merge user presets (user presets override system if same key)
+    try:
+        from app.services.user_presets import load_user_presets
+        user_presets = load_user_presets()
+        for filter_type in ("audio", "video"):
+            for category in validated_presets.get(filter_type, {}):
+                if category in user_presets.get(filter_type, {}):
+                    validated_presets[filter_type][category].update(
+                        user_presets[filter_type][category]
+                    )
+    except Exception as e:
+        logger.warning(f"Failed to load user presets: {e}")
+
     _presets = validated_presets
 
     total = sum(
@@ -126,6 +139,19 @@ def load_presets(presets_file: Path | str = "presets.yml") -> dict[str, dict[str
     logger.info(f"Loaded {total} presets from {presets_path}")
 
     return validated_presets
+
+
+def reload_presets() -> dict[str, dict[str, Any]]:
+    """Force reload of all presets (system + user).
+
+    Call this after saving/deleting user presets to refresh the cache.
+
+    Returns:
+        Fresh preset dictionary
+    """
+    global _presets
+    _presets = {}
+    return load_presets()
 
 
 def get_presets() -> dict[str, dict[str, Any]]:
@@ -159,6 +185,45 @@ def get_video_presets(category: str) -> dict[str, Any]:
     """
     presets = get_presets()
     return presets.get("video", {}).get(category, {})
+
+
+def get_presets_by_preset_category(filter_type: str, filter_category: str) -> dict[str, list]:
+    """Get presets organized by preset_category for accordion display.
+
+    Groups presets by their preset_category field (e.g., "General", "Podcast", "Custom").
+    Within each group, presets are returned as (key, config) tuples.
+
+    Args:
+        filter_type: "audio" or "video"
+        filter_category: Category name (e.g., "volume", "brightness")
+
+    Returns:
+        Dictionary mapping preset_category to list of (key, config) tuples
+        Example: {"General": [("none", config), ("loud", config)], "Podcast": [...]}
+    """
+    if filter_type == "audio":
+        presets = get_audio_presets(filter_category)
+    else:
+        presets = get_video_presets(filter_category)
+
+    grouped: dict[str, list] = {}
+
+    for key, config in presets.items():
+        cat = getattr(config, "preset_category", "General")
+        if cat not in grouped:
+            grouped[cat] = []
+        grouped[cat].append((key, config))
+
+    # Sort: "General" first, then alphabetically, "Custom" last
+    def sort_key(cat_name: str) -> tuple:
+        if cat_name == "General":
+            return (0, cat_name)
+        elif cat_name == "Custom":
+            return (2, cat_name)
+        else:
+            return (1, cat_name)
+
+    return dict(sorted(grouped.items(), key=lambda x: sort_key(x[0])))
 
 
 # Convenience accessors for common use

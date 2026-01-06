@@ -1,0 +1,39 @@
+<div id="import-result" class="import-result {% if success %}success{% else %}error{% endif %}">
+    {% if success %}
+    <div class="import-result-header">
+        <i class="fa-solid fa-check-circle"></i>
+        <span>Import Successful</span>
+    </div>
+    <div class="import-result-stats">
+        {% if result %}
+        <span class="stat"><strong>{{ result.added }}</strong> added</span>
+        <span class="stat"><strong>{{ result.updated }}</strong> updated</span>
+        {% if result.skipped > 0 %}
+        <span class="stat warning"><strong>{{ result.skipped }}</strong> skipped</span>
+        {% endif %}
+        {% endif %}
+    </div>
+    <p class="import-result-note">Refresh the page to see imported presets in the filter panels.</p>
+    {% else %}
+    <div class="import-result-header">
+        <i class="fa-solid fa-exclamation-circle"></i>
+        <span>Import Failed</span>
+    </div>
+    <div class="import-result-error">
+        {{ error or 'Unknown error occurred' }}
+    </div>
+    {% if result and result.errors %}
+    <details class="import-errors-details">
+        <summary>Show all errors ({{ result.errors | length }})</summary>
+        <ul class="import-errors-list">
+            {% for err in result.errors %}
+            <li>{{ err }}</li>
+            {% endfor %}
+        </ul>
+    </details>
+    {% endif %}
+    {% endif %}
+    <button type="button" class="btn btn-sm btn-secondary" onclick="this.parentElement.remove()">
+        Dismiss
+    </button>
+</div>
