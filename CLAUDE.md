@@ -150,21 +150,14 @@ Edit `app/services/filter_chain.py` for chain logic, or individual `filters_audi
 
 ## Development Roadmap
 
-### Phase 13: Audio Filter QA
+### Phase 1: Audio Filter QA
 **Priority:** Medium | **Status:** Backend ready
 
 - Validate pitch + speed interaction
 - Test noise reduction with real audio
 - Test extreme speed values (4x)
 
-### Phase 14: Shortcut Management
-**Priority:** Medium-High | **Status:** Complete
-
-- Save custom shortcuts (filter presets)
-- Export/import as YAML
-- Shortcut categories (Podcast, Music, Custom)
-
-### Phase 15: Batch Processing
+### Phase 2: Batch Processing
 **Priority:** Medium | **Status:** Not started
 
 - Multi-file upload
@@ -172,15 +165,33 @@ Edit `app/services/filter_chain.py` for chain logic, or individual `filters_audi
 - Export as ZIP
 - Progress tracking
 
-### Phase 20: Output Format Options
+### Phase 3: Output Format Options
 **Priority:** Medium | **Status:** Not started
 
 - Audio: MP3, WAV, FLAC, OGG, AAC
 - Video: MP4, WebM, MKV
 - Quality/bitrate selection
 
-### Phase 21: Presets Tab + Terminology Refactor
-**Priority:** High | **Status:** Complete
+### Lower Priority
+
+- Phase 4: Waveform/spectrogram visualization
+- Phase 5: Performance (caching, large files)
+- Phase 6: Mobile responsiveness
+- Phase 7: Keyboard shortcuts
+
+### Completed Phases
+
+<details>
+<summary>Phase: Shortcut Management</summary>
+
+- Save custom shortcuts (filter presets)
+- Export/import as YAML
+- Shortcut categories (Podcast, Music, Custom)
+
+</details>
+
+<details>
+<summary>Phase: Presets Tab + Terminology Refactor</summary>
 
 - Renamed filter presets to "Shortcuts" (quick slider values)
 - Added 3rd "Presets" tab for themed transformation pipelines
@@ -189,11 +200,7 @@ Edit `app/services/filter_chain.py` for chain logic, or individual `filters_audi
 - YAML-driven preset definitions (`presets_themes.yml`)
 - New service: `presets_themes.py` for theme preset management
 
-### Lower Priority
-- Phase 16: Waveform/spectrogram visualization
-- Phase 17: Performance (caching, large files)
-- Phase 18: Mobile responsiveness
-- Phase 19: Keyboard shortcuts
+</details>
 
 ---
 
