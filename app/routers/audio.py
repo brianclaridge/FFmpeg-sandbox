@@ -31,12 +31,17 @@ from app.services.presets import (
     get_presets_by_preset_category,
     reload_presets,
 )
-from app.services.user_presets import (
-    save_user_preset,
-    delete_user_preset,
-    export_presets,
-    import_presets,
-    generate_preset_key,
+from app.services.user_shortcuts import (
+    save_user_shortcut,
+    delete_user_shortcut,
+    export_shortcuts,
+    import_shortcuts,
+    generate_shortcut_key,
+)
+from app.services.presets_themes import (
+    get_video_theme_presets,
+    get_audio_theme_presets,
+    get_theme_preset,
 )
 from app.services.settings import (
     load_user_settings,
@@ -541,55 +546,55 @@ async def clip_video_preview(filename: str, start: str, end: str):
 
 def _get_accordion_context(user_settings, filename: str | None = None) -> dict:
     """Build context dict for accordion template."""
-    # Get preset dictionaries from YAML
-    volume_presets = get_volume_presets()
-    tunnel_presets = get_tunnel_presets()
-    frequency_presets = get_frequency_presets()
-    speed_presets = get_speed_presets()
-    pitch_presets = get_pitch_presets()
-    noise_reduction_presets = get_noise_reduction_presets()
-    compressor_presets = get_compressor_presets()
-    brightness_presets = get_brightness_presets()
-    contrast_presets = get_contrast_presets()
-    saturation_presets = get_saturation_presets()
-    blur_presets = get_blur_presets()
-    sharpen_presets = get_sharpen_presets()
-    transform_presets = get_transform_presets()
+    # Get shortcut dictionaries from YAML
+    volume_shortcuts = get_volume_presets()
+    tunnel_shortcuts = get_tunnel_presets()
+    frequency_shortcuts = get_frequency_presets()
+    speed_shortcuts = get_speed_presets()
+    pitch_shortcuts = get_pitch_presets()
+    noise_reduction_shortcuts = get_noise_reduction_presets()
+    compressor_shortcuts = get_compressor_presets()
+    brightness_shortcuts = get_brightness_presets()
+    contrast_shortcuts = get_contrast_presets()
+    saturation_shortcuts = get_saturation_presets()
+    blur_shortcuts = get_blur_presets()
+    sharpen_shortcuts = get_sharpen_presets()
+    transform_shortcuts = get_transform_presets()
 
-    # Get current preset configs for each category (with fallbacks)
-    volume_current = volume_presets.get(user_settings.volume.preset) or volume_presets["none"]
-    tunnel_current = tunnel_presets.get(user_settings.tunnel.preset) or tunnel_presets["none"]
-    frequency_current = frequency_presets.get(user_settings.frequency.preset) or frequency_presets["none"]
-    speed_current = speed_presets.get(user_settings.speed.preset) or speed_presets["none"]
-    pitch_current = pitch_presets.get(user_settings.pitch.preset) or pitch_presets["none"]
-    noise_reduction_current = noise_reduction_presets.get(user_settings.noise_reduction.preset) or noise_reduction_presets["none"]
-    compressor_current = compressor_presets.get(user_settings.compressor.preset) or compressor_presets["none"]
+    # Get current shortcut configs for each category (with fallbacks)
+    volume_current = volume_shortcuts.get(user_settings.volume.preset) or volume_shortcuts["none"]
+    tunnel_current = tunnel_shortcuts.get(user_settings.tunnel.preset) or tunnel_shortcuts["none"]
+    frequency_current = frequency_shortcuts.get(user_settings.frequency.preset) or frequency_shortcuts["none"]
+    speed_current = speed_shortcuts.get(user_settings.speed.preset) or speed_shortcuts["none"]
+    pitch_current = pitch_shortcuts.get(user_settings.pitch.preset) or pitch_shortcuts["none"]
+    noise_reduction_current = noise_reduction_shortcuts.get(user_settings.noise_reduction.preset) or noise_reduction_shortcuts["none"]
+    compressor_current = compressor_shortcuts.get(user_settings.compressor.preset) or compressor_shortcuts["none"]
 
     # Video filters
-    brightness_current = brightness_presets.get(user_settings.brightness.preset) or brightness_presets["none"]
-    contrast_current = contrast_presets.get(user_settings.contrast.preset) or contrast_presets["none"]
-    saturation_current = saturation_presets.get(user_settings.saturation.preset) or saturation_presets["none"]
-    blur_current = blur_presets.get(user_settings.blur.preset) or blur_presets["none"]
-    sharpen_current = sharpen_presets.get(user_settings.sharpen.preset) or sharpen_presets["none"]
-    transform_current = transform_presets.get(user_settings.transform.preset) or transform_presets["none"]
+    brightness_current = brightness_shortcuts.get(user_settings.brightness.preset) or brightness_shortcuts["none"]
+    contrast_current = contrast_shortcuts.get(user_settings.contrast.preset) or contrast_shortcuts["none"]
+    saturation_current = saturation_shortcuts.get(user_settings.saturation.preset) or saturation_shortcuts["none"]
+    blur_current = blur_shortcuts.get(user_settings.blur.preset) or blur_shortcuts["none"]
+    sharpen_current = sharpen_shortcuts.get(user_settings.sharpen.preset) or sharpen_shortcuts["none"]
+    transform_current = transform_shortcuts.get(user_settings.transform.preset) or transform_shortcuts["none"]
 
     return {
         "user_settings": user_settings,
-        # Audio presets
-        "volume_presets": volume_presets,
-        "tunnel_presets": tunnel_presets,
-        "frequency_presets": frequency_presets,
-        "speed_presets": speed_presets,
-        "pitch_presets": pitch_presets,
-        "noise_reduction_presets": noise_reduction_presets,
-        "compressor_presets": compressor_presets,
-        # Video presets
-        "brightness_presets": brightness_presets,
-        "contrast_presets": contrast_presets,
-        "saturation_presets": saturation_presets,
-        "blur_presets": blur_presets,
-        "sharpen_presets": sharpen_presets,
-        "transform_presets": transform_presets,
+        # Audio shortcuts
+        "volume_shortcuts": volume_shortcuts,
+        "tunnel_shortcuts": tunnel_shortcuts,
+        "frequency_shortcuts": frequency_shortcuts,
+        "speed_shortcuts": speed_shortcuts,
+        "pitch_shortcuts": pitch_shortcuts,
+        "noise_reduction_shortcuts": noise_reduction_shortcuts,
+        "compressor_shortcuts": compressor_shortcuts,
+        # Video shortcuts
+        "brightness_shortcuts": brightness_shortcuts,
+        "contrast_shortcuts": contrast_shortcuts,
+        "saturation_shortcuts": saturation_shortcuts,
+        "blur_shortcuts": blur_shortcuts,
+        "sharpen_shortcuts": sharpen_shortcuts,
+        "transform_shortcuts": transform_shortcuts,
         # Current values
         "volume_current": volume_current,
         "tunnel_current": tunnel_current,
@@ -614,18 +619,29 @@ async def get_filter_chain(request: Request, filename: str | None = None):
     user_settings = load_user_settings(filename)
     context = _get_accordion_context(user_settings, filename)
     context["request"] = request
+
+    # Add theme presets if on presets tab
+    if user_settings.active_tab == "presets":
+        context["video_theme_presets"] = get_video_theme_presets()
+        context["audio_theme_presets"] = get_audio_theme_presets()
+
     return templates.TemplateResponse("partials/filters_tabs.html", context)
 
 
 @router.get("/partials/filters-tab/{tab}", response_class=HTMLResponse)
 async def get_filters_tab(request: Request, tab: str, filename: str | None = None):
-    """Switch between Audio and Video filters tabs."""
-    if tab not in ("audio", "video"):
+    """Switch between Audio, Video, and Presets tabs."""
+    if tab not in ("audio", "video", "presets"):
         raise HTTPException(status_code=404, detail="Tab not found")
 
     user_settings = update_active_tab(tab, filename)
     context = _get_accordion_context(user_settings, filename)
     context["request"] = request
+
+    # Add theme presets for presets tab
+    if tab == "presets":
+        context["video_theme_presets"] = get_video_theme_presets()
+        context["audio_theme_presets"] = get_audio_theme_presets()
 
     # Return full tabs container so tab buttons update their active state
     return templates.TemplateResponse("partials/filters_tabs.html", context)
@@ -696,8 +712,8 @@ async def set_accordion_preset(request: Request, category: str, preset: str, fil
 
 # ============ PRESET MANAGEMENT ENDPOINTS ============
 
-@router.get("/partials/save-preset-modal/{filter_type}/{category}", response_class=HTMLResponse)
-async def get_save_preset_modal(
+@router.get("/partials/save-shortcut-modal/{filter_type}/{category}", response_class=HTMLResponse)
+async def get_save_shortcut_modal(
     request: Request,
     filter_type: str,
     category: str,
@@ -736,7 +752,7 @@ async def get_save_preset_modal(
     current_config = presets.get(current_preset_key) or presets.get("none")
 
     return templates.TemplateResponse(
-        "partials/save_preset_modal.html",
+        "partials/save_shortcut_modal.html",
         {
             "request": request,
             "filter_type": filter_type,
@@ -747,8 +763,8 @@ async def get_save_preset_modal(
     )
 
 
-@router.post("/presets/save", response_class=HTMLResponse)
-async def save_preset(
+@router.post("/shortcuts/save", response_class=HTMLResponse)
+async def save_shortcut(
     request: Request,
     filter_type: str = Form(...),
     category: str = Form(...),
@@ -790,7 +806,7 @@ async def save_preset(
     if not name or not name.strip():
         raise HTTPException(status_code=400, detail="Preset name is required")
 
-    preset_key = generate_preset_key(name)
+    preset_key = generate_shortcut_key(name)
 
     # Build preset data based on category
     preset_data = {
@@ -835,7 +851,7 @@ async def save_preset(
     elif category == "transform" and filter_value is not None:
         preset_data["filter"] = filter_value
 
-    success = save_user_preset(filter_type, category, preset_key, preset_data)
+    success = save_user_shortcut(filter_type, category, preset_key, preset_data)
 
     if success:
         reload_presets()
@@ -852,8 +868,8 @@ async def save_preset(
         raise HTTPException(status_code=500, detail="Failed to save preset")
 
 
-@router.delete("/presets/{filter_type}/{category}/{preset_key}", response_class=HTMLResponse)
-async def delete_preset(
+@router.delete("/shortcuts/{filter_type}/{category}/{shortcut_key}", response_class=HTMLResponse)
+async def delete_shortcut(
     request: Request,
     filter_type: str,
     category: str,
@@ -868,7 +884,7 @@ async def delete_preset(
     if category not in valid_categories:
         raise HTTPException(status_code=400, detail="Invalid category")
 
-    success = delete_user_preset(filter_type, category, preset_key)
+    success = delete_user_shortcut(filter_type, category, preset_key)
 
     if success:
         reload_presets()
@@ -885,14 +901,14 @@ async def delete_preset(
         raise HTTPException(status_code=404, detail="Preset not found")
 
 
-@router.get("/presets/export")
-async def export_presets_endpoint(
+@router.get("/shortcuts/export")
+async def export_shortcuts_endpoint(
     filter_type: str | None = None,
     category: str | None = None,
     include_system: bool = False,
 ):
     """Export presets as YAML file download."""
-    yaml_content = export_presets(
+    yaml_content = export_shortcuts(
         filter_type=filter_type,
         filter_category=category,
         include_system=include_system,
@@ -913,8 +929,8 @@ async def export_presets_endpoint(
     )
 
 
-@router.post("/presets/import", response_class=HTMLResponse)
-async def import_presets_endpoint(
+@router.post("/shortcuts/import", response_class=HTMLResponse)
+async def import_shortcuts_endpoint(
     request: Request,
     file: UploadFile = File(...),
     merge: bool = Form(True),
@@ -944,7 +960,7 @@ async def import_presets_endpoint(
             },
         )
 
-    result = import_presets(yaml_content, merge=merge)
+    result = import_shortcuts(yaml_content, merge=merge)
 
     if result["errors"]:
         return templates.TemplateResponse(
@@ -972,3 +988,62 @@ async def import_presets_endpoint(
             "result": result,
         },
     )
+
+
+# ============ THEME PRESET ENDPOINTS ============
+
+THEME_PRESET_CATEGORIES = ("video_presets", "audio_presets")
+
+
+@router.get("/partials/presets-accordion/{category}", response_class=HTMLResponse)
+async def get_presets_accordion_section(
+    request: Request,
+    category: str,
+    filename: str | None = None,
+    current_category: str | None = None,
+):
+    """Expand a presets accordion section."""
+    if category not in THEME_PRESET_CATEGORIES:
+        raise HTTPException(status_code=404, detail="Category not found")
+
+    user_settings = update_active_category(category, filename, current_category)
+    context = _get_accordion_context(user_settings, filename)
+    context["request"] = request
+    context["video_theme_presets"] = get_video_theme_presets()
+    context["audio_theme_presets"] = get_audio_theme_presets()
+
+    return templates.TemplateResponse("partials/filters_presets_accordion.html", context)
+
+
+@router.post("/apply-theme-preset/{media_type}/{preset_key}", response_class=HTMLResponse)
+async def apply_theme_preset(
+    request: Request,
+    media_type: str,
+    preset_key: str,
+    filename: str = Form(""),
+):
+    """Apply a theme preset by setting its filter values."""
+    if media_type not in ("audio", "video"):
+        raise HTTPException(status_code=400, detail="Invalid media type")
+
+    preset = get_theme_preset(media_type, preset_key)
+    if not preset:
+        raise HTTPException(status_code=404, detail="Preset not found")
+
+    # Apply each filter in the preset chain
+    user_settings = load_user_settings(filename)
+    for filter_step in preset.filters:
+        filter_type = filter_step.type
+        # Map filter types to categories and find matching preset keys
+        if filter_type in ALL_CATEGORIES:
+            # For now, just set to "none" - future: find matching preset or custom
+            update_category_preset(filter_type, "none", filename)
+
+    context = _get_accordion_context(user_settings, filename)
+    context["request"] = request
+    context["video_theme_presets"] = get_video_theme_presets()
+    context["audio_theme_presets"] = get_audio_theme_presets()
+    context["apply_success"] = True
+    context["applied_preset_name"] = preset.name
+
+    return templates.TemplateResponse("partials/filters_presets_accordion.html", context)

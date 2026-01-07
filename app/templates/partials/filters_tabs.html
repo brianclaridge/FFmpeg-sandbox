@@ -16,10 +16,20 @@
                 hx-vals="js:{filename: window.currentFilename || ''}">
             <i class="fa-solid fa-video"></i> Video
         </button>
+        <button type="button"
+                class="filters-tab {% if user_settings.active_tab == 'presets' %}active{% endif %}"
+                hx-get="/partials/filters-tab/presets"
+                hx-target="#filters-tabs-container"
+                hx-swap="outerHTML"
+                hx-vals="js:{filename: window.currentFilename || ''}">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Presets
+        </button>
     </div>
     <div id="filters-tab-content" class="filters-tab-content">
         {% if user_settings.active_tab == 'video' %}
             {% include "partials/filters_video_accordion.html" %}
+        {% elif user_settings.active_tab == 'presets' %}
+            {% include "partials/filters_presets_accordion.html" %}
         {% else %}
             {% include "partials/filters_audio_accordion.html" %}
         {% endif %}

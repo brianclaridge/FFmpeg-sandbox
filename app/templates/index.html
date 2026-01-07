@@ -153,20 +153,20 @@
             <!-- Hidden preset inputs for form submission -->
             <input type="hidden" name="preset" id="preset" value="custom">
             <!-- Audio presets -->
-            <input type="hidden" name="volume_preset" id="volume_preset" value="{{ user_settings.volume.preset }}">
-            <input type="hidden" name="tunnel_preset" id="tunnel_preset" value="{{ user_settings.tunnel.preset }}">
-            <input type="hidden" name="frequency_preset" id="frequency_preset" value="{{ user_settings.frequency.preset }}">
-            <input type="hidden" name="speed_preset" id="speed_preset" value="{{ user_settings.speed.preset }}">
-            <input type="hidden" name="pitch_preset" id="pitch_preset" value="{{ user_settings.pitch.preset }}">
-            <input type="hidden" name="noise_reduction_preset" id="noise_reduction_preset" value="{{ user_settings.noise_reduction.preset }}">
-            <input type="hidden" name="compressor_preset" id="compressor_preset" value="{{ user_settings.compressor.preset }}">
+            <input type="hidden" name="volume_shortcut" id="volume_shortcut" value="{{ user_settings.volume.preset }}">
+            <input type="hidden" name="tunnel_shortcut" id="tunnel_shortcut" value="{{ user_settings.tunnel.preset }}">
+            <input type="hidden" name="frequency_shortcut" id="frequency_shortcut" value="{{ user_settings.frequency.preset }}">
+            <input type="hidden" name="speed_shortcut" id="speed_shortcut" value="{{ user_settings.speed.preset }}">
+            <input type="hidden" name="pitch_shortcut" id="pitch_shortcut" value="{{ user_settings.pitch.preset }}">
+            <input type="hidden" name="noise_reduction_shortcut" id="noise_reduction_shortcut" value="{{ user_settings.noise_reduction.preset }}">
+            <input type="hidden" name="compressor_shortcut" id="compressor_shortcut" value="{{ user_settings.compressor.preset }}">
             <!-- Video presets -->
-            <input type="hidden" name="brightness_preset" id="brightness_preset" value="{{ user_settings.brightness.preset }}">
-            <input type="hidden" name="contrast_preset" id="contrast_preset" value="{{ user_settings.contrast.preset }}">
-            <input type="hidden" name="saturation_preset" id="saturation_preset" value="{{ user_settings.saturation.preset }}">
-            <input type="hidden" name="blur_preset" id="blur_preset" value="{{ user_settings.blur.preset }}">
-            <input type="hidden" name="sharpen_preset" id="sharpen_preset" value="{{ user_settings.sharpen.preset }}">
-            <input type="hidden" name="transform_preset" id="transform_preset" value="{{ user_settings.transform.preset }}">
+            <input type="hidden" name="brightness_shortcut" id="brightness_shortcut" value="{{ user_settings.brightness.preset }}">
+            <input type="hidden" name="contrast_shortcut" id="contrast_shortcut" value="{{ user_settings.contrast.preset }}">
+            <input type="hidden" name="saturation_shortcut" id="saturation_shortcut" value="{{ user_settings.saturation.preset }}">
+            <input type="hidden" name="blur_shortcut" id="blur_shortcut" value="{{ user_settings.blur.preset }}">
+            <input type="hidden" name="sharpen_shortcut" id="sharpen_shortcut" value="{{ user_settings.sharpen.preset }}">
+            <input type="hidden" name="transform_shortcut" id="transform_shortcut" value="{{ user_settings.transform.preset }}">
         </section>
 
         <!-- Column 3: Preview -->
@@ -872,7 +872,7 @@ var FormatSelector = (function() {
 // Generic function to update preset label and pill highlighting
 // category: string name of filter (e.g., 'volume', 'frequency', 'brightness')
 // values: object with current values (e.g., {volume: 1.5} or {highpass: 100, lowpass: 8000})
-function updatePresetLabel(category, values) {
+function updateShortcutLabel(category, values) {
     var pillsContainer = document.getElementById(category + '-preset-pills');
     var labelElement = document.getElementById(category + '-preset-label');
 
@@ -983,7 +983,7 @@ function closeAddSourceModal() {
 }
 
 // Save Preset Modal Controller
-function closeSavePresetModal() {
+function closeSaveShortcutModal() {
     var container = document.getElementById('modal-container');
     if (container) {
         container.innerHTML = '';
@@ -992,64 +992,52 @@ function closeSavePresetModal() {
 }
 
 // Update hidden form fields with current slider values before opening modal
-function updateSavePresetValues(category) {
-    // Map of category to the form field IDs and their source slider IDs
+function updateSaveShortcutValues(category) {
+    // Map of category to the hidden field IDs (in modal) and their source input IDs (in accordion)
     var categoryFields = {
         // Audio filters
         'volume': {
-            'preset-save-volume': 'volume-slider'
+            'save-volume': 'volume'
         },
         'tunnel': {
-            'preset-save-delays-0': 'delay-0-slider',
-            'preset-save-delays-1': 'delay-1-slider',
-            'preset-save-delays-2': 'delay-2-slider',
-            'preset-save-delays-3': 'delay-3-slider',
-            'preset-save-decays-0': 'decay-0-slider',
-            'preset-save-decays-1': 'decay-1-slider',
-            'preset-save-decays-2': 'decay-2-slider',
-            'preset-save-decays-3': 'decay-3-slider'
+            'save-delays': 'delays',
+            'save-decays': 'decays'
         },
         'frequency': {
-            'preset-save-highpass': 'highpass-slider',
-            'preset-save-lowpass': 'lowpass-slider'
+            'save-highpass': 'highpass',
+            'save-lowpass': 'lowpass'
         },
         'speed': {
-            'preset-save-speed': 'speed-slider'
+            'save-speed': 'speed'
         },
         'pitch': {
-            'preset-save-semitones': 'pitch-slider'
+            'save-semitones': 'pitch'
         },
         'noise_reduction': {
-            'preset-save-noise-floor': 'noise-floor-slider',
-            'preset-save-noise-reduction-amount': 'noise-reduction-amount-slider'
+            'save-noise-floor': 'noise_floor'
         },
         'compressor': {
-            'preset-save-threshold': 'threshold-slider',
-            'preset-save-ratio': 'ratio-slider',
-            'preset-save-attack': 'attack-slider',
-            'preset-save-release': 'release-slider',
-            'preset-save-makeup': 'makeup-slider'
+            'save-threshold': 'threshold',
+            'save-ratio': 'ratio'
         },
         // Video filters
         'brightness': {
-            'preset-save-brightness': 'brightness-slider'
+            'save-brightness': 'brightness'
         },
         'contrast': {
-            'preset-save-contrast': 'contrast-slider'
+            'save-contrast': 'contrast'
         },
         'saturation': {
-            'preset-save-saturation': 'saturation-slider'
+            'save-saturation': 'saturation'
         },
         'blur': {
-            'preset-save-blur-strength': 'blur-strength-slider'
+            'save-sigma': 'blur_sigma'
         },
         'sharpen': {
-            'preset-save-sharpen-luma': 'sharpen-luma-slider',
-            'preset-save-sharpen-chroma': 'sharpen-chroma-slider'
+            'save-amount': 'sharpen_amount'
         },
         'transform': {
-            'preset-save-rotation': 'rotation-slider',
-            'preset-save-scale': 'scale-slider'
+            // Transform uses preset pills, no sliders to copy
         }
     };
 
@@ -1073,9 +1061,9 @@ function updateSavePresetValues(category) {
 // ESC key to close save preset modal
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
-        var saveModal = document.getElementById('save-preset-modal');
+        var saveModal = document.getElementById('save-shortcut-modal');
         if (saveModal) {
-            closeSavePresetModal();
+            closeSaveShortcutModal();
         }
     }
 });

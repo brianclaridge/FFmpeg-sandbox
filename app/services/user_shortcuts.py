@@ -15,7 +15,7 @@ from app.services.presets import CONFIG_CLASSES
 USER_PRESETS_FILE = DATA_DIR / "user-presets.yml"
 
 
-def load_user_presets() -> dict[str, dict[str, dict[str, Any]]]:
+def load_user_shortcuts() -> dict[str, dict[str, dict[str, Any]]]:
     """Load user presets from YAML file.
 
     Returns:
@@ -43,7 +43,7 @@ def load_user_presets() -> dict[str, dict[str, dict[str, Any]]]:
         for preset_key, preset_data in raw_data["audio"][category].items():
             try:
                 # Ensure user preset flags are set
-                preset_data["is_user_preset"] = True
+                preset_data["is_user_shortcut"] = True
                 preset_data.setdefault("preset_category", "Custom")
                 validated = config_class(**preset_data)
                 category_presets[preset_key] = validated
@@ -62,7 +62,7 @@ def load_user_presets() -> dict[str, dict[str, dict[str, Any]]]:
         category_presets = {}
         for preset_key, preset_data in raw_data["video"][category].items():
             try:
-                preset_data["is_user_preset"] = True
+                preset_data["is_user_shortcut"] = True
                 preset_data.setdefault("preset_category", "Custom")
                 validated = config_class(**preset_data)
                 category_presets[preset_key] = validated
@@ -83,7 +83,7 @@ def load_user_presets() -> dict[str, dict[str, dict[str, Any]]]:
     return validated_presets
 
 
-def _save_user_presets_file(data: dict) -> None:
+def _save_user_shortcuts_file(data: dict) -> None:
     """Write user presets to YAML file."""
     USER_PRESETS_FILE.parent.mkdir(parents=True, exist_ok=True)
     with open(USER_PRESETS_FILE, "w") as f:
@@ -99,7 +99,7 @@ def _load_raw_user_presets() -> dict:
         return yaml.safe_load(f) or {"audio": {}, "video": {}}
 
 
-def generate_preset_key(name: str) -> str:
+def generate_shortcut_key(name: str) -> str:
     """Generate URL-safe preset key from display name.
 
     Args:
@@ -118,7 +118,7 @@ def generate_preset_key(name: str) -> str:
     return key or "preset"
 
 
-def save_user_preset(
+def save_user_shortcut(
     filter_type: str,
     filter_category: str,
     preset_key: str,
@@ -146,7 +146,7 @@ def save_user_preset(
     # Validate against Pydantic model
     config_class = CONFIG_CLASSES[filter_type][filter_category]
     try:
-        preset_data["is_user_preset"] = True
+        preset_data["is_user_shortcut"] = True
         preset_data.setdefault("preset_category", "Custom")
         validated = config_class(**preset_data)
     except ValidationError as e:
@@ -164,12 +164,12 @@ def save_user_preset(
     # Convert validated model to dict for YAML
     raw_data[filter_type][filter_category][preset_key] = validated.model_dump()
 
-    _save_user_presets_file(raw_data)
+    _save_user_shortcuts_file(raw_data)
     logger.info(f"Saved user preset: {filter_type}/{filter_category}/{preset_key}")
     return True
 
 
-def delete_user_preset(
+def delete_user_shortcut(
     filter_type: str,
     filter_category: str,
     preset_key: str,
@@ -188,7 +188,7 @@ def delete_user_preset(
 
     try:
         del raw_data[filter_type][filter_category][preset_key]
-        _save_user_presets_file(raw_data)
+        _save_user_shortcuts_file(raw_data)
         logger.info(f"Deleted user preset: {filter_type}/{filter_category}/{preset_key}")
         return True
     except KeyError:
@@ -196,7 +196,7 @@ def delete_user_preset(
         return False
 
 
-def update_user_preset(
+def update_user_shortcut(
     filter_type: str,
     filter_category: str,
     preset_key: str,
@@ -221,10 +221,10 @@ def update_user_preset(
         return False
 
     # Validate and save (same as save)
-    return save_user_preset(filter_type, filter_category, preset_key, preset_data)
+    return save_user_shortcut(filter_type, filter_category, preset_key, preset_data)
 
 
-def export_presets(
+def export_shortcuts(
     filter_type: str | None = None,
     filter_category: str | None = None,
     include_system: bool = False,
@@ -244,7 +244,7 @@ def export_presets(
     if include_system:
         all_presets = get_presets()
     else:
-        all_presets = load_user_presets()
+        all_presets = load_user_shortcuts()
 
     export_data = {}
 
@@ -288,7 +288,7 @@ def export_presets(
     return yaml.dump(export_data, default_flow_style=False, sort_keys=False)
 
 
-def import_presets(yaml_content: str, merge: bool = True) -> dict:
+def import_shortcuts(yaml_content: str, merge: bool = True) -> dict:
     """Import presets from YAML string.
 
     Args:
@@ -335,7 +335,7 @@ def import_presets(yaml_content: str, merge: bool = True) -> dict:
             for preset_key, preset_data in presets.items():
                 try:
                     # Force user preset flags
-                    preset_data["is_user_preset"] = True
+                    preset_data["is_user_shortcut"] = True
                     preset_data.setdefault("preset_category", "Custom")
                     validated = config_class(**preset_data)
 
@@ -351,7 +351,7 @@ def import_presets(yaml_content: str, merge: bool = True) -> dict:
                     result["errors"].append(f"{filter_type}/{category}/{preset_key}: {e}")
                     result["skipped"] += 1
 
-    _save_user_presets_file(existing)
+    _save_user_shortcuts_file(existing)
     logger.info(f"Imported presets: {result['added']} added, {result['updated']} updated, {result['skipped']} skipped")
 
     return result

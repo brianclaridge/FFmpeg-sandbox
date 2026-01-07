@@ -118,8 +118,8 @@ def load_presets(presets_file: Path | str = "presets.yml") -> dict[str, dict[str
 
     # Merge user presets (user presets override system if same key)
     try:
-        from app.services.user_presets import load_user_presets
-        user_presets = load_user_presets()
+        from app.services.user_shortcuts import load_user_shortcuts
+        user_presets = load_user_shortcuts()
         for filter_type in ("audio", "video"):
             for category in validated_presets.get(filter_type, {}):
                 if category in user_presets.get(filter_type, {}):

@@ -103,20 +103,20 @@ input[type="range"]:focus::-webkit-slider-thumb {
     box-shadow: 0 0 0 3px rgba(var(--accent), 0.3);
 }
 
-/* Preset Buttons */
-.preset-buttons {
+/* Shortcut Buttons */
+.shortcut-buttons {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 0.5rem;
 }
 
-.preset-buttons-vertical {
+.shortcut-buttons-vertical {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
 }
 
-.preset-btn {
+.shortcut-btn {
     padding: 0.75rem;
     background: var(--bg-secondary);
     border: 2px solid transparent;
@@ -127,21 +127,21 @@ input[type="range"]:focus::-webkit-slider-thumb {
     transition: all 0.2s;
 }
 
-.preset-btn:hover {
+.shortcut-btn:hover {
     border-color: var(--accent);
 }
 
-.preset-btn.active {
+.shortcut-btn.active {
     border-color: var(--accent);
     background: var(--bg-primary);
 }
 
-.preset-btn strong {
+.shortcut-btn strong {
     display: block;
     color: var(--text-primary);
 }
 
-.preset-btn small {
+.shortcut-btn small {
     color: var(--text-secondary);
     font-size: 0.75rem;
 }

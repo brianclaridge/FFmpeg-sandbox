@@ -25,7 +25,8 @@ FastAPI + HTMX single-page app for processing audio/video with visual filter cha
 ```
 Root Files:
 ├── config.yml           # App configuration
-├── presets.yml          # Filter presets (66 presets, 13 categories)
+├── presets.yml          # Filter shortcuts (66 shortcuts, 13 categories)
+├── presets_themes.yml   # Theme presets (12 presets: 6 video, 6 audio)
 ├── Dockerfile           # Container build
 ├── docker-compose.yml   # Container orchestration
 ├── docker-entrypoint.sh # Container startup script
@@ -54,7 +55,9 @@ app/
 │   └── history.py       # History endpoints
 ├── services/
 │   ├── __init__.py      # Public API exports
-│   ├── presets.py       # YAML preset loader with Pydantic validation
+│   ├── presets.py       # YAML shortcut loader with Pydantic validation
+│   ├── presets_themes.py # Theme preset loader (VHS, Vinyl, etc.)
+│   ├── user_shortcuts.py # User shortcut CRUD operations
 │   ├── processor.py     # FFmpeg processing orchestration
 │   ├── metadata.py      # File introspection (duration, codecs)
 │   ├── filters_audio.py # Audio filter builders
@@ -71,9 +74,10 @@ app/
 │   └── partials/
 │       ├── download_complete.html   # Download success message
 │       ├── download_status.html     # Download progress
-│       ├── filters_audio_accordion.html  # Audio filter UI
-│       ├── filters_tabs.html        # Audio/Video tab switcher
-│       ├── filters_video_accordion.html  # Video filter UI
+│       ├── filters_audio_accordion.html  # Audio filter UI (shortcuts)
+│       ├── filters_presets_accordion.html # Theme presets UI
+│       ├── filters_tabs.html        # Audio/Video/Presets tab switcher
+│       ├── filters_video_accordion.html  # Video filter UI (shortcuts)
 │       ├── history.html             # Processing history list
 │       ├── history_preview.html     # History item preview
 │       ├── preview.html             # Audio/video preview player
@@ -153,12 +157,12 @@ Edit `app/services/filter_chain.py` for chain logic, or individual `filters_audi
 - Test noise reduction with real audio
 - Test extreme speed values (4x)
 
-### Phase 14: Preset Management
-**Priority:** Medium-High | **Status:** Not started
+### Phase 14: Shortcut Management
+**Priority:** Medium-High | **Status:** Complete
 
-- Save custom presets
+- Save custom shortcuts (filter presets)
 - Export/import as YAML
-- Preset categories (Podcast, Music, etc.)
+- Shortcut categories (Podcast, Music, Custom)
 
 ### Phase 15: Batch Processing
 **Priority:** Medium | **Status:** Not started
@@ -174,6 +178,16 @@ Edit `app/services/filter_chain.py` for chain logic, or individual `filters_audi
 - Audio: MP3, WAV, FLAC, OGG, AAC
 - Video: MP4, WebM, MKV
 - Quality/bitrate selection
+
+### Phase 21: Presets Tab + Terminology Refactor
+**Priority:** High | **Status:** Complete
+
+- Renamed filter presets to "Shortcuts" (quick slider values)
+- Added 3rd "Presets" tab for themed transformation pipelines
+- Video presets: VHS Playback, Film Grain, Silent Film, Security Cam, Glitch Art, Night Vision
+- Audio presets: Vinyl Record, Old Radio, Telephone, Cassette Tape, Podcast Ready, Underwater
+- YAML-driven preset definitions (`presets_themes.yml`)
+- New service: `presets_themes.py` for theme preset management
 
 ### Lower Priority
 - Phase 16: Waveform/spectrogram visualization

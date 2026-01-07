@@ -1,0 +1,186 @@
+# Theme Presets - Multi-filter transformation pipelines
+# These apply multiple filters at once for complete transformation effects
+
+video:
+  vhs_playback:
+    name: "VHS Playback"
+    description: "4:3 retro VHS look with color distortion"
+    icon: "fa-vhs"
+    filters:
+      - type: saturation
+        params:
+          saturation: 1.3
+      - type: contrast
+        params:
+          contrast: 1.2
+      - type: blur
+        params:
+          sigma: 0.5
+
+  film_grain:
+    name: "Film Grain"
+    description: "Cinematic film look with grain texture"
+    icon: "fa-film"
+    filters:
+      - type: contrast
+        params:
+          contrast: 1.1
+      - type: saturation
+        params:
+          saturation: 0.9
+      - type: sharpen
+        params:
+          amount: 0.3
+
+  silent_film:
+    name: "Silent Film"
+    description: "Black and white silent movie style"
+    icon: "fa-clapperboard"
+    filters:
+      - type: saturation
+        params:
+          saturation: 0.0
+      - type: contrast
+        params:
+          contrast: 1.4
+      - type: brightness
+        params:
+          brightness: 0.1
+
+  security_cam:
+    name: "Security Cam"
+    description: "Low-fi surveillance camera look"
+    icon: "fa-video"
+    filters:
+      - type: saturation
+        params:
+          saturation: 0.0
+      - type: contrast
+        params:
+          contrast: 1.5
+      - type: blur
+        params:
+          sigma: 0.3
+
+  glitch_art:
+    name: "Glitch Art"
+    description: "Digital artifacts and color shifts"
+    icon: "fa-bug"
+    filters:
+      - type: saturation
+        params:
+          saturation: 1.5
+      - type: sharpen
+        params:
+          amount: 2.0
+      - type: contrast
+        params:
+          contrast: 1.3
+
+  night_vision:
+    name: "Night Vision"
+    description: "Green-tinted military style"
+    icon: "fa-moon"
+    filters:
+      - type: saturation
+        params:
+          saturation: 0.3
+      - type: brightness
+        params:
+          brightness: 0.2
+      - type: contrast
+        params:
+          contrast: 1.4
+
+audio:
+  vinyl_record:
+    name: "Vinyl Record"
+    description: "Warm vinyl sound with slight crackle"
+    icon: "fa-record-vinyl"
+    filters:
+      - type: frequency
+        params:
+          highpass: 40
+          lowpass: 12000
+      - type: compressor
+        params:
+          threshold: -20
+          ratio: 2.0
+          attack: 20
+          release: 250
+          makeup: 3
+
+  old_radio:
+    name: "Old Radio"
+    description: "AM radio bandpass sound"
+    icon: "fa-radio"
+    filters:
+      - type: frequency
+        params:
+          highpass: 300
+          lowpass: 3400
+      - type: volume
+        params:
+          volume: 1.2
+
+  telephone:
+    name: "Telephone"
+    description: "Classic phone call quality"
+    icon: "fa-phone"
+    filters:
+      - type: frequency
+        params:
+          highpass: 300
+          lowpass: 3400
+
+  cassette_tape:
+    name: "Cassette Tape"
+    description: "Tape warmth with slight hiss"
+    icon: "fa-cassette-tape"
+    filters:
+      - type: frequency
+        params:
+          highpass: 30
+          lowpass: 14000
+      - type: compressor
+        params:
+          threshold: -18
+          ratio: 3.0
+          attack: 10
+          release: 200
+          makeup: 2
+
+  podcast_ready:
+    name: "Podcast Ready"
+    description: "Clean broadcast-ready audio"
+    icon: "fa-podcast"
+    filters:
+      - type: noise_reduction
+        params:
+          noise_floor: -40
+          noise_reduction: 0.5
+      - type: compressor
+        params:
+          threshold: -24
+          ratio: 4.0
+          attack: 5
+          release: 150
+          makeup: 6
+      - type: frequency
+        params:
+          highpass: 80
+          lowpass: 16000
+
+  underwater:
+    name: "Underwater"
+    description: "Muffled submerged sound"
+    icon: "fa-water"
+    filters:
+      - type: frequency
+        params:
+          highpass: 20
+          lowpass: 800
+      - type: tunnel
+        params:
+          delays: [30, 60, 90]
+          decays: [0.3, 0.2, 0.1]

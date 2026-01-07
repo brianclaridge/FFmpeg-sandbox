@@ -20,26 +20,26 @@
             <span class="accordion-icon"><i class="fa-solid fa-sun"></i></span>
             <span class="accordion-label">Brightness</span>
             <span class="accordion-description">Make image lighter or darker</span>
-            <span class="accordion-preset" id="brightness-preset-label">{{ brightness_presets.get(user_settings.brightness.preset, {}).name or user_settings.brightness.preset }}</span>
+            <span class="accordion-preset" id="brightness-shortcut-label">{{ brightness_shortcuts.get(user_settings.brightness.preset, {}).name or user_settings.brightness.preset }}</span>
             <span class="accordion-indicator">{% if user_settings.active_category == 'brightness' %}&#9660;{% else %}&#9654;{% endif %}</span>
         </div>
         {% if user_settings.active_category == 'brightness' %}
         <div class="accordion-content">
-            <div class="preset-pills" id="brightness-preset-pills">
-                {% for preset_key, config in brightness_presets.items() %}
+            <div class="shortcut-pills" id="brightness-shortcut-pills">
+                {% for preset_key, config in brightness_shortcuts.items() %}
                 <button type="button"
-                        class="preset-pill {% if user_settings.brightness.preset == preset_key %}active{% endif %}{% if config.is_user_preset %} user-preset{% endif %}"
+                        class="shortcut-pill {% if user_settings.brightness.preset == preset_key %}active{% endif %}{% if config.is_user_shortcut %} user-shortcut{% endif %}"
                         data-brightness="{{ config.brightness }}"
                         data-name="{{ config.name }}"
                         hx-post="/partials/accordion-preset/brightness/{{ preset_key }}"
                         hx-target="#filters-video-accordion"
                         hx-swap="outerHTML"
                         hx-vals="js:{filename: window.currentFilename || '', current_category: '{{ user_settings.active_category }}'}"
-                        onclick="document.getElementById('brightness_preset').value = '{{ preset_key }}'">
-                    {{ config.name }}{% if config.is_user_preset %}<span class="user-preset-badge">*</span>{% endif %}
+                        onclick="document.getElementById('brightness_shortcut').value = '{{ preset_key }}'">
+                    {{ config.name }}{% if config.is_user_shortcut %}<span class="user-shortcut-badge">*</span>{% endif %}
                 </button>
-                {% if config.is_user_preset and user_settings.brightness.preset == preset_key %}
-                <button type="button" class="preset-delete-btn"
+                {% if config.is_user_shortcut and user_settings.brightness.preset == preset_key %}
+                <button type="button" class="shortcut-delete-btn"
                         hx-delete="/presets/video/brightness/{{ preset_key }}"
                         hx-target="#filters-video-accordion"
                         hx-swap="outerHTML"
@@ -57,15 +57,15 @@
                     <input type="range" name="brightness" id="brightness"
                            min="-0.5" max="0.5" step="0.05"
                            value="{{ brightness_current.brightness }}"
-                           oninput="document.getElementById('brightness-value').textContent = this.value; updatePresetLabel('brightness', {brightness: this.value})">
+                           oninput="document.getElementById('brightness-value').textContent = this.value; updateShortcutLabel('brightness', {brightness: this.value})">
                 </div>
-                <button type="button" class="btn btn-sm btn-save-preset"
+                <button type="button" class="btn btn-sm btn-save-shortcut"
                         hx-get="/partials/save-preset-modal/video/brightness"
                         hx-target="#modal-container"
                         hx-swap="innerHTML"
                         hx-vals="js:{filename: window.currentFilename || ''}"
-                        onclick="updateSavePresetValues('brightness')">
-                    <i class="fa-solid fa-floppy-disk"></i> Save as Preset
+                        onclick="updateSaveShortcutValues('brightness')">
+                    <i class="fa-solid fa-floppy-disk"></i> Save as Shortcut
                 </button>
             </div>
         </div>
@@ -85,26 +85,26 @@
             <span class="accordion-icon"><i class="fa-solid fa-circle-half-stroke"></i></span>
             <span class="accordion-label">Contrast</span>
             <span class="accordion-description">Adjust difference between light and dark</span>
-            <span class="accordion-preset" id="contrast-preset-label">{{ contrast_presets.get(user_settings.contrast.preset, {}).name or user_settings.contrast.preset }}</span>
+            <span class="accordion-preset" id="contrast-shortcut-label">{{ contrast_shortcuts.get(user_settings.contrast.preset, {}).name or user_settings.contrast.preset }}</span>
             <span class="accordion-indicator">{% if user_settings.active_category == 'contrast' %}&#9660;{% else %}&#9654;{% endif %}</span>
         </div>
         {% if user_settings.active_category == 'contrast' %}
         <div class="accordion-content">
-            <div class="preset-pills" id="contrast-preset-pills">
-                {% for preset_key, config in contrast_presets.items() %}
+            <div class="shortcut-pills" id="contrast-shortcut-pills">
+                {% for preset_key, config in contrast_shortcuts.items() %}
                 <button type="button"
-                        class="preset-pill {% if user_settings.contrast.preset == preset_key %}active{% endif %}{% if config.is_user_preset %} user-preset{% endif %}"
+                        class="shortcut-pill {% if user_settings.contrast.preset == preset_key %}active{% endif %}{% if config.is_user_shortcut %} user-shortcut{% endif %}"
                         data-contrast="{{ config.contrast }}"
                         data-name="{{ config.name }}"
                         hx-post="/partials/accordion-preset/contrast/{{ preset_key }}"
                         hx-target="#filters-video-accordion"
                         hx-swap="outerHTML"
                         hx-vals="js:{filename: window.currentFilename || '', current_category: '{{ user_settings.active_category }}'}"
-                        onclick="document.getElementById('contrast_preset').value = '{{ preset_key }}'">
-                    {{ config.name }}{% if config.is_user_preset %}<span class="user-preset-badge">*</span>{% endif %}
+                        onclick="document.getElementById('contrast_shortcut').value = '{{ preset_key }}'">
+                    {{ config.name }}{% if config.is_user_shortcut %}<span class="user-shortcut-badge">*</span>{% endif %}
                 </button>
-                {% if config.is_user_preset and user_settings.contrast.preset == preset_key %}
-                <button type="button" class="preset-delete-btn"
+                {% if config.is_user_shortcut and user_settings.contrast.preset == preset_key %}
+                <button type="button" class="shortcut-delete-btn"
                         hx-delete="/presets/video/contrast/{{ preset_key }}"
                         hx-target="#filters-video-accordion"
                         hx-swap="outerHTML"
@@ -122,15 +122,15 @@
                     <input type="range" name="contrast" id="contrast"
                            min="0.5" max="2.0" step="0.1"
                            value="{{ contrast_current.contrast }}"
-                           oninput="document.getElementById('contrast-value').textContent = this.value; updatePresetLabel('contrast', {contrast: this.value})">
+                           oninput="document.getElementById('contrast-value').textContent = this.value; updateShortcutLabel('contrast', {contrast: this.value})">
                 </div>
-                <button type="button" class="btn btn-sm btn-save-preset"
+                <button type="button" class="btn btn-sm btn-save-shortcut"
                         hx-get="/partials/save-preset-modal/video/contrast"
                         hx-target="#modal-container"
                         hx-swap="innerHTML"
                         hx-vals="js:{filename: window.currentFilename || ''}"
-                        onclick="updateSavePresetValues('contrast')">
-                    <i class="fa-solid fa-floppy-disk"></i> Save as Preset
+                        onclick="updateSaveShortcutValues('contrast')">
+                    <i class="fa-solid fa-floppy-disk"></i> Save as Shortcut
                 </button>
             </div>
         </div>
@@ -150,26 +150,26 @@
             <span class="accordion-icon"><i class="fa-solid fa-palette"></i></span>
             <span class="accordion-label">Saturation</span>
             <span class="accordion-description">Control color intensity</span>
-            <span class="accordion-preset" id="saturation-preset-label">{{ saturation_presets.get(user_settings.saturation.preset, {}).name or user_settings.saturation.preset }}</span>
+            <span class="accordion-preset" id="saturation-shortcut-label">{{ saturation_shortcuts.get(user_settings.saturation.preset, {}).name or user_settings.saturation.preset }}</span>
             <span class="accordion-indicator">{% if user_settings.active_category == 'saturation' %}&#9660;{% else %}&#9654;{% endif %}</span>
         </div>
         {% if user_settings.active_category == 'saturation' %}
         <div class="accordion-content">
-            <div class="preset-pills" id="saturation-preset-pills">
-                {% for preset_key, config in saturation_presets.items() %}
+            <div class="shortcut-pills" id="saturation-shortcut-pills">
+                {% for preset_key, config in saturation_shortcuts.items() %}
                 <button type="button"
-                        class="preset-pill {% if user_settings.saturation.preset == preset_key %}active{% endif %}{% if config.is_user_preset %} user-preset{% endif %}"
+                        class="shortcut-pill {% if user_settings.saturation.preset == preset_key %}active{% endif %}{% if config.is_user_shortcut %} user-shortcut{% endif %}"
                         data-saturation="{{ config.saturation }}"
                         data-name="{{ config.name }}"
                         hx-post="/partials/accordion-preset/saturation/{{ preset_key }}"
                         hx-target="#filters-video-accordion"
                         hx-swap="outerHTML"
                         hx-vals="js:{filename: window.currentFilename || '', current_category: '{{ user_settings.active_category }}'}"
-                        onclick="document.getElementById('saturation_preset').value = '{{ preset_key }}'">
-                    {{ config.name }}{% if config.is_user_preset %}<span class="user-preset-badge">*</span>{% endif %}
+                        onclick="document.getElementById('saturation_shortcut').value = '{{ preset_key }}'">
+                    {{ config.name }}{% if config.is_user_shortcut %}<span class="user-shortcut-badge">*</span>{% endif %}
                 </button>
-                {% if config.is_user_preset and user_settings.saturation.preset == preset_key %}
-                <button type="button" class="preset-delete-btn"
+                {% if config.is_user_shortcut and user_settings.saturation.preset == preset_key %}
+                <button type="button" class="shortcut-delete-btn"
                         hx-delete="/presets/video/saturation/{{ preset_key }}"
                         hx-target="#filters-video-accordion"
                         hx-swap="outerHTML"
@@ -187,15 +187,15 @@
                     <input type="range" name="saturation" id="saturation"
                            min="0" max="2.0" step="0.1"
                            value="{{ saturation_current.saturation }}"
-                           oninput="document.getElementById('saturation-value').textContent = this.value; updatePresetLabel('saturation', {saturation: this.value})">
+                           oninput="document.getElementById('saturation-value').textContent = this.value; updateShortcutLabel('saturation', {saturation: this.value})">
                 </div>
-                <button type="button" class="btn btn-sm btn-save-preset"
+                <button type="button" class="btn btn-sm btn-save-shortcut"
                         hx-get="/partials/save-preset-modal/video/saturation"
                         hx-target="#modal-container"
                         hx-swap="innerHTML"
                         hx-vals="js:{filename: window.currentFilename || ''}"
-                        onclick="updateSavePresetValues('saturation')">
-                    <i class="fa-solid fa-floppy-disk"></i> Save as Preset
+                        onclick="updateSaveShortcutValues('saturation')">
+                    <i class="fa-solid fa-floppy-disk"></i> Save as Shortcut
                 </button>
             </div>
         </div>
@@ -215,26 +215,26 @@
             <span class="accordion-icon"><i class="fa-solid fa-water"></i></span>
             <span class="accordion-label">Blur</span>
             <span class="accordion-description">Soften or defocus the image</span>
-            <span class="accordion-preset" id="blur-preset-label">{{ blur_presets.get(user_settings.blur.preset, {}).name or user_settings.blur.preset }}</span>
+            <span class="accordion-preset" id="blur-shortcut-label">{{ blur_shortcuts.get(user_settings.blur.preset, {}).name or user_settings.blur.preset }}</span>
             <span class="accordion-indicator">{% if user_settings.active_category == 'blur' %}&#9660;{% else %}&#9654;{% endif %}</span>
         </div>
         {% if user_settings.active_category == 'blur' %}
         <div class="accordion-content">
-            <div class="preset-pills" id="blur-preset-pills">
-                {% for preset_key, config in blur_presets.items() %}
+            <div class="shortcut-pills" id="blur-shortcut-pills">
+                {% for preset_key, config in blur_shortcuts.items() %}
                 <button type="button"
-                        class="preset-pill {% if user_settings.blur.preset == preset_key %}active{% endif %}{% if config.is_user_preset %} user-preset{% endif %}"
+                        class="shortcut-pill {% if user_settings.blur.preset == preset_key %}active{% endif %}{% if config.is_user_shortcut %} user-shortcut{% endif %}"
                         data-sigma="{{ config.sigma }}"
                         data-name="{{ config.name }}"
                         hx-post="/partials/accordion-preset/blur/{{ preset_key }}"
                         hx-target="#filters-video-accordion"
                         hx-swap="outerHTML"
                         hx-vals="js:{filename: window.currentFilename || '', current_category: '{{ user_settings.active_category }}'}"
-                        onclick="document.getElementById('blur_preset').value = '{{ preset_key }}'">
-                    {{ config.name }}{% if config.is_user_preset %}<span class="user-preset-badge">*</span>{% endif %}
+                        onclick="document.getElementById('blur_shortcut').value = '{{ preset_key }}'">
+                    {{ config.name }}{% if config.is_user_shortcut %}<span class="user-shortcut-badge">*</span>{% endif %}
                 </button>
-                {% if config.is_user_preset and user_settings.blur.preset == preset_key %}
-                <button type="button" class="preset-delete-btn"
+                {% if config.is_user_shortcut and user_settings.blur.preset == preset_key %}
+                <button type="button" class="shortcut-delete-btn"
                         hx-delete="/presets/video/blur/{{ preset_key }}"
                         hx-target="#filters-video-accordion"
                         hx-swap="outerHTML"
@@ -252,15 +252,15 @@
                     <input type="range" name="blur_sigma" id="blur_sigma"
                            min="0" max="10" step="0.5"
                            value="{{ blur_current.sigma }}"
-                           oninput="document.getElementById('blur-sigma-value').textContent = this.value; updatePresetLabel('blur', {sigma: this.value})">
+                           oninput="document.getElementById('blur-sigma-value').textContent = this.value; updateShortcutLabel('blur', {sigma: this.value})">
                 </div>
-                <button type="button" class="btn btn-sm btn-save-preset"
+                <button type="button" class="btn btn-sm btn-save-shortcut"
                         hx-get="/partials/save-preset-modal/video/blur"
                         hx-target="#modal-container"
                         hx-swap="innerHTML"
                         hx-vals="js:{filename: window.currentFilename || ''}"
-                        onclick="updateSavePresetValues('blur')">
-                    <i class="fa-solid fa-floppy-disk"></i> Save as Preset
+                        onclick="updateSaveShortcutValues('blur')">
+                    <i class="fa-solid fa-floppy-disk"></i> Save as Shortcut
                 </button>
             </div>
         </div>
@@ -280,26 +280,26 @@
             <span class="accordion-icon"><i class="fa-solid fa-gem"></i></span>
             <span class="accordion-label">Sharpen</span>
             <span class="accordion-description">Enhance edge definition</span>
-            <span class="accordion-preset" id="sharpen-preset-label">{{ sharpen_presets.get(user_settings.sharpen.preset, {}).name or user_settings.sharpen.preset }}</span>
+            <span class="accordion-preset" id="sharpen-shortcut-label">{{ sharpen_shortcuts.get(user_settings.sharpen.preset, {}).name or user_settings.sharpen.preset }}</span>
             <span class="accordion-indicator">{% if user_settings.active_category == 'sharpen' %}&#9660;{% else %}&#9654;{% endif %}</span>
         </div>
         {% if user_settings.active_category == 'sharpen' %}
         <div class="accordion-content">
-            <div class="preset-pills" id="sharpen-preset-pills">
-                {% for preset_key, config in sharpen_presets.items() %}
+            <div class="shortcut-pills" id="sharpen-shortcut-pills">
+                {% for preset_key, config in sharpen_shortcuts.items() %}
                 <button type="button"
-                        class="preset-pill {% if user_settings.sharpen.preset == preset_key %}active{% endif %}{% if config.is_user_preset %} user-preset{% endif %}"
+                        class="shortcut-pill {% if user_settings.sharpen.preset == preset_key %}active{% endif %}{% if config.is_user_shortcut %} user-shortcut{% endif %}"
                         data-amount="{{ config.amount }}"
                         data-name="{{ config.name }}"
                         hx-post="/partials/accordion-preset/sharpen/{{ preset_key }}"
                         hx-target="#filters-video-accordion"
                         hx-swap="outerHTML"
                         hx-vals="js:{filename: window.currentFilename || '', current_category: '{{ user_settings.active_category }}'}"
-                        onclick="document.getElementById('sharpen_preset').value = '{{ preset_key }}'">
-                    {{ config.name }}{% if config.is_user_preset %}<span class="user-preset-badge">*</span>{% endif %}
+                        onclick="document.getElementById('sharpen_shortcut').value = '{{ preset_key }}'">
+                    {{ config.name }}{% if config.is_user_shortcut %}<span class="user-shortcut-badge">*</span>{% endif %}
                 </button>
-                {% if config.is_user_preset and user_settings.sharpen.preset == preset_key %}
-                <button type="button" class="preset-delete-btn"
+                {% if config.is_user_shortcut and user_settings.sharpen.preset == preset_key %}
+                <button type="button" class="shortcut-delete-btn"
                         hx-delete="/presets/video/sharpen/{{ preset_key }}"
                         hx-target="#filters-video-accordion"
                         hx-swap="outerHTML"
@@ -317,15 +317,15 @@
                     <input type="range" name="sharpen_amount" id="sharpen_amount"
                            min="0" max="3" step="0.1"
                            value="{{ sharpen_current.amount }}"
-                           oninput="document.getElementById('sharpen-amount-value').textContent = this.value; updatePresetLabel('sharpen', {amount: this.value})">
+                           oninput="document.getElementById('sharpen-amount-value').textContent = this.value; updateShortcutLabel('sharpen', {amount: this.value})">
                 </div>
-                <button type="button" class="btn btn-sm btn-save-preset"
+                <button type="button" class="btn btn-sm btn-save-shortcut"
                         hx-get="/partials/save-preset-modal/video/sharpen"
                         hx-target="#modal-container"
                         hx-swap="innerHTML"
                         hx-vals="js:{filename: window.currentFilename || ''}"
-                        onclick="updateSavePresetValues('sharpen')">
-                    <i class="fa-solid fa-floppy-disk"></i> Save as Preset
+                        onclick="updateSaveShortcutValues('sharpen')">
+                    <i class="fa-solid fa-floppy-disk"></i> Save as Shortcut
                 </button>
             </div>
         </div>
@@ -345,24 +345,24 @@
             <span class="accordion-icon"><i class="fa-solid fa-rotate"></i></span>
             <span class="accordion-label">Transform</span>
             <span class="accordion-description">Flip or rotate the video</span>
-            <span class="accordion-preset" id="transform-preset-label">{{ transform_presets.get(user_settings.transform.preset, {}).name or user_settings.transform.preset }}</span>
+            <span class="accordion-preset" id="transform-shortcut-label">{{ transform_shortcuts.get(user_settings.transform.preset, {}).name or user_settings.transform.preset }}</span>
             <span class="accordion-indicator">{% if user_settings.active_category == 'transform' %}&#9660;{% else %}&#9654;{% endif %}</span>
         </div>
         {% if user_settings.active_category == 'transform' %}
         <div class="accordion-content">
-            <div class="preset-pills">
-                {% for preset_key, config in transform_presets.items() %}
+            <div class="shortcut-pills">
+                {% for preset_key, config in transform_shortcuts.items() %}
                 <button type="button"
-                        class="preset-pill {% if user_settings.transform.preset == preset_key %}active{% endif %}{% if config.is_user_preset %} user-preset{% endif %}"
+                        class="shortcut-pill {% if user_settings.transform.preset == preset_key %}active{% endif %}{% if config.is_user_shortcut %} user-shortcut{% endif %}"
                         hx-post="/partials/accordion-preset/transform/{{ preset_key }}"
                         hx-target="#filters-video-accordion"
                         hx-swap="outerHTML"
                         hx-vals="js:{filename: window.currentFilename || '', current_category: '{{ user_settings.active_category }}'}"
-                        onclick="document.getElementById('transform_preset').value = '{{ preset_key }}'">
-                    {{ config.name }}{% if config.is_user_preset %}<span class="user-preset-badge">*</span>{% endif %}
+                        onclick="document.getElementById('transform_shortcut').value = '{{ preset_key }}'">
+                    {{ config.name }}{% if config.is_user_shortcut %}<span class="user-shortcut-badge">*</span>{% endif %}
                 </button>
-                {% if config.is_user_preset and user_settings.transform.preset == preset_key %}
-                <button type="button" class="preset-delete-btn"
+                {% if config.is_user_shortcut and user_settings.transform.preset == preset_key %}
+                <button type="button" class="shortcut-delete-btn"
                         hx-delete="/presets/video/transform/{{ preset_key }}"
                         hx-target="#filters-video-accordion"
                         hx-swap="outerHTML"
@@ -376,13 +376,13 @@
             </div>
             <div class="panel-controls">
                 <p class="transform-description">{{ transform_current.description }}</p>
-                <button type="button" class="btn btn-sm btn-save-preset"
+                <button type="button" class="btn btn-sm btn-save-shortcut"
                         hx-get="/partials/save-preset-modal/video/transform"
                         hx-target="#modal-container"
                         hx-swap="innerHTML"
                         hx-vals="js:{filename: window.currentFilename || ''}"
-                        onclick="updateSavePresetValues('transform')">
-                    <i class="fa-solid fa-floppy-disk"></i> Save as Preset
+                        onclick="updateSaveShortcutValues('transform')">
+                    <i class="fa-solid fa-floppy-disk"></i> Save as Shortcut
                 </button>
             </div>
         </div>

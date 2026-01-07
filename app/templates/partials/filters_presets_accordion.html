@@ -1,0 +1,89 @@
+<div id="filters-presets-accordion" class="accordion presets-accordion">
+    {% if apply_success %}
+    <div class="save-success-toast">
+        <i class="fa-solid fa-check-circle"></i> Preset "{{ applied_preset_name }}" applied
+    </div>
+    {% endif %}
+
+    <!-- Video Presets Section -->
+    <div class="accordion-section {% if user_settings.active_category == 'video_presets' %}expanded{% endif %}">
+        <div class="accordion-header"
+             hx-get="/partials/presets-accordion/video_presets"
+             hx-target="#filters-presets-accordion"
+             hx-swap="outerHTML"
+             hx-vals="js:{filename: window.currentFilename || '', current_category: '{{ user_settings.active_category }}'}">
+            <span class="accordion-icon"><i class="fa-solid fa-film"></i></span>
+            <span class="accordion-label">Video Presets</span>
+            <span class="accordion-description">Retro and cinematic video effects</span>
+            <span class="accordion-indicator">{% if user_settings.active_category == 'video_presets' %}&#9660;{% else %}&#9654;{% endif %}</span>
+        </div>
+        {% if user_settings.active_category == 'video_presets' %}
+        <div class="accordion-content">
+            <div class="preset-cards">
+                {% for preset_key, preset in video_theme_presets.items() %}
+                <div class="preset-card"
+                     hx-post="/apply-theme-preset/video/{{ preset_key }}"
+                     hx-target="#filters-presets-accordion"
+                     hx-swap="outerHTML"
+                     hx-vals="js:{filename: window.currentFilename || ''}">
+                    <div class="preset-card-icon">
+                        <i class="fa-solid {{ preset.icon or 'fa-video' }}"></i>
+                    </div>
+                    <div class="preset-card-content">
+                        <span class="preset-card-name">{{ preset.name }}</span>
+                        <span class="preset-card-description">{{ preset.description }}</span>
+                    </div>
+                </div>
+                {% else %}
+                <p class="no-presets">No video presets available</p>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Connector Line -->
+    <div class="accordion-connector"></div>
+
+    <!-- Audio Presets Section -->
+    <div class="accordion-section {% if user_settings.active_category == 'audio_presets' %}expanded{% endif %}">
+        <div class="accordion-header"
+             hx-get="/partials/presets-accordion/audio_presets"
+             hx-target="#filters-presets-accordion"
+             hx-swap="outerHTML"
+             hx-vals="js:{filename: window.currentFilename || '', current_category: '{{ user_settings.active_category }}'}">
+            <span class="accordion-icon"><i class="fa-solid fa-record-vinyl"></i></span>
+            <span class="accordion-label">Audio Presets</span>
+            <span class="accordion-description">Vintage and stylized audio effects</span>
+            <span class="accordion-indicator">{% if user_settings.active_category == 'audio_presets' %}&#9660;{% else %}&#9654;{% endif %}</span>
+        </div>
+        {% if user_settings.active_category == 'audio_presets' %}
+        <div class="accordion-content">
+            <div class="preset-cards">
+                {% for preset_key, preset in audio_theme_presets.items() %}
+                <div class="preset-card"
+                     hx-post="/apply-theme-preset/audio/{{ preset_key }}"
+                     hx-target="#filters-presets-accordion"
+                     hx-swap="outerHTML"
+                     hx-vals="js:{filename: window.currentFilename || ''}">
+                    <div class="preset-card-icon">
+                        <i class="fa-solid {{ preset.icon or 'fa-music' }}"></i>
+                    </div>
+                    <div class="preset-card-content">
+                        <span class="preset-card-name">{{ preset.name }}</span>
+                        <span class="preset-card-description">{{ preset.description }}</span>
+                    </div>
+                </div>
+                {% else %}
+                <p class="no-presets">No audio presets available</p>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Info Section -->
+    <div class="presets-info">
+        <p><i class="fa-solid fa-info-circle"></i> Presets apply multiple filters at once for a complete transformation effect.</p>
+    </div>
+</div>
