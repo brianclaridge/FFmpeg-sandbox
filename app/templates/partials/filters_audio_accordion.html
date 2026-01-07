@@ -60,7 +60,7 @@
                            oninput="document.getElementById('volume-value').textContent = this.value; updateShortcutLabel('volume', {volume: this.value})">
                 </div>
                 <button type="button" class="btn btn-sm btn-save-shortcut"
-                        hx-get="/partials/save-preset-modal/audio/volume"
+                        hx-get="/partials/save-shortcut-modal/audio/volume"
                         hx-target="#modal-container"
                         hx-swap="innerHTML"
                         hx-vals="js:{filename: window.currentFilename || ''}"
@@ -133,7 +133,7 @@
                            oninput="updateShortcutLabel('tunnel', {delays: document.getElementById('delays').value, decays: this.value})">
                 </div>
                 <button type="button" class="btn btn-sm btn-save-shortcut"
-                        hx-get="/partials/save-preset-modal/audio/tunnel"
+                        hx-get="/partials/save-shortcut-modal/audio/tunnel"
                         hx-target="#modal-container"
                         hx-swap="innerHTML"
                         hx-vals="js:{filename: window.currentFilename || ''}"
@@ -206,7 +206,7 @@
                            oninput="document.getElementById('lowpass-value').textContent = this.value; updateShortcutLabel('frequency', {highpass: document.getElementById('highpass').value, lowpass: this.value})">
                 </div>
                 <button type="button" class="btn btn-sm btn-save-shortcut"
-                        hx-get="/partials/save-preset-modal/audio/frequency"
+                        hx-get="/partials/save-shortcut-modal/audio/frequency"
                         hx-target="#modal-container"
                         hx-swap="innerHTML"
                         hx-vals="js:{filename: window.currentFilename || ''}"
@@ -271,7 +271,7 @@
                            oninput="document.getElementById('speed-value').textContent = this.value; updateShortcutLabel('speed', {speed: this.value})">
                 </div>
                 <button type="button" class="btn btn-sm btn-save-shortcut"
-                        hx-get="/partials/save-preset-modal/audio/speed"
+                        hx-get="/partials/save-shortcut-modal/audio/speed"
                         hx-target="#modal-container"
                         hx-swap="innerHTML"
                         hx-vals="js:{filename: window.currentFilename || ''}"
@@ -336,7 +336,7 @@
                            oninput="document.getElementById('pitch-value').textContent = this.value; updateShortcutLabel('pitch', {semitones: this.value})">
                 </div>
                 <button type="button" class="btn btn-sm btn-save-shortcut"
-                        hx-get="/partials/save-preset-modal/audio/pitch"
+                        hx-get="/partials/save-shortcut-modal/audio/pitch"
                         hx-target="#modal-container"
                         hx-swap="innerHTML"
                         hx-vals="js:{filename: window.currentFilename || ''}"
@@ -401,7 +401,7 @@
                            oninput="document.getElementById('noise-floor-value').textContent = this.value; updateShortcutLabel('noise_reduction', {'noise-floor': this.value})">
                 </div>
                 <button type="button" class="btn btn-sm btn-save-shortcut"
-                        hx-get="/partials/save-preset-modal/audio/noise_reduction"
+                        hx-get="/partials/save-shortcut-modal/audio/noise_reduction"
                         hx-target="#modal-container"
                         hx-swap="innerHTML"
                         hx-vals="js:{filename: window.currentFilename || ''}"
@@ -474,7 +474,7 @@
                            oninput="document.getElementById('ratio-value').textContent = this.value; updateShortcutLabel('compressor', {threshold: document.getElementById('threshold').value, ratio: this.value})">
                 </div>
                 <button type="button" class="btn btn-sm btn-save-shortcut"
-                        hx-get="/partials/save-preset-modal/audio/compressor"
+                        hx-get="/partials/save-shortcut-modal/audio/compressor"
                         hx-target="#modal-container"
                         hx-swap="innerHTML"
                         hx-vals="js:{filename: window.currentFilename || ''}"

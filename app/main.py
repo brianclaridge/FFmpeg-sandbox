@@ -154,35 +154,35 @@ async def index(request: Request):
     input_files = get_input_files(INPUT_DIR)
     user_settings = load_user_settings()
 
-    # Get preset dictionaries from YAML
-    volume_presets = get_volume_presets()
-    tunnel_presets = get_tunnel_presets()
-    frequency_presets = get_frequency_presets()
-    speed_presets = get_speed_presets()
-    pitch_presets = get_pitch_presets()
-    noise_reduction_presets = get_noise_reduction_presets()
-    compressor_presets = get_compressor_presets()
-    brightness_presets = get_brightness_presets()
-    contrast_presets = get_contrast_presets()
-    saturation_presets = get_saturation_presets()
-    blur_presets = get_blur_presets()
-    sharpen_presets = get_sharpen_presets()
-    transform_presets = get_transform_presets()
+    # Get shortcut dictionaries from YAML
+    volume_shortcuts = get_volume_presets()
+    tunnel_shortcuts = get_tunnel_presets()
+    frequency_shortcuts = get_frequency_presets()
+    speed_shortcuts = get_speed_presets()
+    pitch_shortcuts = get_pitch_presets()
+    noise_reduction_shortcuts = get_noise_reduction_presets()
+    compressor_shortcuts = get_compressor_presets()
+    brightness_shortcuts = get_brightness_presets()
+    contrast_shortcuts = get_contrast_presets()
+    saturation_shortcuts = get_saturation_presets()
+    blur_shortcuts = get_blur_presets()
+    sharpen_shortcuts = get_sharpen_presets()
+    transform_shortcuts = get_transform_presets()
 
-    # Get current preset configs for initial panel render (with fallbacks)
-    volume_current = volume_presets.get(user_settings.volume.preset) or volume_presets.get("none")
-    tunnel_current = tunnel_presets.get(user_settings.tunnel.preset) or tunnel_presets.get("none")
-    frequency_current = frequency_presets.get(user_settings.frequency.preset) or frequency_presets.get("none")
-    speed_current = speed_presets.get(user_settings.speed.preset) or speed_presets.get("none")
-    pitch_current = pitch_presets.get(user_settings.pitch.preset) or pitch_presets.get("none")
-    noise_reduction_current = noise_reduction_presets.get(user_settings.noise_reduction.preset) or noise_reduction_presets.get("none")
-    compressor_current = compressor_presets.get(user_settings.compressor.preset) or compressor_presets.get("none")
-    brightness_current = brightness_presets.get(user_settings.brightness.preset) or brightness_presets.get("none")
-    contrast_current = contrast_presets.get(user_settings.contrast.preset) or contrast_presets.get("none")
-    saturation_current = saturation_presets.get(user_settings.saturation.preset) or saturation_presets.get("none")
-    blur_current = blur_presets.get(user_settings.blur.preset) or blur_presets.get("none")
-    sharpen_current = sharpen_presets.get(user_settings.sharpen.preset) or sharpen_presets.get("none")
-    transform_current = transform_presets.get(user_settings.transform.preset) or transform_presets.get("none")
+    # Get current shortcut configs for initial panel render (with fallbacks)
+    volume_current = volume_shortcuts.get(user_settings.volume.preset) or volume_shortcuts.get("none")
+    tunnel_current = tunnel_shortcuts.get(user_settings.tunnel.preset) or tunnel_shortcuts.get("none")
+    frequency_current = frequency_shortcuts.get(user_settings.frequency.preset) or frequency_shortcuts.get("none")
+    speed_current = speed_shortcuts.get(user_settings.speed.preset) or speed_shortcuts.get("none")
+    pitch_current = pitch_shortcuts.get(user_settings.pitch.preset) or pitch_shortcuts.get("none")
+    noise_reduction_current = noise_reduction_shortcuts.get(user_settings.noise_reduction.preset) or noise_reduction_shortcuts.get("none")
+    compressor_current = compressor_shortcuts.get(user_settings.compressor.preset) or compressor_shortcuts.get("none")
+    brightness_current = brightness_shortcuts.get(user_settings.brightness.preset) or brightness_shortcuts.get("none")
+    contrast_current = contrast_shortcuts.get(user_settings.contrast.preset) or contrast_shortcuts.get("none")
+    saturation_current = saturation_shortcuts.get(user_settings.saturation.preset) or saturation_shortcuts.get("none")
+    blur_current = blur_shortcuts.get(user_settings.blur.preset) or blur_shortcuts.get("none")
+    sharpen_current = sharpen_shortcuts.get(user_settings.sharpen.preset) or sharpen_shortcuts.get("none")
+    transform_current = transform_shortcuts.get(user_settings.transform.preset) or transform_shortcuts.get("none")
 
     return templates.TemplateResponse(
         "index.html",
@@ -192,21 +192,21 @@ async def index(request: Request):
             # Effect chain data
             "user_settings": user_settings,
             "current_filename": None,  # No file selected on initial load
-            # Audio effect presets
-            "volume_presets": volume_presets,
-            "tunnel_presets": tunnel_presets,
-            "frequency_presets": frequency_presets,
-            "speed_presets": speed_presets,
-            "pitch_presets": pitch_presets,
-            "noise_reduction_presets": noise_reduction_presets,
-            "compressor_presets": compressor_presets,
-            # Video effect presets
-            "brightness_presets": brightness_presets,
-            "contrast_presets": contrast_presets,
-            "saturation_presets": saturation_presets,
-            "blur_presets": blur_presets,
-            "sharpen_presets": sharpen_presets,
-            "transform_presets": transform_presets,
+            # Audio effect shortcuts
+            "volume_shortcuts": volume_shortcuts,
+            "tunnel_shortcuts": tunnel_shortcuts,
+            "frequency_shortcuts": frequency_shortcuts,
+            "speed_shortcuts": speed_shortcuts,
+            "pitch_shortcuts": pitch_shortcuts,
+            "noise_reduction_shortcuts": noise_reduction_shortcuts,
+            "compressor_shortcuts": compressor_shortcuts,
+            # Video effect shortcuts
+            "brightness_shortcuts": brightness_shortcuts,
+            "contrast_shortcuts": contrast_shortcuts,
+            "saturation_shortcuts": saturation_shortcuts,
+            "blur_shortcuts": blur_shortcuts,
+            "sharpen_shortcuts": sharpen_shortcuts,
+            "transform_shortcuts": transform_shortcuts,
             # Current audio preset configs
             "volume_current": volume_current,
             "tunnel_current": tunnel_current,

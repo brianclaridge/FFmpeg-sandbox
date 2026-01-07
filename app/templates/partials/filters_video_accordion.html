@@ -60,7 +60,7 @@
                            oninput="document.getElementById('brightness-value').textContent = this.value; updateShortcutLabel('brightness', {brightness: this.value})">
                 </div>
                 <button type="button" class="btn btn-sm btn-save-shortcut"
-                        hx-get="/partials/save-preset-modal/video/brightness"
+                        hx-get="/partials/save-shortcut-modal/video/brightness"
                         hx-target="#modal-container"
                         hx-swap="innerHTML"
                         hx-vals="js:{filename: window.currentFilename || ''}"
@@ -125,7 +125,7 @@
                            oninput="document.getElementById('contrast-value').textContent = this.value; updateShortcutLabel('contrast', {contrast: this.value})">
                 </div>
                 <button type="button" class="btn btn-sm btn-save-shortcut"
-                        hx-get="/partials/save-preset-modal/video/contrast"
+                        hx-get="/partials/save-shortcut-modal/video/contrast"
                         hx-target="#modal-container"
                         hx-swap="innerHTML"
                         hx-vals="js:{filename: window.currentFilename || ''}"
@@ -190,7 +190,7 @@
                            oninput="document.getElementById('saturation-value').textContent = this.value; updateShortcutLabel('saturation', {saturation: this.value})">
                 </div>
                 <button type="button" class="btn btn-sm btn-save-shortcut"
-                        hx-get="/partials/save-preset-modal/video/saturation"
+                        hx-get="/partials/save-shortcut-modal/video/saturation"
                         hx-target="#modal-container"
                         hx-swap="innerHTML"
                         hx-vals="js:{filename: window.currentFilename || ''}"
@@ -255,7 +255,7 @@
                            oninput="document.getElementById('blur-sigma-value').textContent = this.value; updateShortcutLabel('blur', {sigma: this.value})">
                 </div>
                 <button type="button" class="btn btn-sm btn-save-shortcut"
-                        hx-get="/partials/save-preset-modal/video/blur"
+                        hx-get="/partials/save-shortcut-modal/video/blur"
                         hx-target="#modal-container"
                         hx-swap="innerHTML"
                         hx-vals="js:{filename: window.currentFilename || ''}"
@@ -320,7 +320,7 @@
                            oninput="document.getElementById('sharpen-amount-value').textContent = this.value; updateShortcutLabel('sharpen', {amount: this.value})">
                 </div>
                 <button type="button" class="btn btn-sm btn-save-shortcut"
-                        hx-get="/partials/save-preset-modal/video/sharpen"
+                        hx-get="/partials/save-shortcut-modal/video/sharpen"
                         hx-target="#modal-container"
                         hx-swap="innerHTML"
                         hx-vals="js:{filename: window.currentFilename || ''}"
@@ -377,7 +377,7 @@
             <div class="panel-controls">
                 <p class="transform-description">{{ transform_current.description }}</p>
                 <button type="button" class="btn btn-sm btn-save-shortcut"
-                        hx-get="/partials/save-preset-modal/video/transform"
+                        hx-get="/partials/save-shortcut-modal/video/transform"
                         hx-target="#modal-container"
                         hx-swap="innerHTML"
                         hx-vals="js:{filename: window.currentFilename || ''}"
