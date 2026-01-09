@@ -92,6 +92,9 @@ def get_default_settings() -> dict[str, Any]:
         "blur": {"preset": "none", "custom_values": {}},
         "sharpen": {"preset": "none", "custom_values": {}},
         "transform": {"preset": "none", "custom_values": {}},
+        # Applied theme presets
+        "applied_video_theme": "",
+        "applied_audio_theme": "",
     }
 
 
@@ -187,6 +190,27 @@ def update_active_tab(filename: str, tab: str) -> dict[str, Any]:
     metadata = load_file_metadata(filename)
     settings = metadata.get("settings", get_default_settings())
     settings["active_tab"] = tab
+    metadata["settings"] = settings
+    save_file_metadata(filename, metadata)
+    return settings
+
+
+def update_file_applied_theme(
+    filename: str, media_type: str, preset_key: str
+) -> dict[str, Any]:
+    """Update which theme preset is applied for a media type.
+
+    Args:
+        filename: The input file name
+        media_type: "video" or "audio"
+        preset_key: The preset key, or "" to clear
+    """
+    metadata = load_file_metadata(filename)
+    settings = metadata.get("settings", get_default_settings())
+
+    field = f"applied_{media_type}_theme"
+    settings[field] = preset_key
+
     metadata["settings"] = settings
     save_file_metadata(filename, metadata)
     return settings

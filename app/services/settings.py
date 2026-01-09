@@ -13,6 +13,7 @@ from app.services.file_metadata import (
     update_file_settings as update_metadata_settings,
     update_active_category as update_metadata_category,
     update_active_tab as update_metadata_tab,
+    update_file_applied_theme as update_metadata_applied_theme,
     get_default_settings,
 )
 
@@ -42,6 +43,8 @@ def load_user_settings(filename: str | None = None) -> UserSettings:
             transform=CategorySettings(**settings_data.get("transform", {"preset": "none"})),
             active_category=settings_data.get("active_category", ""),
             active_tab=settings_data.get("active_tab", "audio"),
+            applied_video_theme=settings_data.get("applied_video_theme", ""),
+            applied_audio_theme=settings_data.get("applied_audio_theme", ""),
         )
     except Exception as e:
         logger.warning(f"Failed to load settings for {filename}: {e}")
@@ -148,4 +151,29 @@ def update_active_tab(tab: str, filename: str | None = None) -> UserSettings:
 
     # Update in file metadata
     update_metadata_tab(filename, tab)
+    return load_user_settings(filename)
+
+
+def update_applied_theme(
+    media_type: str,
+    preset_key: str,
+    filename: str | None = None
+) -> UserSettings:
+    """Update which theme preset is applied for a media type.
+
+    Args:
+        media_type: "video" or "audio"
+        preset_key: The preset key, or "" to clear
+        filename: Optional file for persistence
+    """
+    if not filename:
+        settings = UserSettings()
+        if media_type == "video":
+            settings.applied_video_theme = preset_key
+        else:
+            settings.applied_audio_theme = preset_key
+        return settings
+
+    # Update in file metadata
+    update_metadata_applied_theme(filename, media_type, preset_key)
     return load_user_settings(filename)

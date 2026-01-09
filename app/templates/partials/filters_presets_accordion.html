@@ -20,8 +20,22 @@
         {% if user_settings.active_category == 'video_presets' %}
         <div class="accordion-content">
             <div class="preset-cards">
+                <!-- None option to clear video preset -->
+                <div class="preset-card preset-card--none {% if not applied_video_theme %}preset-card--selected{% endif %}"
+                     hx-post="/apply-theme-preset/video/none"
+                     hx-target="#filters-presets-accordion"
+                     hx-swap="outerHTML"
+                     hx-vals="js:{filename: window.currentFilename || ''}">
+                    <div class="preset-card-icon">
+                        <i class="fa-solid fa-ban"></i>
+                    </div>
+                    <div class="preset-card-content">
+                        <span class="preset-card-name">None</span>
+                        <span class="preset-card-description">No video preset</span>
+                    </div>
+                </div>
                 {% for preset_key, preset in video_theme_presets.items() %}
-                <div class="preset-card"
+                <div class="preset-card {% if applied_video_theme == preset_key %}preset-card--selected{% endif %}"
                      hx-post="/apply-theme-preset/video/{{ preset_key }}"
                      hx-target="#filters-presets-accordion"
                      hx-swap="outerHTML"
@@ -60,8 +74,22 @@
         {% if user_settings.active_category == 'audio_presets' %}
         <div class="accordion-content">
             <div class="preset-cards">
+                <!-- None option to clear audio preset -->
+                <div class="preset-card preset-card--none {% if not applied_audio_theme %}preset-card--selected{% endif %}"
+                     hx-post="/apply-theme-preset/audio/none"
+                     hx-target="#filters-presets-accordion"
+                     hx-swap="outerHTML"
+                     hx-vals="js:{filename: window.currentFilename || ''}">
+                    <div class="preset-card-icon">
+                        <i class="fa-solid fa-ban"></i>
+                    </div>
+                    <div class="preset-card-content">
+                        <span class="preset-card-name">None</span>
+                        <span class="preset-card-description">No audio preset</span>
+                    </div>
+                </div>
                 {% for preset_key, preset in audio_theme_presets.items() %}
-                <div class="preset-card"
+                <div class="preset-card {% if applied_audio_theme == preset_key %}preset-card--selected{% endif %}"
                      hx-post="/apply-theme-preset/audio/{{ preset_key }}"
                      hx-target="#filters-presets-accordion"
                      hx-swap="outerHTML"

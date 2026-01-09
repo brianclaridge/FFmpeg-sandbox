@@ -247,6 +247,9 @@ class UserSettings(BaseModel):
     transform: CategorySettings = CategorySettings(preset="none")
     active_category: str = ""
     active_tab: str = "audio"
+    # Applied theme presets (allows combining one video + one audio)
+    applied_video_theme: str = ""
+    applied_audio_theme: str = ""
 
 
 class ProcessRequest(BaseModel):

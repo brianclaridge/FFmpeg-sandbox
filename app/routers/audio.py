@@ -49,6 +49,7 @@ from app.services.settings import (
     update_category_custom_values,
     update_active_category,
     update_active_tab,
+    update_applied_theme,
 )
 from app.services import (
     process_audio,
@@ -1057,6 +1058,8 @@ async def get_presets_accordion_section(
     context["request"] = request
     context["video_theme_presets"] = get_video_theme_presets()
     context["audio_theme_presets"] = get_audio_theme_presets()
+    context["applied_video_theme"] = user_settings.applied_video_theme
+    context["applied_audio_theme"] = user_settings.applied_audio_theme
 
     return templates.TemplateResponse("partials/filters_presets_accordion.html", context)
 
@@ -1072,16 +1075,43 @@ async def apply_theme_preset(
     if media_type not in ("audio", "video"):
         raise HTTPException(status_code=400, detail="Invalid media type")
 
+    # Determine which categories to affect based on media type
+    categories_to_clear = VIDEO_CATEGORIES if media_type == "video" else AUDIO_CATEGORIES
+
+    # Handle "none" preset - clear filters for this media type
+    if preset_key == "none":
+        for category in categories_to_clear:
+            # Reset to "none" preset with empty custom_values
+            update_category_preset(category, "none", filename)
+        # Clear the applied theme tracking
+        update_applied_theme(media_type, "", filename)
+        user_settings = load_user_settings(filename)
+
+        context = _get_accordion_context(user_settings, filename)
+        context["request"] = request
+        context["video_theme_presets"] = get_video_theme_presets()
+        context["audio_theme_presets"] = get_audio_theme_presets()
+        context["applied_video_theme"] = user_settings.applied_video_theme
+        context["applied_audio_theme"] = user_settings.applied_audio_theme
+        return templates.TemplateResponse("partials/filters_presets_accordion.html", context)
+
+    # Get the preset
     preset = get_theme_preset(media_type, preset_key)
     if not preset:
         raise HTTPException(status_code=404, detail="Preset not found")
+
+    # Clear existing custom values for this media type's categories first
+    for category in categories_to_clear:
+        update_category_preset(category, "none", filename)
 
     # Apply each filter in the preset chain with actual parameter values
     for filter_step in preset.filters:
         filter_type = filter_step.type
         if filter_type in ALL_CATEGORIES:
-            # Store the actual filter parameters as custom values
             update_category_custom_values(filter_type, filter_step.params, filename)
+
+    # Track which theme preset is applied
+    update_applied_theme(media_type, preset_key, filename)
 
     # Reload settings after applying all filters
     user_settings = load_user_settings(filename)
@@ -1090,6 +1120,8 @@ async def apply_theme_preset(
     context["request"] = request
     context["video_theme_presets"] = get_video_theme_presets()
     context["audio_theme_presets"] = get_audio_theme_presets()
+    context["applied_video_theme"] = user_settings.applied_video_theme
+    context["applied_audio_theme"] = user_settings.applied_audio_theme
     context["apply_success"] = True
     context["applied_preset_name"] = preset.name
 
