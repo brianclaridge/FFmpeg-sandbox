@@ -152,6 +152,26 @@ def update_file_settings(filename: str, category: str, preset: str) -> dict[str,
     return settings
 
 
+def update_file_custom_values(
+    filename: str, category: str, custom_values: dict
+) -> dict[str, Any]:
+    """Update a category's custom values for a specific file.
+
+    Sets the preset to 'custom' and stores the actual filter parameters.
+    """
+    metadata = load_file_metadata(filename)
+    settings = metadata.get("settings", get_default_settings())
+
+    if category in settings:
+        settings[category]["preset"] = "custom"
+        settings[category]["custom_values"] = custom_values
+
+    metadata["settings"] = settings
+    save_file_metadata(filename, metadata)
+
+    return settings
+
+
 def update_active_category(filename: str, category: str) -> dict[str, Any]:
     """Update which category panel is active for a file."""
     metadata = load_file_metadata(filename)

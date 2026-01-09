@@ -88,6 +88,31 @@ def update_category_preset(category: str, preset: str, filename: str | None = No
     return load_user_settings(filename)
 
 
+def update_category_custom_values(
+    category: str,
+    custom_values: dict,
+    filename: str | None = None
+) -> UserSettings:
+    """Update custom values for a filter category.
+
+    Sets the category preset to 'custom' and stores the actual filter
+    parameters in custom_values for use during processing.
+    """
+    if not filename:
+        # Return default settings with custom values (no persistence)
+        settings = UserSettings()
+        if hasattr(settings, category):
+            cat_settings = getattr(settings, category)
+            cat_settings.preset = "custom"
+            cat_settings.custom_values = custom_values
+        return settings
+
+    # Update in file metadata - set preset to "custom" and store values
+    from app.services.file_metadata import update_file_custom_values
+    update_file_custom_values(filename, category, custom_values)
+    return load_user_settings(filename)
+
+
 def update_active_category(
     category: str,
     filename: str | None = None,

@@ -46,6 +46,7 @@ from app.services.presets_themes import (
 from app.services.settings import (
     load_user_settings,
     update_category_preset,
+    update_category_custom_values,
     update_active_category,
     update_active_tab,
 )
@@ -122,25 +123,70 @@ async def process(
     sharpen_config = sharpen_presets.get(user_settings.sharpen.preset) or sharpen_presets["none"]
     transform_config = transform_presets.get(user_settings.transform.preset) or transform_presets["none"]
 
+    # Extract actual filter values - check custom_values first (for theme presets)
+    # Audio filters
+    volume_val = (user_settings.volume.custom_values.get("volume", volume_config.volume)
+                  if user_settings.volume.custom_values else volume_config.volume)
+    highpass_val = (user_settings.frequency.custom_values.get("highpass", frequency_config.highpass)
+                    if user_settings.frequency.custom_values else frequency_config.highpass)
+    lowpass_val = (user_settings.frequency.custom_values.get("lowpass", frequency_config.lowpass)
+                   if user_settings.frequency.custom_values else frequency_config.lowpass)
+    delays_list = (user_settings.tunnel.custom_values.get("delays", tunnel_config.delays)
+                   if user_settings.tunnel.custom_values else tunnel_config.delays)
+    decays_list = (user_settings.tunnel.custom_values.get("decays", tunnel_config.decays)
+                   if user_settings.tunnel.custom_values else tunnel_config.decays)
+    speed_val = (user_settings.speed.custom_values.get("speed", speed_config.speed)
+                 if user_settings.speed.custom_values else speed_config.speed)
+    pitch_val = (user_settings.pitch.custom_values.get("semitones", pitch_config.semitones)
+                 if user_settings.pitch.custom_values else pitch_config.semitones)
+    noise_floor_val = (user_settings.noise_reduction.custom_values.get("noise_floor", noise_config.noise_floor)
+                       if user_settings.noise_reduction.custom_values else noise_config.noise_floor)
+    noise_reduction_val = (user_settings.noise_reduction.custom_values.get("noise_reduction", noise_config.noise_reduction)
+                           if user_settings.noise_reduction.custom_values else noise_config.noise_reduction)
+    comp_threshold_val = (user_settings.compressor.custom_values.get("threshold", comp_config.threshold)
+                          if user_settings.compressor.custom_values else comp_config.threshold)
+    comp_ratio_val = (user_settings.compressor.custom_values.get("ratio", comp_config.ratio)
+                      if user_settings.compressor.custom_values else comp_config.ratio)
+    comp_attack_val = (user_settings.compressor.custom_values.get("attack", comp_config.attack)
+                       if user_settings.compressor.custom_values else comp_config.attack)
+    comp_release_val = (user_settings.compressor.custom_values.get("release", comp_config.release)
+                        if user_settings.compressor.custom_values else comp_config.release)
+    comp_makeup_val = (user_settings.compressor.custom_values.get("makeup", comp_config.makeup)
+                       if user_settings.compressor.custom_values else comp_config.makeup)
+
+    # Video filters
+    brightness_val = (user_settings.brightness.custom_values.get("brightness", brightness_config.brightness)
+                      if user_settings.brightness.custom_values else brightness_config.brightness)
+    contrast_val = (user_settings.contrast.custom_values.get("contrast", contrast_config.contrast)
+                    if user_settings.contrast.custom_values else contrast_config.contrast)
+    saturation_val = (user_settings.saturation.custom_values.get("saturation", saturation_config.saturation)
+                      if user_settings.saturation.custom_values else saturation_config.saturation)
+    blur_sigma_val = (user_settings.blur.custom_values.get("sigma", blur_config.sigma)
+                      if user_settings.blur.custom_values else blur_config.sigma)
+    sharpen_amount_val = (user_settings.sharpen.custom_values.get("amount", sharpen_config.amount)
+                          if user_settings.sharpen.custom_values else sharpen_config.amount)
+    transform_val = (user_settings.transform.custom_values.get("filter", transform_config.filter)
+                     if user_settings.transform.custom_values else transform_config.filter)
+
     # Build audio filter chain with all filters (speed is linked)
-    delays_str = "|".join(str(d) for d in tunnel_config.delays)
-    decays_str = "|".join(str(d) for d in tunnel_config.decays)
+    delays_str = "|".join(str(d) for d in delays_list)
+    decays_str = "|".join(str(d) for d in decays_list)
 
     audio_filter = build_audio_filter_chain(
-        volume=volume_config.volume,
-        highpass=frequency_config.highpass,
-        lowpass=frequency_config.lowpass,
+        volume=volume_val,
+        highpass=highpass_val,
+        lowpass=lowpass_val,
         delays=delays_str,
         decays=decays_str,
-        speed=speed_config.speed,
-        pitch_semitones=pitch_config.semitones,
-        noise_floor=noise_config.noise_floor,
-        noise_reduction=noise_config.noise_reduction,
-        comp_threshold=comp_config.threshold,
-        comp_ratio=comp_config.ratio,
-        comp_attack=comp_config.attack,
-        comp_release=comp_config.release,
-        comp_makeup=comp_config.makeup,
+        speed=speed_val,
+        pitch_semitones=pitch_val,
+        noise_floor=noise_floor_val,
+        noise_reduction=noise_reduction_val,
+        comp_threshold=comp_threshold_val,
+        comp_ratio=comp_ratio_val,
+        comp_attack=comp_attack_val,
+        comp_release=comp_release_val,
+        comp_makeup=comp_makeup_val,
     )
 
     # Check if input is a video file
@@ -149,13 +195,13 @@ async def process(
 
     # Check if any video filters are active
     video_filters_active = (
-        brightness_config.brightness != 0.0 or
-        contrast_config.contrast != 1.0 or
-        saturation_config.saturation != 1.0 or
-        blur_config.sigma > 0 or
-        sharpen_config.amount > 0 or
-        transform_config.filter != "" or
-        speed_config.speed != 1.0  # Speed affects video PTS too
+        brightness_val != 0.0 or
+        contrast_val != 1.0 or
+        saturation_val != 1.0 or
+        blur_sigma_val > 0 or
+        sharpen_amount_val > 0 or
+        transform_val != "" or
+        speed_val != 1.0  # Speed affects video PTS too
     )
 
     try:
@@ -175,13 +221,13 @@ async def process(
         if wants_video_output and is_video:
             # Build video filter chain (with same speed for sync)
             video_filter = build_video_filter_chain(
-                brightness=brightness_config.brightness,
-                contrast=contrast_config.contrast,
-                saturation=saturation_config.saturation,
-                blur_sigma=blur_config.sigma,
-                sharpen_amount=sharpen_config.amount,
-                transform=transform_config.filter,
-                speed=speed_config.speed,
+                brightness=brightness_val,
+                contrast=contrast_val,
+                saturation=saturation_val,
+                blur_sigma=blur_sigma_val,
+                sharpen_amount=sharpen_amount_val,
+                transform=transform_val,
+                speed=speed_val,
             )
 
             output_path = process_video_with_filters(
@@ -1030,14 +1076,15 @@ async def apply_theme_preset(
     if not preset:
         raise HTTPException(status_code=404, detail="Preset not found")
 
-    # Apply each filter in the preset chain
-    user_settings = load_user_settings(filename)
+    # Apply each filter in the preset chain with actual parameter values
     for filter_step in preset.filters:
         filter_type = filter_step.type
-        # Map filter types to categories and find matching preset keys
         if filter_type in ALL_CATEGORIES:
-            # For now, just set to "none" - future: find matching preset or custom
-            update_category_preset(filter_type, "none", filename)
+            # Store the actual filter parameters as custom values
+            update_category_custom_values(filter_type, filter_step.params, filename)
+
+    # Reload settings after applying all filters
+    user_settings = load_user_settings(filename)
 
     context = _get_accordion_context(user_settings, filename)
     context["request"] = request
