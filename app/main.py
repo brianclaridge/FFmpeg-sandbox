@@ -80,6 +80,10 @@ logger.info("Audio Processor starting up")
 # Load presets from YAML file
 load_presets()
 
+# Load theme presets (VHS, Vinyl, etc.)
+from app.services.presets_themes import load_theme_presets
+load_theme_presets()
+
 app = FastAPI(
     title="Audio Processor",
     description="Extract and process audio with tunnel effects",
@@ -169,6 +173,11 @@ async def index(request: Request):
     sharpen_shortcuts = get_sharpen_presets()
     transform_shortcuts = get_transform_presets()
 
+    # Get theme presets for Presets tab
+    from app.services.presets_themes import get_video_theme_presets, get_audio_theme_presets
+    video_theme_presets = get_video_theme_presets()
+    audio_theme_presets = get_audio_theme_presets()
+
     # Get current shortcut configs for initial panel render (with fallbacks)
     volume_current = volume_shortcuts.get(user_settings.volume.preset) or volume_shortcuts.get("none")
     tunnel_current = tunnel_shortcuts.get(user_settings.tunnel.preset) or tunnel_shortcuts.get("none")
@@ -225,6 +234,9 @@ async def index(request: Request):
             # Form defaults based on current settings
             "delays": "|".join(str(d) for d in tunnel_current.delays),
             "decays": "|".join(str(d) for d in tunnel_current.decays),
+            # Theme presets for Presets tab
+            "video_theme_presets": video_theme_presets,
+            "audio_theme_presets": audio_theme_presets,
         },
     )
 

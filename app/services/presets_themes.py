@@ -14,16 +14,20 @@ from app.models import ThemePreset, FilterStep
 _theme_presets: dict[str, dict[str, ThemePreset]] = {}
 
 
-def load_theme_presets(presets_file: Path | str = "presets_themes.yml") -> dict[str, dict[str, ThemePreset]]:
+def load_theme_presets(presets_file: Path | str | None = None) -> dict[str, dict[str, ThemePreset]]:
     """Load and validate theme presets from YAML file.
 
     Args:
-        presets_file: Path to the theme presets YAML file
+        presets_file: Path to the theme presets YAML file. If None, uses default location.
 
     Returns:
         Dictionary with validated presets organized by media type (audio/video)
     """
     global _theme_presets
+
+    if presets_file is None:
+        from app.config import BASE_DIR
+        presets_file = BASE_DIR / "presets_themes.yml"
 
     presets_path = Path(presets_file)
     if not presets_path.exists():
