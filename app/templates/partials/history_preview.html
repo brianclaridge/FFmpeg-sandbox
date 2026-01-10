@@ -1,9 +1,17 @@
 <div class="preview-success">
     <p class="preview-filename">{{ entry.output_file }}</p>
+    {% set is_video = entry.output_file.endswith(('.mp4', '.webm', '.mkv')) %}
+    {% if is_video %}
+    <video controls autoplay loop class="output-video">
+        <source src="/preview/{{ entry.output_file }}" type="video/mp4">
+        Your browser does not support the video element.
+    </video>
+    {% else %}
     <audio controls autoplay>
         <source src="/preview/{{ entry.output_file }}" type="audio/mpeg">
         Your browser does not support the audio element.
     </audio>
+    {% endif %}
     <div class="preview-actions">
         <a href="/preview/{{ entry.output_file }}" download="{{ entry.output_file }}" class="btn-secondary">
             Download
