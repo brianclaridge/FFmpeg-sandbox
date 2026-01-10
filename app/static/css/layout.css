@@ -74,6 +74,22 @@ header h1 .version-link:hover {
     border-color: var(--accent-hover);
 }
 
+/* Main content area */
+main {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+main > form {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
 /* Grid Layouts */
 .grid {
     display: grid;
