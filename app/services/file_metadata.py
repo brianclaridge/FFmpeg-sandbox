@@ -92,6 +92,10 @@ def get_default_settings() -> dict[str, Any]:
         "blur": {"preset": "none", "custom_values": {}},
         "sharpen": {"preset": "none", "custom_values": {}},
         "transform": {"preset": "none", "custom_values": {}},
+        # Theme-only video effects (no UI, used by presets)
+        "crop": {"preset": "none", "custom_values": {}},
+        "colorshift": {"preset": "none", "custom_values": {}},
+        "overlay": {"preset": "none", "custom_values": {}},
         # Applied theme presets
         "applied_video_theme": "",
         "applied_audio_theme": "",

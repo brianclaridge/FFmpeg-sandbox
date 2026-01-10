@@ -41,6 +41,10 @@ def load_user_settings(filename: str | None = None) -> UserSettings:
             blur=CategorySettings(**settings_data.get("blur", {"preset": "none"})),
             sharpen=CategorySettings(**settings_data.get("sharpen", {"preset": "none"})),
             transform=CategorySettings(**settings_data.get("transform", {"preset": "none"})),
+            # Theme-only video effects
+            crop=CategorySettings(**settings_data.get("crop", {"preset": "none"})),
+            colorshift=CategorySettings(**settings_data.get("colorshift", {"preset": "none"})),
+            overlay=CategorySettings(**settings_data.get("overlay", {"preset": "none"})),
             active_category=settings_data.get("active_category", ""),
             active_tab=settings_data.get("active_tab", "audio"),
             applied_video_theme=settings_data.get("applied_video_theme", ""),
@@ -84,6 +88,13 @@ def update_category_preset(category: str, preset: str, filename: str | None = No
             settings.sharpen.preset = preset
         elif category == "transform":
             settings.transform.preset = preset
+        # Theme-only video effects
+        elif category == "crop":
+            settings.crop.preset = preset
+        elif category == "colorshift":
+            settings.colorshift.preset = preset
+        elif category == "overlay":
+            settings.overlay.preset = preset
         return settings
 
     # Update in file metadata

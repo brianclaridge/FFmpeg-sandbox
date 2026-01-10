@@ -169,6 +169,14 @@ async def process(
     transform_val = (user_settings.transform.custom_values.get("filter", transform_config.filter)
                      if user_settings.transform.custom_values else transform_config.filter)
 
+    # Theme-only video filters (crop, colorshift, overlay)
+    crop_val = (user_settings.crop.custom_values.get("aspect_ratio", "")
+                if user_settings.crop.custom_values else "")
+    colorshift_val = (user_settings.colorshift.custom_values.get("shift_amount", 0)
+                      if user_settings.colorshift.custom_values else 0)
+    overlay_val = (user_settings.overlay.custom_values.get("overlay_type", "")
+                   if user_settings.overlay.custom_values else "")
+
     # Build audio filter chain with all filters (speed is linked)
     delays_str = "|".join(str(d) for d in delays_list)
     decays_str = "|".join(str(d) for d in decays_list)
@@ -202,7 +210,10 @@ async def process(
         blur_sigma_val > 0 or
         sharpen_amount_val > 0 or
         transform_val != "" or
-        speed_val != 1.0  # Speed affects video PTS too
+        speed_val != 1.0 or  # Speed affects video PTS too
+        crop_val != "" or
+        colorshift_val > 0 or
+        overlay_val != ""
     )
 
     try:
@@ -229,6 +240,9 @@ async def process(
                 sharpen_amount=sharpen_amount_val,
                 transform=transform_val,
                 speed=speed_val,
+                crop_aspect=crop_val,
+                colorshift=colorshift_val,
+                overlay=overlay_val,
             )
 
             output_path = process_video_with_filters(
@@ -695,7 +709,7 @@ async def get_filters_tab(request: Request, tab: str, filename: str | None = Non
 
 
 AUDIO_CATEGORIES = ("volume", "tunnel", "frequency", "speed", "pitch", "noise_reduction", "compressor")
-VIDEO_CATEGORIES = ("brightness", "contrast", "saturation", "blur", "sharpen", "transform")
+VIDEO_CATEGORIES = ("brightness", "contrast", "saturation", "blur", "sharpen", "transform", "crop", "colorshift", "overlay")
 ALL_CATEGORIES = AUDIO_CATEGORIES + VIDEO_CATEGORIES
 
 

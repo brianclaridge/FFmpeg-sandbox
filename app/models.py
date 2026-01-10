@@ -245,6 +245,10 @@ class UserSettings(BaseModel):
     blur: CategorySettings = CategorySettings(preset="none")
     sharpen: CategorySettings = CategorySettings(preset="none")
     transform: CategorySettings = CategorySettings(preset="none")
+    # Theme-only video filters (no UI accordion, used by presets)
+    crop: CategorySettings = CategorySettings(preset="none")
+    colorshift: CategorySettings = CategorySettings(preset="none")
+    overlay: CategorySettings = CategorySettings(preset="none")
     active_category: str = ""
     active_tab: str = "audio"
     # Applied theme presets (allows combining one video + one audio)
