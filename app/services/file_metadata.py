@@ -169,9 +169,12 @@ def update_file_custom_values(
     metadata = load_file_metadata(filename)
     settings = metadata.get("settings", get_default_settings())
 
-    if category in settings:
-        settings[category]["preset"] = "custom"
-        settings[category]["custom_values"] = custom_values
+    # Create category if it doesn't exist (handles new categories on old files)
+    if category not in settings:
+        settings[category] = {"preset": "none", "custom_values": {}}
+
+    settings[category]["preset"] = "custom"
+    settings[category]["custom_values"] = custom_values
 
     metadata["settings"] = settings
     save_file_metadata(filename, metadata)
