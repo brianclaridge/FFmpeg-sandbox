@@ -1,7 +1,7 @@
 <div id="filters-presets-accordion" class="accordion presets-accordion">
     {% if apply_success %}
     <div class="save-success-toast">
-        <i class="fa-solid fa-check-circle"></i> Preset "{{ applied_preset_name }}" applied
+        <i class="fa-solid fa-check-circle"></i> Preset "{{ applied_preset_name }}" applied{% if chain_count > 1 %} ({{ chain_count }} in chain){% endif %}
     </div>
     {% endif %}
 
@@ -14,15 +14,15 @@
              hx-vals="js:{filename: window.currentFilename || '', current_category: '{{ user_settings.active_category }}'}">
             <span class="accordion-icon"><i class="fa-solid fa-film"></i></span>
             <span class="accordion-label">Video Presets</span>
-            <span class="accordion-description">Retro and cinematic video effects</span>
+            <span class="accordion-description">Retro and cinematic video effects{% if video_theme_chain %} ({{ video_theme_chain|length }} selected){% endif %}</span>
             <span class="accordion-indicator">{% if user_settings.active_category == 'video_presets' %}&#9660;{% else %}&#9654;{% endif %}</span>
         </div>
         {% if user_settings.active_category == 'video_presets' %}
         <div class="accordion-content">
             <div class="preset-cards">
-                <!-- None option to clear video preset -->
-                <div class="preset-card preset-card--none {% if not applied_video_theme %}preset-card--selected{% endif %}"
-                     hx-post="/apply-theme-preset/video/none"
+                <!-- None option to clear video preset chain -->
+                <div class="preset-card preset-card--none {% if not video_theme_chain %}preset-card--selected{% endif %}"
+                     hx-post="/toggle-theme-preset/video/none"
                      hx-target="#filters-presets-accordion"
                      hx-swap="outerHTML"
                      hx-vals="js:{filename: window.currentFilename || ''}">
@@ -30,16 +30,20 @@
                         <i class="fa-solid fa-ban"></i>
                     </div>
                     <div class="preset-card-content">
-                        <span class="preset-card-name">None</span>
-                        <span class="preset-card-description">No video preset</span>
+                        <span class="preset-card-name">Clear All</span>
+                        <span class="preset-card-description">Remove all video presets</span>
                     </div>
                 </div>
                 {% for preset_key, preset in video_theme_presets.items() %}
-                <div class="preset-card {% if applied_video_theme == preset_key %}preset-card--selected{% endif %}"
-                     hx-post="/apply-theme-preset/video/{{ preset_key }}"
+                {% set chain_position = video_theme_chain.index(preset_key) + 1 if preset_key in video_theme_chain else 0 %}
+                <div class="preset-card {% if chain_position > 0 %}preset-card--selected{% endif %}"
+                     hx-post="/toggle-theme-preset/video/{{ preset_key }}"
                      hx-target="#filters-presets-accordion"
                      hx-swap="outerHTML"
                      hx-vals="js:{filename: window.currentFilename || ''}">
+                    {% if chain_position > 0 %}
+                    <span class="preset-chain-badge">{{ chain_position }}</span>
+                    {% endif %}
                     <div class="preset-card-icon">
                         <i class="fa-solid {{ preset.icon or 'fa-video' }}"></i>
                     </div>
@@ -68,15 +72,15 @@
              hx-vals="js:{filename: window.currentFilename || '', current_category: '{{ user_settings.active_category }}'}">
             <span class="accordion-icon"><i class="fa-solid fa-record-vinyl"></i></span>
             <span class="accordion-label">Audio Presets</span>
-            <span class="accordion-description">Vintage and stylized audio effects</span>
+            <span class="accordion-description">Vintage and stylized audio effects{% if audio_theme_chain %} ({{ audio_theme_chain|length }} selected){% endif %}</span>
             <span class="accordion-indicator">{% if user_settings.active_category == 'audio_presets' %}&#9660;{% else %}&#9654;{% endif %}</span>
         </div>
         {% if user_settings.active_category == 'audio_presets' %}
         <div class="accordion-content">
             <div class="preset-cards">
-                <!-- None option to clear audio preset -->
-                <div class="preset-card preset-card--none {% if not applied_audio_theme %}preset-card--selected{% endif %}"
-                     hx-post="/apply-theme-preset/audio/none"
+                <!-- None option to clear audio preset chain -->
+                <div class="preset-card preset-card--none {% if not audio_theme_chain %}preset-card--selected{% endif %}"
+                     hx-post="/toggle-theme-preset/audio/none"
                      hx-target="#filters-presets-accordion"
                      hx-swap="outerHTML"
                      hx-vals="js:{filename: window.currentFilename || ''}">
@@ -84,16 +88,20 @@
                         <i class="fa-solid fa-ban"></i>
                     </div>
                     <div class="preset-card-content">
-                        <span class="preset-card-name">None</span>
-                        <span class="preset-card-description">No audio preset</span>
+                        <span class="preset-card-name">Clear All</span>
+                        <span class="preset-card-description">Remove all audio presets</span>
                     </div>
                 </div>
                 {% for preset_key, preset in audio_theme_presets.items() %}
-                <div class="preset-card {% if applied_audio_theme == preset_key %}preset-card--selected{% endif %}"
-                     hx-post="/apply-theme-preset/audio/{{ preset_key }}"
+                {% set chain_position = audio_theme_chain.index(preset_key) + 1 if preset_key in audio_theme_chain else 0 %}
+                <div class="preset-card {% if chain_position > 0 %}preset-card--selected{% endif %}"
+                     hx-post="/toggle-theme-preset/audio/{{ preset_key }}"
                      hx-target="#filters-presets-accordion"
                      hx-swap="outerHTML"
                      hx-vals="js:{filename: window.currentFilename || ''}">
+                    {% if chain_position > 0 %}
+                    <span class="preset-chain-badge">{{ chain_position }}</span>
+                    {% endif %}
                     <div class="preset-card-icon">
                         <i class="fa-solid {{ preset.icon or 'fa-music' }}"></i>
                     </div>
@@ -112,6 +120,6 @@
 
     <!-- Info Section -->
     <div class="presets-info">
-        <p><i class="fa-solid fa-info-circle"></i> Presets apply multiple filters at once for a complete transformation effect.</p>
+        <p><i class="fa-solid fa-info-circle"></i> Click presets to add them to the chain. Click again to remove. Order matters - later presets override earlier ones for conflicting settings.</p>
     </div>
 </div>

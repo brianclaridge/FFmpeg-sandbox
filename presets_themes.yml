@@ -2,6 +2,22 @@
 # These apply multiple filters at once for complete transformation effects
 
 video:
+  crt_playback:
+    name: "CRT Playback"
+    description: "True 240p 4:3 for CRT television"
+    icon: "fa-tv"
+    filters:
+      - type: crop
+        params:
+          aspect_ratio: "4:3"
+      - type: scale
+        params:
+          width: 320
+          height: 240
+      - type: blur
+        params:
+          sigma: 0.3
+
   vhs_playback:
     name: "VHS Playback"
     description: "4:3 retro VHS look with color distortion"

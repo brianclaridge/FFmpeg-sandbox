@@ -91,3 +91,20 @@ def build_colorshift_filter(shift_amount: int) -> str:
 
     # Shift red left, blue right for classic glitch look
     return f"rgbashift=rh=-{shift_amount}:bh={shift_amount}"
+
+
+def build_scale_filter(width: int, height: int) -> str:
+    """
+    Build scale filter for resolution change.
+
+    Args:
+        width: Target width in pixels
+        height: Target height in pixels
+
+    Returns:
+        FFmpeg scale filter string or empty if no scaling needed
+    """
+    if width <= 0 or height <= 0:
+        return ""
+
+    return f"scale={width}:{height}"

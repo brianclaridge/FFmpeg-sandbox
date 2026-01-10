@@ -249,11 +249,12 @@ class UserSettings(BaseModel):
     crop: CategorySettings = CategorySettings(preset="none")
     colorshift: CategorySettings = CategorySettings(preset="none")
     overlay: CategorySettings = CategorySettings(preset="none")
+    scale: CategorySettings = CategorySettings(preset="none")
     active_category: str = ""
     active_tab: str = "audio"
-    # Applied theme presets (allows combining one video + one audio)
-    applied_video_theme: str = ""
-    applied_audio_theme: str = ""
+    # Theme preset chains (ordered list, allows combining multiple presets)
+    video_theme_chain: list[str] = []
+    audio_theme_chain: list[str] = []
 
 
 class ProcessRequest(BaseModel):

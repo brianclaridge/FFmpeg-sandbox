@@ -14,6 +14,7 @@ from app.services.filters_video import (
     build_crop_filter,
     build_overlay_filter,
     build_colorshift_filter,
+    build_scale_filter,
 )
 
 
@@ -92,12 +93,14 @@ def build_video_filter_chain(
     crop_aspect: str = "",
     colorshift: int = 0,
     overlay: str = "",
+    scale_width: int = 0,
+    scale_height: int = 0,
 ) -> str | None:
     """
     Build complete video filter chain from all video effect settings.
 
     Returns None if no effects are active.
-    Filter order: crop -> colorshift -> eq -> blur -> sharpen -> transform -> speed -> overlay
+    Filter order: crop -> scale -> colorshift -> eq -> blur -> sharpen -> transform -> speed -> overlay
     """
     filters = []
 
@@ -105,6 +108,11 @@ def build_video_filter_chain(
     crop_filter = build_crop_filter(crop_aspect)
     if crop_filter:
         filters.append(crop_filter)
+
+    # Scale (apply after crop to resize to target resolution)
+    scale_filter = build_scale_filter(scale_width, scale_height)
+    if scale_filter:
+        filters.append(scale_filter)
 
     # Colorshift (glitch effect)
     colorshift_filter = build_colorshift_filter(colorshift)

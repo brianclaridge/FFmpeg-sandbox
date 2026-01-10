@@ -237,8 +237,8 @@ async def index(request: Request):
             # Theme presets for Presets tab
             "video_theme_presets": video_theme_presets,
             "audio_theme_presets": audio_theme_presets,
-            "applied_video_theme": user_settings.applied_video_theme,
-            "applied_audio_theme": user_settings.applied_audio_theme,
+            "video_theme_chain": user_settings.video_theme_chain,
+            "audio_theme_chain": user_settings.audio_theme_chain,
         },
     )
 

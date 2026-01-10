@@ -1,8 +1,10 @@
 """Audio/video processing service using FFmpeg."""
 
+import re
 import subprocess
 from pathlib import Path
 from datetime import datetime
+from typing import Generator
 
 from loguru import logger
 
@@ -265,3 +267,167 @@ def process_audio_with_filters(
 
     logger.info(f"Audio output saved: {output_file.name}")
     return output_file
+
+
+def process_video_with_progress(
+    input_file: Path,
+    start_time: str,
+    end_time: str,
+    audio_filter: str | None = None,
+    video_filter: str | None = None,
+    output_format: str = "mp4",
+    total_duration_ms: int = 0,
+) -> Generator[dict, None, Path]:
+    """
+    Process video with progress updates via generator.
+
+    Yields progress updates as dictionaries during processing.
+    Returns the output file path when complete.
+
+    Args:
+        input_file: Path to source video file
+        start_time: Start timestamp
+        end_time: End timestamp
+        audio_filter: Audio filter chain string
+        video_filter: Video filter chain string
+        output_format: Output format (mp4, mkv, webm)
+        total_duration_ms: Total expected duration in milliseconds for progress calculation
+
+    Yields:
+        Progress dictionaries with keys: type, percent, current_ms, total_ms, log
+
+    Returns:
+        Path to the processed output file
+    """
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    output_file = OUTPUT_DIR / f"processed_{timestamp}.{output_format}"
+
+    cmd = [
+        "ffmpeg",
+        "-y",
+        "-progress", "pipe:1",  # Progress to stdout
+        "-i", str(input_file),
+        "-ss", start_time,
+        "-to", end_time,
+    ]
+
+    # Add audio filter chain if present
+    if audio_filter:
+        cmd.extend(["-af", audio_filter])
+
+    # Add video filter chain if present
+    if video_filter:
+        cmd.extend(["-vf", video_filter])
+
+    # Output settings based on format
+    if output_format == "mp4":
+        cmd.extend([
+            "-c:v", "libx264",
+            "-preset", "fast",
+            "-crf", "23",
+            "-c:a", "aac",
+            "-b:a", "192k",
+        ])
+    elif output_format == "webm":
+        cmd.extend([
+            "-c:v", "libvpx-vp9",
+            "-crf", "30",
+            "-b:v", "0",
+            "-c:a", "libopus",
+            "-b:a", "128k",
+        ])
+    elif output_format == "mkv":
+        cmd.extend([
+            "-c:v", "libx264",
+            "-preset", "fast",
+            "-crf", "23",
+            "-c:a", "aac",
+            "-b:a", "192k",
+        ])
+
+    cmd.append(str(output_file))
+
+    logger.info(f"Processing video with progress: {input_file.name}")
+    logger.debug(f"Command: {' '.join(cmd)}")
+
+    # Start process with Popen for real-time output
+    process = subprocess.Popen(
+        cmd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        bufsize=1,
+    )
+
+    # Yield initial status
+    yield {
+        "type": "status",
+        "message": "Starting FFmpeg processing...",
+    }
+
+    # Parse FFmpeg progress output
+    current_time_ms = 0
+    try:
+        for line in process.stdout:
+            line = line.strip()
+
+            # Parse out_time_ms for progress
+            if line.startswith("out_time_ms="):
+                try:
+                    current_time_ms = int(line.split("=")[1])
+                    if total_duration_ms > 0:
+                        percent = min(100, (current_time_ms / total_duration_ms) * 100)
+                        yield {
+                            "type": "progress",
+                            "percent": round(percent, 1),
+                            "current_ms": current_time_ms,
+                            "total_ms": total_duration_ms,
+                        }
+                except (ValueError, IndexError):
+                    pass
+
+            # Capture frame info for log
+            elif line.startswith("frame="):
+                yield {
+                    "type": "log",
+                    "message": line,
+                }
+
+            # Check for completion
+            elif line.startswith("progress=end"):
+                yield {
+                    "type": "progress",
+                    "percent": 100,
+                    "current_ms": total_duration_ms,
+                    "total_ms": total_duration_ms,
+                }
+
+        # Wait for process to complete
+        process.wait()
+
+        # Check for errors
+        if process.returncode != 0:
+            stderr = process.stderr.read()
+            logger.error(f"ffmpeg error: {stderr}")
+            yield {
+                "type": "error",
+                "message": f"FFmpeg failed: {stderr[:500]}",
+            }
+            raise RuntimeError(f"ffmpeg failed: {stderr}")
+
+        # Yield completion
+        yield {
+            "type": "complete",
+            "output_file": output_file.name,
+        }
+
+        logger.info(f"Video output saved with progress: {output_file.name}")
+        return output_file
+
+    except Exception as e:
+        process.kill()
+        yield {
+            "type": "error",
+            "message": str(e),
+        }
+        raise
