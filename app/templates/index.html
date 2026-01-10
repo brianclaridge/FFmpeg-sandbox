@@ -124,8 +124,7 @@
             <h2 class="section-divider-heading">Filters</h2>
 
             <div class="process-row filter-chain-process">
-                <button type="submit" class="btn-primary">
-                    <span class="htmx-indicator">Processing...</span>
+                <button type="button" class="btn-primary" onclick="triggerProcessWithProgress()">
                     <span class="btn-text">Process</span>
                 </button>
                 <div class="format-selection" id="format-selection">
@@ -929,18 +928,38 @@ function updateShortcutLabel(category, values) {
     labelElement.textContent = matchedPresetName || 'Custom';
 }
 
+// Trigger processing with progress modal
+function triggerProcessWithProgress() {
+    var form = document.getElementById('process-form');
+    var inputFile = form.querySelector('[name="input_file"]');
+    var inputFileValue = inputFile ? inputFile.value : '';
+    var startTime = document.getElementById('start-time');
+    var endTime = document.getElementById('end-time');
+    var outputFormat = document.getElementById('output_format');
+
+    if (!inputFileValue) {
+        alert('Please select a file first');
+        return;
+    }
+
+    // Stop any active preview
+    if (typeof ClipRangeController !== 'undefined') {
+        ClipRangeController.stopPreview();
+        ClipRangeController.stopVideoPreview();
+    }
+
+    // Call the progress modal function from processing_modal.html
+    startProcessingWithProgress(
+        inputFileValue,
+        startTime ? startTime.value : '00:00:00',
+        endTime ? endTime.value : '00:00:06',
+        outputFormat ? outputFormat.value : 'mp4'
+    );
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     ClipRangeController.init();
     FormatSelector.init();
-
-    // Stop clip preview when form is submitted
-    var form = document.getElementById('process-form');
-    if (form) {
-        form.addEventListener('submit', function() {
-            ClipRangeController.stopPreview();
-            ClipRangeController.stopVideoPreview();
-        });
-    }
 
     // Handle historyApplied event from Apply button
     document.body.addEventListener('historyApplied', function(e) {

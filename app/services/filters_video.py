@@ -70,7 +70,7 @@ def build_overlay_filter(overlay_type: str) -> str:
         font = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
         return (
             f"drawtext=fontfile={font}:"
-            "text='%{localtime\\:%Y-%m-%d %H\\:%M\\:%S}':"
+            "text='%{localtime\\:%Y-%m-%d %H:%M:%S}':"
             "fontcolor=white:fontsize=18:x=10:y=10,"
             f"drawtext=fontfile={font}:"
             "text='● REC':fontcolor=red:fontsize=18:x=w-tw-10:y=10,"
