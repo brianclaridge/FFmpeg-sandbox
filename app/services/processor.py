@@ -2,6 +2,7 @@
 
 import re
 import subprocess
+import threading
 from pathlib import Path
 from datetime import datetime
 from typing import Generator
@@ -359,6 +360,17 @@ def process_video_with_progress(
         bufsize=1,
     )
 
+    # Background thread to drain stderr and prevent buffer deadlock
+    # Complex filter chains produce verbose warnings that fill the 64KB buffer
+    stderr_lines = []
+
+    def drain_stderr():
+        for line in process.stderr:
+            stderr_lines.append(line)
+
+    stderr_thread = threading.Thread(target=drain_stderr, daemon=True)
+    stderr_thread.start()
+
     # Yield initial status
     yield {
         "type": "status",
@@ -404,10 +416,11 @@ def process_video_with_progress(
 
         # Wait for process to complete
         process.wait()
+        stderr_thread.join(timeout=2.0)
 
         # Check for errors
         if process.returncode != 0:
-            stderr = process.stderr.read()
+            stderr = "".join(stderr_lines)
             logger.error(f"ffmpeg error: {stderr}")
             yield {
                 "type": "error",
