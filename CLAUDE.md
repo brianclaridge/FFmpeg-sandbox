@@ -19,10 +19,14 @@ FastAPI | HTMX | Jinja2 | FFmpeg | yt-dlp | uv (Astral)
 | Doc | Description |
 |-----|-------------|
 | [docs/ROADMAP.md](docs/ROADMAP.md) | Development phases and feature priorities |
-| [docs/STACK.md](docs/STACK.md) | Technology stack details |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | C4 diagrams, ER model, component graph |
+| [docs/API_REFERENCE.md](docs/API_REFERENCE.md) | All 28 endpoints with HTMX triggers |
+| [docs/PROCESSING_FLOW.md](docs/PROCESSING_FLOW.md) | Sequence diagrams and state machines |
+| [docs/HTMX_PATTERNS.md](docs/HTMX_PATTERNS.md) | Swap strategies and event patterns |
 | [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md) | Directory tree and file purposes |
 | [docs/FILTERS.md](docs/FILTERS.md) | Audio/video filter categories and presets |
 | [docs/COMMON_TASKS.md](docs/COMMON_TASKS.md) | How-to guides for development |
+| [docs/STACK.md](docs/STACK.md) | Technology stack details |
 
 ## Key Files
 
