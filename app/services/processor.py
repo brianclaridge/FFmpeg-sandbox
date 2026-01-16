@@ -367,6 +367,10 @@ def process_video_with_progress(
     def drain_stderr():
         for line in process.stderr:
             stderr_lines.append(line)
+            # Log FFmpeg stderr for debugging
+            line_stripped = line.strip()
+            if line_stripped:
+                logger.debug(f"[ffmpeg] {line_stripped}")
 
     stderr_thread = threading.Thread(target=drain_stderr, daemon=True)
     stderr_thread.start()
@@ -397,13 +401,6 @@ def process_video_with_progress(
                         }
                 except (ValueError, IndexError):
                     pass
-
-            # Capture frame info for log
-            elif line.startswith("frame="):
-                yield {
-                    "type": "log",
-                    "message": line,
-                }
 
             # Check for completion
             elif line.startswith("progress=end"):

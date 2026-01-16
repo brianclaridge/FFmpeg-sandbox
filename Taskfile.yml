@@ -119,32 +119,28 @@ tasks:
       - uv run pytest tests/ --cov=app --cov-report=term-missing
 
   # ============================================
-  # Cleanup Tasks
+  # Cleanup Tasks (Windows-compatible via PowerShell)
   # ============================================
 
   clean:output:
     desc: Remove all processed audio files
     cmds:
-      - rm -f {{.OUTPUT_DIR}}/*.mp3
-      - echo "Cleaned output directory"
+      - pwsh -Command "Remove-Item -Path '{{.OUTPUT_DIR}}/*.mp3','{{.OUTPUT_DIR}}/*.mp4','{{.OUTPUT_DIR}}/*.webm','{{.OUTPUT_DIR}}/*.mkv' -Force -ErrorAction SilentlyContinue; Write-Host 'Cleaned output directory'"
 
   clean:logs:
     desc: Remove all log files
     cmds:
-      - rm -f {{.LOGS_DIR}}/*.log
-      - echo "Cleaned logs directory"
+      - pwsh -Command "Remove-Item -Path '{{.LOGS_DIR}}/*.log' -Force -ErrorAction SilentlyContinue; Write-Host 'Cleaned logs directory'"
 
   clean:history:
     desc: Remove processing history
     cmds:
-      - rm -f {{.DATA_DIR}}/history.json
-      - echo "Cleared processing history"
+      - pwsh -Command "Remove-Item -Path '{{.DATA_DIR}}/history.json' -Force -ErrorAction SilentlyContinue; Write-Host 'Cleared processing history'"
 
   clean:metadata:
     desc: Remove per-file metadata configs
     cmds:
-      - rm -f {{.INPUT_DIR}}/*.yml
-      - echo "Cleaned per-file metadata"
+      - pwsh -Command "Remove-Item -Path '{{.INPUT_DIR}}/*.yml' -Force -ErrorAction SilentlyContinue; Write-Host 'Cleaned per-file metadata'"
 
   clean:all:
     desc: Remove all generated files (output, logs, history, metadata)
@@ -159,20 +155,17 @@ tasks:
     desc: Remove Docker containers, images, and volumes
     cmds:
       - docker compose down -v --rmi local
-      - echo "Cleaned Docker resources"
+      - pwsh -Command "Write-Host 'Cleaned Docker resources'"
 
   clean:venv:
     desc: Remove Python virtual environment
     cmds:
-      - rm -rf .venv
-      - echo "Removed .venv directory"
+      - pwsh -Command "Remove-Item -Path '.venv' -Recurse -Force -ErrorAction SilentlyContinue; Write-Host 'Removed .venv directory'"
 
   clean:pycache:
     desc: Remove Python cache files
     cmds:
-      - find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
-      - find . -type f -name "*.pyc" -delete 2>/dev/null || true
-      - echo "Cleaned Python cache"
+      - pwsh -Command "Get-ChildItem -Path . -Recurse -Directory -Filter '__pycache__' -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue; Get-ChildItem -Path . -Recurse -Filter '*.pyc' -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue; Write-Host 'Cleaned Python cache'"
 
   nuke:
     desc: Full cleanup (all generated files + Docker + venv)
@@ -189,8 +182,7 @@ tasks:
   clean:downloads:
     desc: Remove all downloaded video files from input
     cmds:
-      - rm -f {{.INPUT_DIR}}/*.mp4 {{.INPUT_DIR}}/*.mkv {{.INPUT_DIR}}/*.webm
-      - echo "Cleaned downloaded videos"
+      - pwsh -Command "Remove-Item -Path '{{.INPUT_DIR}}/*.mp4','{{.INPUT_DIR}}/*.mkv','{{.INPUT_DIR}}/*.webm' -Force -ErrorAction SilentlyContinue; Write-Host 'Cleaned downloaded videos'"
 
   download:test:
     desc: Test yt-dlp installation
@@ -198,24 +190,24 @@ tasks:
       - pwsh ./scripts/test-ytdlp.ps1
 
   # ============================================
-  # Utility Tasks
+  # Utility Tasks (Windows-compatible)
   # ============================================
 
   ensure-dirs:
     desc: Create required directories
     cmds:
-      - mkdir -p {{.INPUT_DIR}} {{.OUTPUT_DIR}} {{.LOGS_DIR}}
+      - pwsh -Command "New-Item -ItemType Directory -Path '{{.INPUT_DIR}}','{{.OUTPUT_DIR}}','{{.LOGS_DIR}}' -Force -ErrorAction SilentlyContinue | Out-Null"
     silent: true
 
   list:input:
     desc: List files in input directory
     cmds:
-      - ls -lah {{.INPUT_DIR}}
+      - pwsh -Command "Get-ChildItem -Path '{{.INPUT_DIR}}' | Format-Table Name,Length,LastWriteTime -AutoSize"
 
   list:output:
     desc: List processed files in output directory
     cmds:
-      - ls -lah {{.OUTPUT_DIR}}
+      - pwsh -Command "Get-ChildItem -Path '{{.OUTPUT_DIR}}' | Format-Table Name,Length,LastWriteTime -AutoSize"
 
   status:
     desc: Show Docker container status
@@ -228,7 +220,7 @@ tasks:
       - pwsh ./scripts/health-check.ps1
 
   # ============================================
-  # Image Generation Tasks
+  # Image Generation Tasks (Windows-compatible)
   # ============================================
 
   image:gen:
@@ -236,22 +228,18 @@ tasks:
     vars:
       PROMPT: '{{.CLI_ARGS}}'
       TIMESTAMP:
-        sh: date +%Y%m%d_%H%M%S
+        sh: pwsh -NoProfile -Command "(Get-Date).ToString('yyyyMMdd_HHmmss')"
     interactive: true
     cmds:
-      - mkdir -p .data/gpt-images
-      - |
-        claude --chrome "Generate an image using ChatGPT. Navigate to chatgpt.com, enter prompt: {{.PROMPT}}, wait for generation, click Save, then copy from Downloads to .data/gpt-images/{{.TIMESTAMP}}_image.png"
+      - pwsh -NoProfile -Command "New-Item -ItemType Directory -Path '.data/gpt-images' -Force -ErrorAction SilentlyContinue | Out-Null"
+      - 'claude --chrome "Generate an image using ChatGPT. Navigate to chatgpt.com, enter prompt: {{.PROMPT}}, wait for generation, click Save, then copy from Downloads to .data/gpt-images/{{.TIMESTAMP}}_image.png"'
 
   image:gen:cmd:
     desc: Print claude command for image generation (copy and run manually)
     vars:
       PROMPT: '{{.CLI_ARGS}}'
       TIMESTAMP:
-        sh: date +%Y%m%d_%H%M%S
+        sh: pwsh -NoProfile -Command "(Get-Date).ToString('yyyyMMdd_HHmmss')"
     cmds:
-      - mkdir -p .data/gpt-images
-      - |
-        echo "Run this command:"
-        echo ""
-        echo "claude --chrome \"Generate an image using ChatGPT. Navigate to chatgpt.com, enter prompt: {{.PROMPT}}, wait for generation, click Save, then copy from Downloads to .data/gpt-images/{{.TIMESTAMP}}_image.png\""
+      - pwsh -NoProfile -Command "New-Item -ItemType Directory -Path '.data/gpt-images' -Force -ErrorAction SilentlyContinue | Out-Null"
+      - 'pwsh -NoProfile -Command "Write-Host ''Run this command:''; Write-Host ''''; Write-Host ''claude --chrome ''''Generate an image using ChatGPT. Navigate to chatgpt.com, enter prompt: {{.PROMPT}}, wait for generation, click Save, then copy from Downloads to .data/gpt-images/{{.TIMESTAMP}}_image.png''''''''"'

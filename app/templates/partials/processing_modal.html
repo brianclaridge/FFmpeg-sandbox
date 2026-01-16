@@ -21,11 +21,6 @@
         <span>ETA: <span id="eta-time">Calculating...</span></span>
       </div>
 
-      <!-- FFmpeg output log -->
-      <details class="ffmpeg-log-container">
-        <summary>FFmpeg Output</summary>
-        <div class="ffmpeg-log" id="ffmpeg-log"></div>
-      </details>
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="cancelProcessing()">
@@ -76,12 +71,6 @@
     }
   }
 
-  function appendLog(message) {
-    const log = document.getElementById('ffmpeg-log');
-    log.textContent += message + '\n';
-    log.scrollTop = log.scrollHeight;
-  }
-
   function setStatus(message) {
     document.getElementById('processing-step').textContent = message;
   }
@@ -109,11 +98,6 @@
       setStatus(`Processing: ${Math.round(data.percent)}%`);
     });
 
-    eventSource.addEventListener('log', (e) => {
-      const data = JSON.parse(e.data);
-      appendLog(data.message);
-    });
-
     eventSource.addEventListener('complete', (e) => {
       const data = JSON.parse(e.data);
       setStatus('Complete!');
@@ -122,12 +106,8 @@
       // Close modal after brief delay
       setTimeout(() => {
         hideProcessingModal();
-        // Refresh history panel
-        htmx.trigger('#history-panel', 'refresh');
-        // Show preview
-        if (data.output_file) {
-          htmx.ajax('GET', '/partials/history', {target: '#history-panel', swap: 'innerHTML'});
-        }
+        // Refresh history panel (element ID is #history-area)
+        htmx.ajax('GET', '/history', {target: '#history-area', swap: 'innerHTML'});
       }, 500);
     });
 
@@ -135,7 +115,6 @@
       if (e.data) {
         const data = JSON.parse(e.data);
         setStatus(`Error: ${data.message}`);
-        appendLog(`ERROR: ${data.message}`);
       } else {
         setStatus('Connection error');
       }
