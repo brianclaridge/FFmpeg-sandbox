@@ -108,8 +108,42 @@
         hideProcessingModal();
         // Refresh history panel (element ID is #history-area)
         htmx.ajax('GET', '/history', {target: '#history-area', swap: 'innerHTML'});
+        // Show preview of processed file
+        if (data.output_file) {
+          showProcessedPreview(data.output_file);
+        }
       }, 500);
     });
+
+    function showProcessedPreview(outputFile) {
+      const previewArea = document.getElementById('preview-area');
+      if (!previewArea) return;
+
+      const ext = outputFile.split('.').pop().toLowerCase();
+      const isVideo = ['mp4', 'webm', 'mkv'].includes(ext);
+      const previewUrl = `/preview/${encodeURIComponent(outputFile)}`;
+
+      let html = '<div class="preview-success">';
+      html += '<p><i class="fa-solid fa-check-circle"></i> Processing complete!</p>';
+
+      if (isVideo) {
+        html += `<video controls autoplay loop class="output-video">
+          <source src="${previewUrl}" type="video/${ext === 'mkv' ? 'x-matroska' : ext}">
+        </video>`;
+      } else {
+        html += `<audio controls autoplay>
+          <source src="${previewUrl}" type="audio/mpeg">
+        </audio>`;
+      }
+
+      html += `<div class="preview-actions">
+        <a href="${previewUrl}" download="${outputFile}" class="btn btn-secondary">
+          <i class="fa-solid fa-download"></i> Download
+        </a>
+      </div></div>`;
+
+      previewArea.innerHTML = html;
+    }
 
     eventSource.addEventListener('error', (e) => {
       if (e.data) {
