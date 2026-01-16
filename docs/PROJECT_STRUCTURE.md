@@ -37,7 +37,7 @@ FFmpeg Sandbox directory layout and file purposes.
 app/
 ├── main.py              # FastAPI entry, index route
 ├── config.py            # Config loader
-├── models.py            # Pydantic schemas (240 lines)
+├── models.py            # Pydantic schemas (290 lines)
 ├── routers/
 │   ├── audio.py         # /process, /preview, filter chain endpoints
 │   ├── download.py      # yt-dlp download endpoints
@@ -65,18 +65,22 @@ app/
 ├── templates/
 │   ├── base.html        # Layout + theme selector
 │   ├── index.html       # Main interface
-│   └── partials/
-│       ├── download_complete.html   # Download success message
-│       ├── download_status.html     # Download progress
+│   └── partials/        # 15 HTMX partials
+│       ├── download_complete.html        # Download success message
+│       ├── download_status.html          # Download progress
 │       ├── filters_audio_accordion.html  # Audio filter UI (shortcuts)
 │       ├── filters_presets_accordion.html # Theme presets UI
-│       ├── filters_tabs.html        # Audio/Video/Presets tab switcher
+│       ├── filters_tabs.html             # Audio/Video/Presets tab switcher
 │       ├── filters_video_accordion.html  # Video filter UI (shortcuts)
-│       ├── history.html             # Processing history list
-│       ├── history_preview.html     # History item preview
-│       ├── preview.html             # Audio/video preview player
-│       ├── slider_form.html         # Clip range slider
-│       └── upload_status.html       # File upload feedback
+│       ├── history.html                  # Processing history list
+│       ├── history_preview.html          # History item preview
+│       ├── import_result.html            # Shortcut import feedback
+│       ├── preset_management.html        # Preset management UI
+│       ├── preview.html                  # Audio/video preview player
+│       ├── processing_modal.html         # Processing progress modal
+│       ├── save_shortcut_modal.html      # Save shortcut dialog
+│       ├── slider_form.html              # Clip range slider
+│       └── upload_status.html            # File upload feedback
 ```
 
 ## Stylesheets

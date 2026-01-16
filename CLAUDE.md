@@ -2,6 +2,10 @@
 
 Audio/video processing app with 13 filter categories and YAML-driven presets.
 
+## Tech Stack
+
+FastAPI | HTMX | Jinja2 | FFmpeg | yt-dlp | uv (Astral)
+
 ## Quick Start
 
 ```bash
@@ -10,23 +14,20 @@ uv sync               # Install dependencies
 docker compose up -d  # Start container
 ```
 
-## Tech Stack
-
-FastAPI | HTMX | Jinja2 | FFmpeg | yt-dlp | uv (Astral)
-
 ## Documentation
 
 | Doc | Description |
 |-----|-------------|
-| [docs/ROADMAP.md](docs/ROADMAP.md) | Development phases and feature priorities |
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | C4 diagrams, ER model, component graph |
-| [docs/API_REFERENCE.md](docs/API_REFERENCE.md) | All 28 endpoints with HTMX triggers |
-| [docs/PROCESSING_FLOW.md](docs/PROCESSING_FLOW.md) | Sequence diagrams and state machines |
-| [docs/HTMX_PATTERNS.md](docs/HTMX_PATTERNS.md) | Swap strategies and event patterns |
-| [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md) | Directory tree and file purposes |
-| [docs/FILTERS.md](docs/FILTERS.md) | Audio/video filter categories and presets |
-| [docs/COMMON_TASKS.md](docs/COMMON_TASKS.md) | How-to guides for development |
-| [docs/STACK.md](docs/STACK.md) | Technology stack details |
+| [Getting Started](docs/GETTING_STARTED.md) | Installation, requirements, usage guide |
+| [Filters Reference](docs/FILTERS.md) | Audio/video filter categories and presets |
+| [Architecture](docs/ARCHITECTURE.md) | C4 diagrams, ER model, component graph |
+| [API Reference](docs/API_REFERENCE.md) | All 28 endpoints with HTMX triggers |
+| [Processing Flow](docs/PROCESSING_FLOW.md) | Sequence diagrams and state machines |
+| [HTMX Patterns](docs/HTMX_PATTERNS.md) | Swap strategies and event patterns |
+| [Project Structure](docs/PROJECT_STRUCTURE.md) | Directory tree and file purposes |
+| [Stack](docs/STACK.md) | Technology stack details and rationale |
+| [Common Tasks](docs/COMMON_TASKS.md) | How-to guides for development |
+| [Roadmap](docs/ROADMAP.md) | Development phases and feature priorities |
 
 ## Key Files
 
@@ -36,11 +37,3 @@ FastAPI | HTMX | Jinja2 | FFmpeg | yt-dlp | uv (Astral)
 | `presets_themes.yml` | 12 themed transformation presets |
 | `config.yml` | Application configuration |
 | `Taskfile.yml` | Task runner commands |
-
-## Filter Categories
-
-**Audio (7):** Volume, Tunnel, Frequency, Speed, Pitch, Noise Reduction, Compressor
-
-**Video (6):** Brightness, Contrast, Saturation, Blur, Sharpen, Transform
-
-See [docs/FILTERS.md](docs/FILTERS.md) for details.

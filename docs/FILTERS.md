@@ -4,26 +4,49 @@ FFmpeg Sandbox supports 13 filter categories across audio and video processing.
 
 ## Audio Filters (7)
 
-| Filter | Description | Range |
-|--------|-------------|-------|
-| **Volume** | Amplitude adjustment | 0.0 - 3.0 |
-| **Tunnel** | Reverb/echo effect | 0 - 100 |
-| **Frequency** | EQ / frequency shaping | Preset-based |
-| **Speed** | Playback speed | 0.5x - 4.0x |
-| **Pitch** | Pitch shift | -12 to +12 semitones |
-| **Noise Reduction** | Background noise removal | 0 - 100 |
-| **Compressor** | Dynamic range compression | Preset-based |
+| Category | Presets | Description |
+|----------|---------|-------------|
+| **Volume** | None, 0.25x-4x | Gain control (mute to 4x boost) |
+| **Tunnel** | None, Subtle, Medium, Heavy, Extreme | Echo/reverb effects |
+| **Frequency** | Flat, Bass Cut, Treble Cut, Narrow, Voice | High/low-pass filtering |
+| **Speed** | 0.5x-2x | Playback speed adjustment |
+| **Pitch** | Low, Normal, High, Chipmunk | Pitch shifting (semitones) |
+| **Noise Reduction** | None, Light, Medium, Heavy | Background noise removal |
+| **Compressor** | None, Light, Podcast, Broadcast | Dynamic range control |
+
+### Audio Filter Ranges
+
+| Filter | Range | Notes |
+|--------|-------|-------|
+| Volume | 0.0 - 3.0 | Amplitude multiplier |
+| Tunnel | 0 - 100 | Echo intensity |
+| Frequency | Preset-based | High/low-pass combinations |
+| Speed | 0.5x - 4.0x | Playback rate |
+| Pitch | -12 to +12 semitones | Pitch shift |
+| Noise Reduction | 0 - 100 | Reduction strength |
+| Compressor | Preset-based | Threshold/ratio combinations |
 
 ## Video Filters (6)
 
-| Filter | Description | Range |
-|--------|-------------|-------|
-| **Brightness** | Light level adjustment | -1.0 to 1.0 |
-| **Contrast** | Tonal range | 0.0 - 3.0 |
-| **Saturation** | Color intensity | 0.0 - 3.0 |
-| **Blur** | Gaussian blur | 0 - 20 sigma |
-| **Sharpen** | Edge enhancement | 0 - 5.0 |
-| **Transform** | Flip, rotate, crop | Preset-based |
+| Category | Presets | Description |
+|----------|---------|-------------|
+| **Brightness** | Dark, Normal, Bright | Image brightness |
+| **Contrast** | Low, Normal, High | Image contrast |
+| **Saturation** | Grayscale, Muted, Normal, Vivid | Color saturation |
+| **Blur** | None, Light, Medium, Heavy | Gaussian blur |
+| **Sharpen** | None, Light, Medium, Strong | Edge enhancement |
+| **Transform** | Flip H/V, Rotate 90/180/270 | Geometric transforms |
+
+### Video Filter Ranges
+
+| Filter | Range | Notes |
+|--------|-------|-------|
+| Brightness | -1.0 to 1.0 | Light level |
+| Contrast | 0.0 - 3.0 | Tonal range |
+| Saturation | 0.0 - 3.0 | Color intensity |
+| Blur | 0 - 20 sigma | Gaussian blur |
+| Sharpen | 0 - 5.0 | Edge enhancement |
+| Transform | Preset-based | Flip, rotate operations |
 
 ## Shortcuts (presets.yml)
 
