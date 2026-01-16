@@ -21,11 +21,6 @@
         <span>ETA: <span id="eta-time">Calculating...</span></span>
       </div>
 
-      <!-- FFmpeg output log -->
-      <details class="ffmpeg-log-container">
-        <summary>FFmpeg Output</summary>
-        <div class="ffmpeg-log" id="ffmpeg-log"></div>
-      </details>
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="cancelProcessing()">
@@ -76,12 +71,6 @@
     }
   }
 
-  function appendLog(message) {
-    const log = document.getElementById('ffmpeg-log');
-    log.textContent += message + '\n';
-    log.scrollTop = log.scrollHeight;
-  }
-
   function setStatus(message) {
     document.getElementById('processing-step').textContent = message;
   }
@@ -109,11 +98,6 @@
       setStatus(`Processing: ${Math.round(data.percent)}%`);
     });
 
-    eventSource.addEventListener('log', (e) => {
-      const data = JSON.parse(e.data);
-      appendLog(data.message);
-    });
-
     eventSource.addEventListener('complete', (e) => {
       const data = JSON.parse(e.data);
       setStatus('Complete!');
@@ -122,20 +106,49 @@
       // Close modal after brief delay
       setTimeout(() => {
         hideProcessingModal();
-        // Refresh history panel
-        htmx.trigger('#history-panel', 'refresh');
-        // Show preview
+        // Refresh history panel (element ID is #history-area)
+        htmx.ajax('GET', '/history', {target: '#history-area', swap: 'innerHTML'});
+        // Show preview of processed file
         if (data.output_file) {
-          htmx.ajax('GET', '/partials/history', {target: '#history-panel', swap: 'innerHTML'});
+          showProcessedPreview(data.output_file);
         }
       }, 500);
     });
+
+    function showProcessedPreview(outputFile) {
+      const previewArea = document.getElementById('preview-area');
+      if (!previewArea) return;
+
+      const ext = outputFile.split('.').pop().toLowerCase();
+      const isVideo = ['mp4', 'webm', 'mkv'].includes(ext);
+      const previewUrl = `/preview/${encodeURIComponent(outputFile)}`;
+
+      let html = '<div class="preview-success">';
+      html += '<p><i class="fa-solid fa-check-circle"></i> Processing complete!</p>';
+
+      if (isVideo) {
+        html += `<video controls autoplay loop class="output-video">
+          <source src="${previewUrl}" type="video/${ext === 'mkv' ? 'x-matroska' : ext}">
+        </video>`;
+      } else {
+        html += `<audio controls autoplay>
+          <source src="${previewUrl}" type="audio/mpeg">
+        </audio>`;
+      }
+
+      html += `<div class="preview-actions">
+        <a href="${previewUrl}" download="${outputFile}" class="btn btn-secondary">
+          <i class="fa-solid fa-download"></i> Download
+        </a>
+      </div></div>`;
+
+      previewArea.innerHTML = html;
+    }
 
     eventSource.addEventListener('error', (e) => {
       if (e.data) {
         const data = JSON.parse(e.data);
         setStatus(`Error: ${data.message}`);
-        appendLog(`ERROR: ${data.message}`);
       } else {
         setStatus('Connection error');
       }
