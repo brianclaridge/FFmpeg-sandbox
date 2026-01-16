@@ -19,6 +19,24 @@ vars:
 
 tasks:
   # ============================================
+  # Default Task
+  # ============================================
+
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list
+
+  # ============================================
+  # Claude Tasks
+  # ============================================
+
+  claude:
+    cmds:
+      - claude --chrome --ide --model opus
+
+
+  # ============================================
   # Docker Tasks
   # ============================================
 
@@ -210,10 +228,12 @@ tasks:
       - pwsh ./scripts/health-check.ps1
 
   # ============================================
-  # Default Task
+  # Image Generation Tasks
   # ============================================
 
-  default:
-    desc: Show available tasks
+  image:gen:
+    desc: Generate image via ChatGPT (launches Claude with browser control)
+    vars:
+      PROMPT: '{{.CLI_ARGS}}'
     cmds:
-      - task --list
+      - claude --chrome -p "Generate an image using ChatGPT web interface. Prompt{{":"}} {{.PROMPT}}. Save to .data/gpt-images/ with timestamp filename."
