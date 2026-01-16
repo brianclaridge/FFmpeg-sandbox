@@ -232,8 +232,26 @@ tasks:
   # ============================================
 
   image:gen:
-    desc: Generate image via ChatGPT (launches Claude with browser control)
+    desc: Generate image via ChatGPT (interactive Claude session)
     vars:
       PROMPT: '{{.CLI_ARGS}}'
+      TIMESTAMP:
+        sh: date +%Y%m%d_%H%M%S
+    interactive: true
     cmds:
-      - claude --chrome -p "Generate an image using ChatGPT web interface. Prompt{{":"}} {{.PROMPT}}. Save to .data/gpt-images/ with timestamp filename."
+      - mkdir -p .data/gpt-images
+      - |
+        claude --chrome "Generate an image using ChatGPT. Navigate to chatgpt.com, enter prompt: {{.PROMPT}}, wait for generation, click Save, then copy from Downloads to .data/gpt-images/{{.TIMESTAMP}}_image.png"
+
+  image:gen:cmd:
+    desc: Print claude command for image generation (copy and run manually)
+    vars:
+      PROMPT: '{{.CLI_ARGS}}'
+      TIMESTAMP:
+        sh: date +%Y%m%d_%H%M%S
+    cmds:
+      - mkdir -p .data/gpt-images
+      - |
+        echo "Run this command:"
+        echo ""
+        echo "claude --chrome \"Generate an image using ChatGPT. Navigate to chatgpt.com, enter prompt: {{.PROMPT}}, wait for generation, click Save, then copy from Downloads to .data/gpt-images/{{.TIMESTAMP}}_image.png\""
