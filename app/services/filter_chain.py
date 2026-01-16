@@ -11,6 +11,10 @@ from app.services.filters_video import (
     build_blur_filter,
     build_sharpen_filter,
     build_transform_filter,
+    build_crop_filter,
+    build_overlay_filter,
+    build_colorshift_filter,
+    build_scale_filter,
 )
 
 
@@ -86,13 +90,34 @@ def build_video_filter_chain(
     sharpen_amount: float = 0.0,
     transform: str = "",
     speed: float = 1.0,
+    crop_aspect: str = "",
+    colorshift: int = 0,
+    overlay: str = "",
+    scale_width: int = 0,
+    scale_height: int = 0,
 ) -> str | None:
     """
     Build complete video filter chain from all video effect settings.
 
     Returns None if no effects are active.
+    Filter order: crop -> scale -> colorshift -> eq -> blur -> sharpen -> transform -> speed -> overlay
     """
     filters = []
+
+    # Crop (apply first to change aspect ratio before other effects)
+    crop_filter = build_crop_filter(crop_aspect)
+    if crop_filter:
+        filters.append(crop_filter)
+
+    # Scale (apply after crop to resize to target resolution)
+    scale_filter = build_scale_filter(scale_width, scale_height)
+    if scale_filter:
+        filters.append(scale_filter)
+
+    # Colorshift (glitch effect)
+    colorshift_filter = build_colorshift_filter(colorshift)
+    if colorshift_filter:
+        filters.append(colorshift_filter)
 
     # EQ (brightness/contrast/saturation)
     eq_filter = build_eq_filter(brightness, contrast, saturation)
@@ -118,5 +143,10 @@ def build_video_filter_chain(
     if speed != 1.0:
         pts_factor = 1 / speed
         filters.append(f"setpts={pts_factor}*PTS")
+
+    # Overlay (apply last so text appears on top of all effects)
+    overlay_filter = build_overlay_filter(overlay)
+    if overlay_filter:
+        filters.append(overlay_filter)
 
     return ",".join(filters) if filters else None

@@ -245,8 +245,16 @@ class UserSettings(BaseModel):
     blur: CategorySettings = CategorySettings(preset="none")
     sharpen: CategorySettings = CategorySettings(preset="none")
     transform: CategorySettings = CategorySettings(preset="none")
+    # Theme-only video filters (no UI accordion, used by presets)
+    crop: CategorySettings = CategorySettings(preset="none")
+    colorshift: CategorySettings = CategorySettings(preset="none")
+    overlay: CategorySettings = CategorySettings(preset="none")
+    scale: CategorySettings = CategorySettings(preset="none")
     active_category: str = ""
     active_tab: str = "audio"
+    # Theme preset chains (ordered list, allows combining multiple presets)
+    video_theme_chain: list[str] = []
+    audio_theme_chain: list[str] = []
 
 
 class ProcessRequest(BaseModel):

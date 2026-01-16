@@ -709,6 +709,7 @@
 }
 
 .preset-card {
+    position: relative;
     display: flex;
     align-items: flex-start;
     gap: 0.75rem;
@@ -720,10 +721,55 @@
     transition: all 0.2s ease;
 }
 
+/* Chain position badge */
+.preset-chain-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: var(--accent);
+    color: var(--bg-primary);
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 12px;
+    z-index: 1;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
 .preset-card:hover {
     border-color: var(--accent);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Selected state - distinct from hover */
+.preset-card--selected {
+    border-color: var(--accent);
+    background: var(--bg-secondary);
+}
+
+.preset-card--selected .preset-card-icon {
+    background: var(--accent);
+    color: var(--bg-primary);
+}
+
+.preset-card--selected:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* None card styling */
+.preset-card--none .preset-card-icon {
+    color: var(--text-secondary);
+}
+
+.preset-card--none.preset-card--selected .preset-card-icon {
+    background: var(--text-secondary);
+    color: var(--bg-primary);
 }
 
 .preset-card-icon {

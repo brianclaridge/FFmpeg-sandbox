@@ -57,8 +57,6 @@
 /* History List */
 .history-list {
     list-style: none;
-    max-height: 300px;
-    overflow-y: auto;
 }
 
 .history-item {

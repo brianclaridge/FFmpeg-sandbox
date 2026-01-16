@@ -10,12 +10,9 @@ from loguru import logger
 
 from app.services.history import load_history, delete_history_entry, get_history_entry
 from app.services.settings import load_user_settings, update_category_preset
-from app.services.presets import (
-    get_volume_presets,
-    get_tunnel_presets,
-    get_frequency_presets,
-)
+from app.services.presets_themes import get_video_theme_presets, get_audio_theme_presets
 from app.models import UserSettings, CategorySettings
+from app.routers.audio import _get_accordion_context
 
 router = APIRouter(prefix="/history")
 templates = Jinja2Templates(directory="app/templates")
@@ -50,30 +47,6 @@ async def remove_history(request: Request, entry_id: str):
     )
 
 
-def _get_accordion_context(user_settings, filename: str | None = None) -> dict:
-    """Build context dict for accordion template."""
-    # Get preset dictionaries from YAML
-    volume_presets = get_volume_presets()
-    tunnel_presets = get_tunnel_presets()
-    frequency_presets = get_frequency_presets()
-
-    # Get current preset configs (with fallbacks)
-    volume_current = volume_presets.get(user_settings.volume.preset) or volume_presets["none"]
-    tunnel_current = tunnel_presets.get(user_settings.tunnel.preset) or tunnel_presets["none"]
-    frequency_current = frequency_presets.get(user_settings.frequency.preset) or frequency_presets["none"]
-
-    return {
-        "user_settings": user_settings,
-        "volume_presets": volume_presets,
-        "tunnel_presets": tunnel_presets,
-        "frequency_presets": frequency_presets,
-        "volume_current": volume_current,
-        "tunnel_current": tunnel_current,
-        "frequency_current": frequency_current,
-        "current_filename": filename,
-    }
-
-
 @router.get("/{entry_id}/apply", response_class=HTMLResponse)
 async def apply_history(request: Request, entry_id: str, filename: str = ""):
     """Apply settings from a history entry to the effect chain."""
@@ -96,8 +69,10 @@ async def apply_history(request: Request, entry_id: str, filename: str = ""):
 
     context = _get_accordion_context(user_settings, filename)
     context["request"] = request
+    context["video_theme_presets"] = get_video_theme_presets()
+    context["audio_theme_presets"] = get_audio_theme_presets()
 
-    response = templates.TemplateResponse("partials/effect_chain_accordion.html", context)
+    response = templates.TemplateResponse("partials/filters_tabs.html", context)
 
     # Trigger clip range update via HX-Trigger
     response.headers["HX-Trigger"] = json.dumps({

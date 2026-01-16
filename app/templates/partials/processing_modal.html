@@ -1,0 +1,161 @@
+<div id="processing-modal" class="modal-backdrop">
+  <div class="modal processing-modal">
+    <div class="modal-header">
+      <h3><i class="fa-solid fa-cog fa-spin"></i> Processing Video</h3>
+    </div>
+    <div class="modal-body">
+      <!-- Current step -->
+      <div class="processing-step">
+        <span id="processing-step">Initializing FFmpeg...</span>
+      </div>
+
+      <!-- Progress bar -->
+      <div class="progress-container">
+        <div class="progress-bar" id="progress-bar" style="width: 0%"></div>
+        <span class="progress-text" id="progress-text">0%</span>
+      </div>
+
+      <!-- Time info -->
+      <div class="processing-time">
+        <span>Elapsed: <span id="elapsed-time">0:00</span></span>
+        <span>ETA: <span id="eta-time">Calculating...</span></span>
+      </div>
+
+      <!-- FFmpeg output log -->
+      <details class="ffmpeg-log-container">
+        <summary>FFmpeg Output</summary>
+        <div class="ffmpeg-log" id="ffmpeg-log"></div>
+      </details>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="cancelProcessing()">
+        <i class="fa-solid fa-times"></i> Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  let eventSource = null;
+  let startTime = Date.now();
+  let abortController = null;
+
+  function formatTime(seconds) {
+    if (isNaN(seconds) || !isFinite(seconds)) return '...';
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  }
+
+  function showProcessingModal() {
+    document.getElementById('processing-modal').classList.add('active');
+    startTime = Date.now();
+  }
+
+  function hideProcessingModal() {
+    document.getElementById('processing-modal').classList.remove('active');
+    if (eventSource) {
+      eventSource.close();
+      eventSource = null;
+    }
+  }
+
+  function updateProgress(percent, currentMs, totalMs) {
+    document.getElementById('progress-bar').style.width = percent + '%';
+    document.getElementById('progress-text').textContent = Math.round(percent) + '%';
+
+    // Calculate ETA
+    const elapsed = (Date.now() - startTime) / 1000;
+    document.getElementById('elapsed-time').textContent = formatTime(elapsed);
+
+    if (percent > 0) {
+      const rate = percent / elapsed;
+      const remaining = (100 - percent) / rate;
+      document.getElementById('eta-time').textContent = formatTime(remaining);
+    }
+  }
+
+  function appendLog(message) {
+    const log = document.getElementById('ffmpeg-log');
+    log.textContent += message + '\n';
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function setStatus(message) {
+    document.getElementById('processing-step').textContent = message;
+  }
+
+  window.startProcessingWithProgress = function(inputFile, startTime, endTime, outputFormat) {
+    showProcessingModal();
+
+    const params = new URLSearchParams({
+      input_file: inputFile,
+      start_time: startTime,
+      end_time: endTime,
+      output_format: outputFormat,
+    });
+
+    eventSource = new EventSource(`/process-with-progress?${params}`);
+
+    eventSource.addEventListener('status', (e) => {
+      const data = JSON.parse(e.data);
+      setStatus(data.message);
+    });
+
+    eventSource.addEventListener('progress', (e) => {
+      const data = JSON.parse(e.data);
+      updateProgress(data.percent, data.current_ms, data.total_ms);
+      setStatus(`Processing: ${Math.round(data.percent)}%`);
+    });
+
+    eventSource.addEventListener('log', (e) => {
+      const data = JSON.parse(e.data);
+      appendLog(data.message);
+    });
+
+    eventSource.addEventListener('complete', (e) => {
+      const data = JSON.parse(e.data);
+      setStatus('Complete!');
+      updateProgress(100, 0, 0);
+
+      // Close modal after brief delay
+      setTimeout(() => {
+        hideProcessingModal();
+        // Refresh history panel
+        htmx.trigger('#history-panel', 'refresh');
+        // Show preview
+        if (data.output_file) {
+          htmx.ajax('GET', '/partials/history', {target: '#history-panel', swap: 'innerHTML'});
+        }
+      }, 500);
+    });
+
+    eventSource.addEventListener('error', (e) => {
+      if (e.data) {
+        const data = JSON.parse(e.data);
+        setStatus(`Error: ${data.message}`);
+        appendLog(`ERROR: ${data.message}`);
+      } else {
+        setStatus('Connection error');
+      }
+      // Keep modal open to show error
+      document.querySelector('.processing-modal .modal-footer button').textContent = 'Close';
+    });
+
+    eventSource.onerror = function() {
+      if (eventSource.readyState === EventSource.CLOSED) {
+        setStatus('Connection closed');
+      }
+    };
+  };
+
+  window.cancelProcessing = function() {
+    if (eventSource) {
+      eventSource.close();
+      eventSource = null;
+    }
+    hideProcessingModal();
+  };
+})();
+</script>

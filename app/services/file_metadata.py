@@ -92,6 +92,14 @@ def get_default_settings() -> dict[str, Any]:
         "blur": {"preset": "none", "custom_values": {}},
         "sharpen": {"preset": "none", "custom_values": {}},
         "transform": {"preset": "none", "custom_values": {}},
+        # Theme-only video effects (no UI, used by presets)
+        "crop": {"preset": "none", "custom_values": {}},
+        "colorshift": {"preset": "none", "custom_values": {}},
+        "overlay": {"preset": "none", "custom_values": {}},
+        "scale": {"preset": "none", "custom_values": {}},
+        # Theme preset chains (ordered list)
+        "video_theme_chain": [],
+        "audio_theme_chain": [],
     }
 
 
@@ -162,9 +170,12 @@ def update_file_custom_values(
     metadata = load_file_metadata(filename)
     settings = metadata.get("settings", get_default_settings())
 
-    if category in settings:
-        settings[category]["preset"] = "custom"
-        settings[category]["custom_values"] = custom_values
+    # Create category if it doesn't exist (handles new categories on old files)
+    if category not in settings:
+        settings[category] = {"preset": "none", "custom_values": {}}
+
+    settings[category]["preset"] = "custom"
+    settings[category]["custom_values"] = custom_values
 
     metadata["settings"] = settings
     save_file_metadata(filename, metadata)
@@ -190,6 +201,83 @@ def update_active_tab(filename: str, tab: str) -> dict[str, Any]:
     metadata["settings"] = settings
     save_file_metadata(filename, metadata)
     return settings
+
+
+def get_theme_chain(filename: str, media_type: str) -> list[str]:
+    """Get the theme preset chain for a media type.
+
+    Args:
+        filename: The input file name
+        media_type: "video" or "audio"
+
+    Returns:
+        Ordered list of preset keys in the chain
+    """
+    metadata = load_file_metadata(filename)
+    settings = metadata.get("settings", get_default_settings())
+    field = f"{media_type}_theme_chain"
+    return settings.get(field, [])
+
+
+def update_theme_chain(
+    filename: str, media_type: str, chain: list[str]
+) -> dict[str, Any]:
+    """Update the theme preset chain for a media type.
+
+    Args:
+        filename: The input file name
+        media_type: "video" or "audio"
+        chain: Ordered list of preset keys
+    """
+    metadata = load_file_metadata(filename)
+    settings = metadata.get("settings", get_default_settings())
+
+    field = f"{media_type}_theme_chain"
+    settings[field] = chain
+
+    metadata["settings"] = settings
+    save_file_metadata(filename, metadata)
+    return settings
+
+
+def toggle_theme_in_chain(
+    filename: str, media_type: str, preset_key: str
+) -> list[str]:
+    """Toggle a preset in the theme chain.
+
+    If preset is in chain, remove it. If not, add to end.
+
+    Args:
+        filename: The input file name
+        media_type: "video" or "audio"
+        preset_key: The preset key to toggle
+
+    Returns:
+        Updated chain list
+    """
+    chain = get_theme_chain(filename, media_type)
+
+    if preset_key in chain:
+        chain.remove(preset_key)
+    else:
+        chain.append(preset_key)
+
+    update_theme_chain(filename, media_type, chain)
+    return chain
+
+
+def clear_theme_chain(filename: str, media_type: str) -> list[str]:
+    """Clear all presets from the theme chain.
+
+    Args:
+        filename: The input file name
+        media_type: "video" or "audio"
+
+    Returns:
+        Empty list
+    """
+    update_theme_chain(filename, media_type, [])
+    return []
 
 
 def add_history_entry(

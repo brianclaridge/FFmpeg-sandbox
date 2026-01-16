@@ -2,11 +2,30 @@
 # These apply multiple filters at once for complete transformation effects
 
 video:
+  crt_playback:
+    name: "CRT Playback"
+    description: "True 240p 4:3 for CRT television"
+    icon: "fa-tv"
+    filters:
+      - type: crop
+        params:
+          aspect_ratio: "4:3"
+      - type: scale
+        params:
+          width: 320
+          height: 240
+      - type: blur
+        params:
+          sigma: 0.3
+
   vhs_playback:
     name: "VHS Playback"
     description: "4:3 retro VHS look with color distortion"
     icon: "fa-vhs"
     filters:
+      - type: crop
+        params:
+          aspect_ratio: "4:3"
       - type: saturation
         params:
           saturation: 1.3
@@ -49,7 +68,7 @@ video:
 
   security_cam:
     name: "Security Cam"
-    description: "Low-fi surveillance camera look"
+    description: "Low-fi surveillance with timestamp overlay"
     icon: "fa-video"
     filters:
       - type: saturation
@@ -61,21 +80,27 @@ video:
       - type: blur
         params:
           sigma: 0.3
+      - type: overlay
+        params:
+          overlay_type: "security_cam"
 
   glitch_art:
     name: "Glitch Art"
     description: "Digital artifacts and color shifts"
     icon: "fa-bug"
     filters:
+      - type: colorshift
+        params:
+          shift_amount: 5
       - type: saturation
         params:
-          saturation: 1.5
+          saturation: 1.8
       - type: sharpen
         params:
-          amount: 2.0
+          amount: 3.0
       - type: contrast
         params:
-          contrast: 1.3
+          contrast: 1.5
 
   night_vision:
     name: "Night Vision"

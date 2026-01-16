@@ -6,9 +6,12 @@ import subprocess
 import tempfile
 import os
 
+import json
+
 from fastapi import APIRouter, Form, Request, HTTPException, UploadFile, File
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
+from sse_starlette.sse import EventSourceResponse
 
 from loguru import logger
 
@@ -49,6 +52,8 @@ from app.services.settings import (
     update_category_custom_values,
     update_active_category,
     update_active_tab,
+    toggle_theme_preset,
+    get_current_theme_chain,
 )
 from app.services import (
     process_audio,
@@ -61,6 +66,7 @@ from app.services import (
     build_audio_filter_chain,
     build_video_filter_chain,
 )
+from app.services.processor import process_video_with_progress
 from app.services.file_metadata import load_file_metadata
 from app.services.history import add_history_entry
 
@@ -168,6 +174,18 @@ async def process(
     transform_val = (user_settings.transform.custom_values.get("filter", transform_config.filter)
                      if user_settings.transform.custom_values else transform_config.filter)
 
+    # Theme-only video filters (crop, colorshift, overlay, scale)
+    crop_val = (user_settings.crop.custom_values.get("aspect_ratio", "")
+                if user_settings.crop.custom_values else "")
+    colorshift_val = (user_settings.colorshift.custom_values.get("shift_amount", 0)
+                      if user_settings.colorshift.custom_values else 0)
+    overlay_val = (user_settings.overlay.custom_values.get("overlay_type", "")
+                   if user_settings.overlay.custom_values else "")
+    scale_width_val = (user_settings.scale.custom_values.get("width", 0)
+                       if user_settings.scale.custom_values else 0)
+    scale_height_val = (user_settings.scale.custom_values.get("height", 0)
+                        if user_settings.scale.custom_values else 0)
+
     # Build audio filter chain with all filters (speed is linked)
     delays_str = "|".join(str(d) for d in delays_list)
     decays_str = "|".join(str(d) for d in decays_list)
@@ -201,7 +219,12 @@ async def process(
         blur_sigma_val > 0 or
         sharpen_amount_val > 0 or
         transform_val != "" or
-        speed_val != 1.0  # Speed affects video PTS too
+        speed_val != 1.0 or  # Speed affects video PTS too
+        crop_val != "" or
+        colorshift_val > 0 or
+        overlay_val != "" or
+        scale_width_val > 0 or
+        scale_height_val > 0
     )
 
     try:
@@ -228,6 +251,11 @@ async def process(
                 sharpen_amount=sharpen_amount_val,
                 transform=transform_val,
                 speed=speed_val,
+                crop_aspect=crop_val,
+                colorshift=colorshift_val,
+                overlay=overlay_val,
+                scale_width=scale_width_val,
+                scale_height=scale_height_val,
             )
 
             output_path = process_video_with_filters(
@@ -694,7 +722,7 @@ async def get_filters_tab(request: Request, tab: str, filename: str | None = Non
 
 
 AUDIO_CATEGORIES = ("volume", "tunnel", "frequency", "speed", "pitch", "noise_reduction", "compressor")
-VIDEO_CATEGORIES = ("brightness", "contrast", "saturation", "blur", "sharpen", "transform")
+VIDEO_CATEGORIES = ("brightness", "contrast", "saturation", "blur", "sharpen", "transform", "crop", "colorshift", "overlay", "scale")
 ALL_CATEGORIES = AUDIO_CATEGORIES + VIDEO_CATEGORIES
 
 
@@ -1057,31 +1085,48 @@ async def get_presets_accordion_section(
     context["request"] = request
     context["video_theme_presets"] = get_video_theme_presets()
     context["audio_theme_presets"] = get_audio_theme_presets()
+    context["video_theme_chain"] = user_settings.video_theme_chain
+    context["audio_theme_chain"] = user_settings.audio_theme_chain
 
     return templates.TemplateResponse("partials/filters_presets_accordion.html", context)
 
 
-@router.post("/apply-theme-preset/{media_type}/{preset_key}", response_class=HTMLResponse)
-async def apply_theme_preset(
+@router.post("/toggle-theme-preset/{media_type}/{preset_key}", response_class=HTMLResponse)
+async def toggle_theme_preset_endpoint(
     request: Request,
     media_type: str,
     preset_key: str,
     filename: str = Form(""),
 ):
-    """Apply a theme preset by setting its filter values."""
+    """Toggle a theme preset in the chain.
+
+    If preset is in chain, remove it. If not, add to end.
+    If preset_key is "none", clear the entire chain.
+    All presets in chain are applied in order (last wins for conflicts).
+    """
     if media_type not in ("audio", "video"):
         raise HTTPException(status_code=400, detail="Invalid media type")
 
-    preset = get_theme_preset(media_type, preset_key)
-    if not preset:
-        raise HTTPException(status_code=404, detail="Preset not found")
+    # Determine which categories to affect based on media type
+    categories_to_clear = VIDEO_CATEGORIES if media_type == "video" else AUDIO_CATEGORIES
 
-    # Apply each filter in the preset chain with actual parameter values
-    for filter_step in preset.filters:
-        filter_type = filter_step.type
-        if filter_type in ALL_CATEGORIES:
-            # Store the actual filter parameters as custom values
-            update_category_custom_values(filter_type, filter_step.params, filename)
+    # Toggle the preset in chain (or clear if "none")
+    user_settings, chain = toggle_theme_preset(media_type, preset_key, filename)
+
+    # Clear existing custom values for this media type's categories
+    for category in categories_to_clear:
+        update_category_preset(category, "none", filename)
+
+    # Apply all presets in chain order (last wins for conflicts)
+    applied_preset_name = None
+    for chain_preset_key in chain:
+        preset = get_theme_preset(media_type, chain_preset_key)
+        if preset:
+            for filter_step in preset.filters:
+                filter_type = filter_step.type
+                if filter_type in ALL_CATEGORIES:
+                    update_category_custom_values(filter_type, filter_step.params, filename)
+            applied_preset_name = preset.name
 
     # Reload settings after applying all filters
     user_settings = load_user_settings(filename)
@@ -1090,7 +1135,194 @@ async def apply_theme_preset(
     context["request"] = request
     context["video_theme_presets"] = get_video_theme_presets()
     context["audio_theme_presets"] = get_audio_theme_presets()
-    context["apply_success"] = True
-    context["applied_preset_name"] = preset.name
+    context["video_theme_chain"] = user_settings.video_theme_chain
+    context["audio_theme_chain"] = user_settings.audio_theme_chain
+
+    if chain and applied_preset_name:
+        context["apply_success"] = True
+        context["applied_preset_name"] = applied_preset_name
+        context["chain_count"] = len(chain)
 
     return templates.TemplateResponse("partials/filters_presets_accordion.html", context)
+
+
+# ============ PROGRESS STREAMING ENDPOINT ============
+
+def _parse_time_to_ms(time_str: str) -> int:
+    """Convert HH:MM:SS or HH:MM:SS.mmm to milliseconds."""
+    parts = time_str.split(":")
+    if len(parts) != 3:
+        return 0
+    hours = int(parts[0])
+    minutes = int(parts[1])
+    seconds_parts = parts[2].split(".")
+    seconds = int(seconds_parts[0])
+    ms = int(seconds_parts[1]) if len(seconds_parts) > 1 else 0
+    return (hours * 3600 + minutes * 60 + seconds) * 1000 + ms
+
+
+@router.get("/process-with-progress")
+async def process_with_progress(
+    request: Request,
+    input_file: str,
+    start_time: str = "00:00:00",
+    end_time: str = "00:00:06",
+    output_format: str = "mp4",
+):
+    """Process video with SSE progress streaming."""
+    input_path = INPUT_DIR / input_file
+
+    if not input_path.exists():
+        raise HTTPException(status_code=404, detail="Input file not found")
+
+    # Load user settings
+    user_settings = load_user_settings(input_file)
+
+    # Get preset dictionaries (abbreviated - only what's needed)
+    volume_presets = get_volume_presets()
+    tunnel_presets = get_tunnel_presets()
+    frequency_presets = get_frequency_presets()
+    speed_presets = get_speed_presets()
+    pitch_presets = get_pitch_presets()
+    noise_presets = get_noise_reduction_presets()
+    compressor_presets = get_compressor_presets()
+    brightness_presets = get_brightness_presets()
+    contrast_presets = get_contrast_presets()
+    saturation_presets = get_saturation_presets()
+    blur_presets = get_blur_presets()
+    sharpen_presets = get_sharpen_presets()
+    transform_presets = get_transform_presets()
+
+    # Get configs
+    volume_config = volume_presets.get(user_settings.volume.preset) or volume_presets["none"]
+    tunnel_config = tunnel_presets.get(user_settings.tunnel.preset) or tunnel_presets["none"]
+    frequency_config = frequency_presets.get(user_settings.frequency.preset) or frequency_presets["none"]
+    speed_config = speed_presets.get(user_settings.speed.preset) or speed_presets["none"]
+    pitch_config = pitch_presets.get(user_settings.pitch.preset) or pitch_presets["none"]
+    noise_config = noise_presets.get(user_settings.noise_reduction.preset) or noise_presets["none"]
+    comp_config = compressor_presets.get(user_settings.compressor.preset) or compressor_presets["none"]
+    brightness_config = brightness_presets.get(user_settings.brightness.preset) or brightness_presets["none"]
+    contrast_config = contrast_presets.get(user_settings.contrast.preset) or contrast_presets["none"]
+    saturation_config = saturation_presets.get(user_settings.saturation.preset) or saturation_presets["none"]
+    blur_config = blur_presets.get(user_settings.blur.preset) or blur_presets["none"]
+    sharpen_config = sharpen_presets.get(user_settings.sharpen.preset) or sharpen_presets["none"]
+    transform_config = transform_presets.get(user_settings.transform.preset) or transform_presets["none"]
+
+    # Extract values (simplified - uses custom_values if present)
+    volume_val = user_settings.volume.custom_values.get("volume", volume_config.volume) if user_settings.volume.custom_values else volume_config.volume
+    highpass_val = user_settings.frequency.custom_values.get("highpass", frequency_config.highpass) if user_settings.frequency.custom_values else frequency_config.highpass
+    lowpass_val = user_settings.frequency.custom_values.get("lowpass", frequency_config.lowpass) if user_settings.frequency.custom_values else frequency_config.lowpass
+    delays_list = user_settings.tunnel.custom_values.get("delays", tunnel_config.delays) if user_settings.tunnel.custom_values else tunnel_config.delays
+    decays_list = user_settings.tunnel.custom_values.get("decays", tunnel_config.decays) if user_settings.tunnel.custom_values else tunnel_config.decays
+    speed_val = user_settings.speed.custom_values.get("speed", speed_config.speed) if user_settings.speed.custom_values else speed_config.speed
+    pitch_val = user_settings.pitch.custom_values.get("semitones", pitch_config.semitones) if user_settings.pitch.custom_values else pitch_config.semitones
+    noise_floor_val = user_settings.noise_reduction.custom_values.get("noise_floor", noise_config.noise_floor) if user_settings.noise_reduction.custom_values else noise_config.noise_floor
+    noise_reduction_val = user_settings.noise_reduction.custom_values.get("noise_reduction", noise_config.noise_reduction) if user_settings.noise_reduction.custom_values else noise_config.noise_reduction
+    comp_threshold_val = user_settings.compressor.custom_values.get("threshold", comp_config.threshold) if user_settings.compressor.custom_values else comp_config.threshold
+    comp_ratio_val = user_settings.compressor.custom_values.get("ratio", comp_config.ratio) if user_settings.compressor.custom_values else comp_config.ratio
+    comp_attack_val = user_settings.compressor.custom_values.get("attack", comp_config.attack) if user_settings.compressor.custom_values else comp_config.attack
+    comp_release_val = user_settings.compressor.custom_values.get("release", comp_config.release) if user_settings.compressor.custom_values else comp_config.release
+    comp_makeup_val = user_settings.compressor.custom_values.get("makeup", comp_config.makeup) if user_settings.compressor.custom_values else comp_config.makeup
+
+    # Video filters
+    brightness_val = user_settings.brightness.custom_values.get("brightness", brightness_config.brightness) if user_settings.brightness.custom_values else brightness_config.brightness
+    contrast_val = user_settings.contrast.custom_values.get("contrast", contrast_config.contrast) if user_settings.contrast.custom_values else contrast_config.contrast
+    saturation_val = user_settings.saturation.custom_values.get("saturation", saturation_config.saturation) if user_settings.saturation.custom_values else saturation_config.saturation
+    blur_sigma_val = user_settings.blur.custom_values.get("sigma", blur_config.sigma) if user_settings.blur.custom_values else blur_config.sigma
+    sharpen_amount_val = user_settings.sharpen.custom_values.get("amount", sharpen_config.amount) if user_settings.sharpen.custom_values else sharpen_config.amount
+    transform_val = user_settings.transform.custom_values.get("filter", transform_config.filter) if user_settings.transform.custom_values else transform_config.filter
+
+    # Theme-only filters
+    crop_val = user_settings.crop.custom_values.get("aspect_ratio", "") if user_settings.crop.custom_values else ""
+    colorshift_val = user_settings.colorshift.custom_values.get("shift_amount", 0) if user_settings.colorshift.custom_values else 0
+    overlay_val = user_settings.overlay.custom_values.get("overlay_type", "") if user_settings.overlay.custom_values else ""
+    scale_width_val = user_settings.scale.custom_values.get("width", 0) if user_settings.scale.custom_values else 0
+    scale_height_val = user_settings.scale.custom_values.get("height", 0) if user_settings.scale.custom_values else 0
+
+    # Build filter chains
+    delays_str = "|".join(str(d) for d in delays_list)
+    decays_str = "|".join(str(d) for d in decays_list)
+
+    audio_filter = build_audio_filter_chain(
+        volume=volume_val,
+        highpass=highpass_val,
+        lowpass=lowpass_val,
+        delays=delays_str,
+        decays=decays_str,
+        speed=speed_val,
+        pitch_semitones=pitch_val,
+        noise_floor=noise_floor_val,
+        noise_reduction=noise_reduction_val,
+        comp_threshold=comp_threshold_val,
+        comp_ratio=comp_ratio_val,
+        comp_attack=comp_attack_val,
+        comp_release=comp_release_val,
+        comp_makeup=comp_makeup_val,
+    )
+
+    video_filter = build_video_filter_chain(
+        brightness=brightness_val,
+        contrast=contrast_val,
+        saturation=saturation_val,
+        blur_sigma=blur_sigma_val,
+        sharpen_amount=sharpen_amount_val,
+        transform=transform_val,
+        speed=speed_val,
+        crop_aspect=crop_val,
+        colorshift=colorshift_val,
+        overlay=overlay_val,
+        scale_width=scale_width_val,
+        scale_height=scale_height_val,
+    )
+
+    # Calculate total duration in ms
+    start_ms = _parse_time_to_ms(start_time)
+    end_ms = _parse_time_to_ms(end_time)
+    total_duration_ms = end_ms - start_ms
+
+    async def event_generator():
+        """Generate SSE events from processor."""
+        output_file = None
+        try:
+            for update in process_video_with_progress(
+                input_file=input_path,
+                start_time=start_time,
+                end_time=end_time,
+                audio_filter=audio_filter,
+                video_filter=video_filter,
+                output_format=output_format,
+                total_duration_ms=total_duration_ms,
+            ):
+                yield {
+                    "event": update["type"],
+                    "data": json.dumps(update),
+                }
+                if update["type"] == "complete":
+                    output_file = update.get("output_file")
+
+            # Add history entry on success
+            if output_file:
+                add_history_entry(
+                    input_file=input_file,
+                    output_file=output_file,
+                    start_time=start_time,
+                    end_time=end_time,
+                    preset=user_settings.tunnel.preset,
+                    volume=volume_config.volume,
+                    highpass=frequency_config.highpass,
+                    lowpass=frequency_config.lowpass,
+                    delays=delays_str,
+                    decays=decays_str,
+                    volume_preset=user_settings.volume.preset,
+                    tunnel_preset=user_settings.tunnel.preset,
+                    frequency_preset=user_settings.frequency.preset,
+                )
+
+        except Exception as e:
+            logger.exception("Processing with progress failed")
+            yield {
+                "event": "error",
+                "data": json.dumps({"type": "error", "message": str(e)}),
+            }
+
+    return EventSourceResponse(event_generator())
