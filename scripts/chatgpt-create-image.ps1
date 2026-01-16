@@ -30,7 +30,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 # Ensure output directory exists
-$RepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+$RepoRoot = Split-Path -Parent $PSScriptRoot
 if (-not [System.IO.Path]::IsPathRooted($OutputDir)) {
     $OutputDir = Join-Path $RepoRoot $OutputDir
 }
@@ -41,7 +41,8 @@ if (-not (Test-Path $OutputDir)) {
 
 # Generate timestamp for unique filename
 $Timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
-$SafePrompt = ($Prompt -replace '[^\w\s-]', '' -replace '\s+', '-').Substring(0, [Math]::Min(50, $Prompt.Length))
+$CleanedPrompt = $Prompt -replace '[^\w\s-]', '' -replace '\s+', '-'
+$SafePrompt = $CleanedPrompt.Substring(0, [Math]::Min(50, $CleanedPrompt.Length))
 $OutputFile = Join-Path $OutputDir "${Timestamp}_${SafePrompt}.png"
 
 Write-Host "Generating image with ChatGPT..." -ForegroundColor Yellow
