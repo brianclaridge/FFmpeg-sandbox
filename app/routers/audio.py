@@ -400,6 +400,7 @@ async def extract_transcript(
                     "success": True,
                     "output_file": result.output_path.name if result.output_path else "",
                     "transcript_text": result.text,
+                    "cues": result.cues,
                     "source_type": result.source_type,
                     "subtitle_type": result.subtitle_type,
                 },
@@ -441,6 +442,7 @@ async def preview_file(filename: str):
         ".webm": "video/webm",
         ".mkv": "video/x-matroska",
         ".txt": "text/plain; charset=utf-8",
+        ".srt": "text/plain; charset=utf-8",
     }
     media_type = media_types.get(ext, "application/octet-stream")
 

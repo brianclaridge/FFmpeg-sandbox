@@ -388,3 +388,60 @@ footer {
     word-wrap: break-word;
     color: var(--text-primary);
 }
+
+/* Transcript Cues with Clickable Timestamps */
+.transcript-cues {
+    padding: 0.5rem;
+}
+
+.transcript-cue {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.5rem;
+    border-bottom: 1px solid var(--bg-primary);
+    align-items: flex-start;
+}
+
+.transcript-cue:last-child {
+    border-bottom: none;
+}
+
+.transcript-cue:hover {
+    background: var(--bg-primary);
+}
+
+.cue-timestamp {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 0.8rem;
+    color: var(--accent);
+    white-space: nowrap;
+    cursor: pointer;
+    text-decoration: none;
+    padding: 0.1rem 0.3rem;
+    border-radius: 3px;
+    background: rgba(233, 69, 96, 0.1);
+    transition: all 0.2s;
+}
+
+.cue-timestamp:hover {
+    background: var(--accent);
+    color: white;
+    text-decoration: none;
+}
+
+.cue-text {
+    flex: 1;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--text-primary);
+}
+
+.transcript-cue-more {
+    padding: 0.75rem;
+    text-align: center;
+}
+
+.transcript-cue-more .cue-text {
+    color: var(--text-secondary);
+    font-style: italic;
+}

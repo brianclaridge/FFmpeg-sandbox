@@ -1,6 +1,6 @@
 """Transcript extraction service.
 
-Extracts subtitles/captions from videos and converts to plain text.
+Extracts subtitles/captions from videos and converts to SRT format with timestamps.
 - Downloaded files: Fetch captions from source URL via yt-dlp
 - Local files: Extract embedded subtitles via ffmpeg
 """
@@ -9,7 +9,7 @@ import re
 import subprocess
 import tempfile
 from pathlib import Path
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from loguru import logger
 
@@ -18,10 +18,21 @@ from app.services.file_metadata import load_file_metadata
 
 
 @dataclass
+class TranscriptCue:
+    """A single subtitle cue with timing information."""
+    index: int
+    start_seconds: float  # For video.currentTime
+    start_display: str    # "00:01:23" for display
+    end_seconds: float
+    text: str
+
+
+@dataclass
 class TranscriptResult:
     """Result of transcript extraction."""
     success: bool
     text: str = ""
+    cues: list[TranscriptCue] = field(default_factory=list)
     output_path: Path | None = None
     source_type: str = ""  # "url" or "embedded"
     subtitle_type: str = ""  # "manual" or "auto"
@@ -29,12 +40,193 @@ class TranscriptResult:
 
 
 class SubtitleParser:
-    """Parse VTT/SRT subtitle files to plain text."""
+    """Parse VTT/SRT subtitle files to plain text or structured cues."""
 
     # VTT timestamp: 00:00:00.000 --> 00:00:00.000
     TS_LINE = re.compile(r"^\d{1,2}:\d{2}:\d{2}\.\d{3}\s-->\s\d{1,2}:\d{2}:\d{2}\.\d{3}.*$")
     # SRT timestamp: 00:00:00,000 --> 00:00:00,000
     SRT_TS = re.compile(r"^\d{2}:\d{2}:\d{2},\d{3}\s-->\s\d{2}:\d{2}:\d{2},\d{3}.*$")
+    # Capture VTT/SRT timestamp groups
+    TS_CAPTURE = re.compile(
+        r"(\d{1,2}):(\d{2}):(\d{2})[.,](\d{3})\s*-->\s*(\d{1,2}):(\d{2}):(\d{2})[.,](\d{3})"
+    )
+
+    @staticmethod
+    def _timestamp_to_seconds(h: str, m: str, s: str, ms: str) -> float:
+        """Convert timestamp parts to seconds."""
+        return int(h) * 3600 + int(m) * 60 + int(s) + int(ms) / 1000
+
+    @staticmethod
+    def _seconds_to_display(seconds: float) -> str:
+        """Format seconds as HH:MM:SS for display."""
+        h = int(seconds // 3600)
+        m = int((seconds % 3600) // 60)
+        s = int(seconds % 60)
+        return f"{h:02d}:{m:02d}:{s:02d}"
+
+    @staticmethod
+    def _clean_text(text: str) -> str:
+        """Strip VTT/HTML tags from text."""
+        # Strip HTML/VTT tags like <c>, <v>, <b>, etc.
+        text = re.sub(r"<[^>]+>", "", text)
+        # Strip VTT speaker labels like ">>" or "NAME:"
+        text = re.sub(r"^\>\>\s*", "", text)
+        # Strip inline timing tags
+        text = re.sub(r"<\d{2}:\d{2}:\d{2}\.\d{3}>", "", text)
+        return text.strip()
+
+    @staticmethod
+    def to_srt(sub: str) -> str:
+        """Convert VTT/SRT subtitle content to clean SRT format.
+
+        - Removes WEBVTT header/metadata
+        - Converts timestamps to SRT format (comma separator)
+        - Adds sequence numbers
+        - Strips VTT tags
+        """
+        lines = sub.splitlines()
+        cues = []
+        current_cue = {"ts": "", "text": []}
+        in_cue = False
+        cue_index = 0
+
+        for ln in lines:
+            s = ln.strip()
+
+            # Skip WEBVTT header and metadata
+            if s.upper() == "WEBVTT" or s.upper().startswith("NOTE") or s.upper().startswith("STYLE"):
+                continue
+
+            # Check for timestamp line
+            ts_match = SubtitleParser.TS_CAPTURE.search(s)
+            if ts_match:
+                # Save previous cue if exists
+                if current_cue["ts"] and current_cue["text"]:
+                    cues.append(current_cue)
+                    current_cue = {"ts": "", "text": []}
+
+                # Convert to SRT format (comma instead of period)
+                h1, m1, s1, ms1, h2, m2, s2, ms2 = ts_match.groups()
+                srt_ts = f"{int(h1):02d}:{m1}:{s1},{ms1} --> {int(h2):02d}:{m2}:{s2},{ms2}"
+                current_cue["ts"] = srt_ts
+                in_cue = True
+                continue
+
+            # Skip cue indices (SRT)
+            if s.isdigit() and not in_cue:
+                continue
+
+            # Empty line ends current cue
+            if not s:
+                if current_cue["ts"] and current_cue["text"]:
+                    cues.append(current_cue)
+                    current_cue = {"ts": "", "text": []}
+                in_cue = False
+                continue
+
+            # Collect text for current cue
+            if in_cue or current_cue["ts"]:
+                cleaned = SubtitleParser._clean_text(s)
+                if cleaned:
+                    current_cue["text"].append(cleaned)
+
+        # Don't forget the last cue
+        if current_cue["ts"] and current_cue["text"]:
+            cues.append(current_cue)
+
+        # Build SRT output
+        srt_lines = []
+        for i, cue in enumerate(cues, 1):
+            srt_lines.append(str(i))
+            srt_lines.append(cue["ts"])
+            srt_lines.append("\n".join(cue["text"]))
+            srt_lines.append("")  # Blank line between cues
+
+        return "\n".join(srt_lines).strip()
+
+    @staticmethod
+    def parse_cues(sub: str) -> list[TranscriptCue]:
+        """Parse subtitle content into structured cues with timing.
+
+        Returns list of TranscriptCue objects for UI display.
+        """
+        lines = sub.splitlines()
+        cues = []
+        current_start = 0.0
+        current_end = 0.0
+        current_text = []
+        in_cue = False
+
+        for ln in lines:
+            s = ln.strip()
+
+            # Skip WEBVTT header and metadata
+            if s.upper() == "WEBVTT" or s.upper().startswith("NOTE") or s.upper().startswith("STYLE"):
+                continue
+
+            # Check for timestamp line
+            ts_match = SubtitleParser.TS_CAPTURE.search(s)
+            if ts_match:
+                # Save previous cue if exists
+                if current_text:
+                    text = " ".join(current_text)
+                    # De-duplicate repeated text in same cue
+                    if not cues or cues[-1].text != text:
+                        cues.append(TranscriptCue(
+                            index=len(cues) + 1,
+                            start_seconds=current_start,
+                            start_display=SubtitleParser._seconds_to_display(current_start),
+                            end_seconds=current_end,
+                            text=text,
+                        ))
+                    current_text = []
+
+                # Parse timestamps
+                h1, m1, s1, ms1, h2, m2, s2, ms2 = ts_match.groups()
+                current_start = SubtitleParser._timestamp_to_seconds(h1, m1, s1, ms1)
+                current_end = SubtitleParser._timestamp_to_seconds(h2, m2, s2, ms2)
+                in_cue = True
+                continue
+
+            # Skip cue indices (SRT)
+            if s.isdigit() and not in_cue:
+                continue
+
+            # Empty line ends current cue
+            if not s:
+                if current_text:
+                    text = " ".join(current_text)
+                    if not cues or cues[-1].text != text:
+                        cues.append(TranscriptCue(
+                            index=len(cues) + 1,
+                            start_seconds=current_start,
+                            start_display=SubtitleParser._seconds_to_display(current_start),
+                            end_seconds=current_end,
+                            text=text,
+                        ))
+                    current_text = []
+                in_cue = False
+                continue
+
+            # Collect text for current cue
+            if in_cue:
+                cleaned = SubtitleParser._clean_text(s)
+                if cleaned:
+                    current_text.append(cleaned)
+
+        # Don't forget the last cue
+        if current_text:
+            text = " ".join(current_text)
+            if not cues or cues[-1].text != text:
+                cues.append(TranscriptCue(
+                    index=len(cues) + 1,
+                    start_seconds=current_start,
+                    start_display=SubtitleParser._seconds_to_display(current_start),
+                    end_seconds=current_end,
+                    text=text,
+                ))
+
+        return cues
 
     @staticmethod
     def to_plain_text(sub: str) -> str:
@@ -130,7 +322,7 @@ def extract_from_url(url: str, lang: str = "en", prefer: str = "manual") -> Tran
         prefer: "manual" for human subs first, "auto" for auto-captions first
 
     Returns:
-        TranscriptResult with extracted text
+        TranscriptResult with SRT text and parsed cues
     """
     with tempfile.TemporaryDirectory() as td:
         outtmpl = str(Path(td) / "sub.%(ext)s")
@@ -146,14 +338,19 @@ def extract_from_url(url: str, lang: str = "en", prefer: str = "manual") -> Tran
                 raw_sub, sub_file = _read_downloaded_sub(td)
 
                 if raw_sub.strip():
-                    text = SubtitleParser.to_plain_text(raw_sub)
-                    if text.strip():
+                    # Convert to SRT format for download
+                    srt_text = SubtitleParser.to_srt(raw_sub)
+                    # Parse cues for UI display
+                    cues = SubtitleParser.parse_cues(raw_sub)
+
+                    if srt_text.strip() and cues:
                         subtitle_type = kind
-                        # Save transcript
-                        output_path = save_transcript(text, url)
+                        # Save transcript as SRT
+                        output_path = save_transcript(srt_text, url)
                         return TranscriptResult(
                             success=True,
-                            text=text,
+                            text=srt_text,
+                            cues=cues,
                             output_path=output_path,
                             source_type="url",
                             subtitle_type=subtitle_type,
@@ -283,20 +480,25 @@ def extract_embedded_subtitles(input_path: Path, lang: str = "en") -> Transcript
                 )
 
             raw_sub = Path(tmp_path).read_text(encoding="utf-8", errors="replace")
-            text = SubtitleParser.to_plain_text(raw_sub)
 
-            if not text.strip():
+            # Convert to SRT format for download
+            srt_text = SubtitleParser.to_srt(raw_sub)
+            # Parse cues for UI display
+            cues = SubtitleParser.parse_cues(raw_sub)
+
+            if not srt_text.strip() or not cues:
                 return TranscriptResult(
                     success=False,
                     error="Transcript is empty"
                 )
 
-            # Save transcript
-            output_path = save_transcript(text, input_path.name)
+            # Save transcript as SRT
+            output_path = save_transcript(srt_text, input_path.name)
 
             return TranscriptResult(
                 success=True,
-                text=text,
+                text=srt_text,
+                cues=cues,
                 output_path=output_path,
                 source_type="embedded",
                 subtitle_type="embedded",
@@ -323,10 +525,10 @@ def extract_embedded_subtitles(input_path: Path, lang: str = "en") -> Transcript
 
 
 def save_transcript(text: str, source_name: str) -> Path:
-    """Save transcript text to output directory.
+    """Save transcript text to output directory as SRT file.
 
     Args:
-        text: The transcript text
+        text: The transcript text (SRT format)
         source_name: Original filename or URL for naming
 
     Returns:
@@ -346,12 +548,12 @@ def save_transcript(text: str, source_name: str) -> Path:
         # Use input filename stem
         base_name = f"transcript_{Path(source_name).stem}"
 
-    output_path = OUTPUT_DIR / f"{base_name}.txt"
+    output_path = OUTPUT_DIR / f"{base_name}.srt"
 
     # Avoid overwriting - add number suffix if needed
     counter = 1
     while output_path.exists():
-        output_path = OUTPUT_DIR / f"{base_name}_{counter}.txt"
+        output_path = OUTPUT_DIR / f"{base_name}_{counter}.srt"
         counter += 1
 
     output_path.write_text(text, encoding="utf-8")

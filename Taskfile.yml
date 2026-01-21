@@ -64,8 +64,9 @@ tasks:
     deps:
       - clean:all
     cmds:
+      - docker ps -aq --filter "name=ffmpeg" | xargs -r docker rm -f 2>/dev/null || true
       - docker compose down
-      - GIT_HASH={{.GIT_HASH}} GIT_DATE={{.GIT_DATE}} docker compose build
+      - GIT_HASH={{.GIT_HASH}} GIT_DATE={{.GIT_DATE}} docker compose build --no-cache
       - docker compose up -d
       - uv run scripts/wait-and-open.py
 

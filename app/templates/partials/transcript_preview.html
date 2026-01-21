@@ -16,7 +16,25 @@
         {% endif %}
     </div>
     <div class="transcript-preview">
+        {% if cues %}
+        <div class="transcript-cues">
+            {% for cue in cues[:100] %}
+            <div class="transcript-cue" data-time="{{ cue.start_seconds }}">
+                <a href="#" class="cue-timestamp" onclick="seekVideo({{ cue.start_seconds }}); return false;">
+                    {{ cue.start_display }}
+                </a>
+                <span class="cue-text">{{ cue.text }}</span>
+            </div>
+            {% endfor %}
+            {% if cues|length > 100 %}
+            <div class="transcript-cue-more">
+                <span class="cue-text">... and {{ cues|length - 100 }} more cues (download for full transcript)</span>
+            </div>
+            {% endif %}
+        </div>
+        {% else %}
         <pre class="transcript-text">{{ transcript_text[:2000] }}{% if transcript_text|length > 2000 %}...{% endif %}</pre>
+        {% endif %}
     </div>
     <div class="preview-actions">
         <a href="/preview/{{ output_file }}" download="{{ output_file }}" class="btn-secondary">
@@ -24,6 +42,16 @@
         </a>
     </div>
 </div>
+
+<script>
+function seekVideo(seconds) {
+    var video = document.getElementById('clip-preview-video');
+    if (video) {
+        video.currentTime = seconds;
+        video.play();
+    }
+}
+</script>
 {% else %}
 <div class="preview-error">
     <p>Transcript extraction failed</p>
