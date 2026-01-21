@@ -449,6 +449,29 @@ async def preview_file(filename: str):
     return FileResponse(file_path, media_type=media_type, filename=filename)
 
 
+@router.get("/input/{filename}")
+async def input_file(filename: str):
+    """Serve input video/audio file with Range request support for seeking."""
+    file_path = INPUT_DIR / filename
+
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="File not found")
+
+    # Detect media type from extension
+    ext = file_path.suffix.lower()
+    media_types = {
+        ".mp3": "audio/mpeg",
+        ".mp4": "video/mp4",
+        ".webm": "video/webm",
+        ".mkv": "video/x-matroska",
+        ".avi": "video/x-msvideo",
+        ".mov": "video/quicktime",
+    }
+    media_type = media_types.get(ext, "application/octet-stream")
+
+    return FileResponse(file_path, media_type=media_type, filename=filename)
+
+
 @router.get("/partials/sliders", response_class=HTMLResponse)
 async def get_sliders(request: Request, preset: str = config.audio.default_preset):
     """Get slider form populated with preset values."""

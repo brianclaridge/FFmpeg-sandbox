@@ -1,5 +1,5 @@
 {% if success %}
-<div class="preview-success">
+<div class="preview-success transcript-mode">
     <p>Transcript extracted!</p>
     <div class="transcript-info">
         <span class="transcript-source">
@@ -18,7 +18,7 @@
     <div class="transcript-preview">
         {% if cues %}
         <div class="transcript-cues">
-            {% for cue in cues[:100] %}
+            {% for cue in cues %}
             <div class="transcript-cue" data-time="{{ cue.start_seconds }}">
                 <a href="#" class="cue-timestamp" onclick="seekVideo({{ cue.start_seconds }}); return false;">
                     {{ cue.start_display }}
@@ -26,11 +26,6 @@
                 <span class="cue-text">{{ cue.text }}</span>
             </div>
             {% endfor %}
-            {% if cues|length > 100 %}
-            <div class="transcript-cue-more">
-                <span class="cue-text">... and {{ cues|length - 100 }} more cues (download for full transcript)</span>
-            </div>
-            {% endif %}
         </div>
         {% else %}
         <pre class="transcript-text">{{ transcript_text[:2000] }}{% if transcript_text|length > 2000 %}...{% endif %}</pre>
@@ -44,6 +39,19 @@
 </div>
 
 <script>
+(function() {
+    // Switch video to full input file for seeking
+    var video = document.getElementById('clip-preview-video');
+    var filename = window.currentFilename;
+    if (video && filename) {
+        var fullVideoUrl = '/input/' + encodeURIComponent(filename);
+        if (video.src !== fullVideoUrl && !video.src.endsWith(encodeURIComponent(filename))) {
+            video.src = fullVideoUrl;
+            video.load();
+        }
+    }
+})();
+
 function seekVideo(seconds) {
     var video = document.getElementById('clip-preview-video');
     if (video) {

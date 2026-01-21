@@ -370,12 +370,22 @@ footer {
 }
 
 .transcript-preview {
-    max-height: 300px;
+    flex: 1;
+    min-height: 200px;
+    max-height: calc(100vh - 400px);
     overflow-y: auto;
     margin-bottom: 1rem;
     background: var(--bg-secondary);
     border-radius: var(--border-radius);
     text-align: left;
+}
+
+/* Transcript mode - expand to fill available space */
+.preview-success.transcript-mode {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 300px);
+    max-height: calc(100vh - 300px);
 }
 
 .transcript-text {
@@ -436,12 +446,3 @@ footer {
     color: var(--text-primary);
 }
 
-.transcript-cue-more {
-    padding: 0.75rem;
-    text-align: center;
-}
-
-.transcript-cue-more .cue-text {
-    color: var(--text-secondary);
-    font-style: italic;
-}
