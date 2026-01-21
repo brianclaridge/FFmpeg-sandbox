@@ -94,6 +94,6 @@ Multi-filter transformation pipelines that apply several effects at once.
 | File | Purpose |
 |------|---------|
 | `presets.yml` | 66 filter shortcuts (slider values) |
-| `presets_themes.yml` | 12 themed transformation pipelines |
+| `presets_themes.yml` | 13 themed transformation pipelines |
 | `app/services/presets.py` | Shortcut loader with Pydantic validation |
 | `app/services/presets_themes.py` | Theme preset loader |

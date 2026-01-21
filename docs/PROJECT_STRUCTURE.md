@@ -7,7 +7,7 @@ FFmpeg Sandbox directory layout and file purposes.
 ```
 ├── config.yml           # App configuration
 ├── presets.yml          # Filter shortcuts (66 shortcuts, 13 categories)
-├── presets_themes.yml   # Theme presets (12 presets: 6 video, 6 audio)
+├── presets_themes.yml   # Theme presets (13 presets: 7 video, 6 audio)
 ├── Dockerfile           # Container build
 ├── docker-compose.yml   # Container orchestration
 ├── docker-entrypoint.sh # Container startup script

@@ -75,7 +75,7 @@ Restart container after changes. Presets are validated on startup.
 
 10 dark themes available:
 
-- Darcula (default)
+- Darcula
 - Dracula
 - Monokai
 - Nord
@@ -84,7 +84,7 @@ Restart container after changes. Presets are validated on startup.
 - One Dark
 - Tokyo Night
 - Catppuccin
-- Neon
+- Neon (default)
 
 Theme selection saved in localStorage.
 

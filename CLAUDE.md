@@ -34,6 +34,6 @@ docker compose up -d  # Start container
 | File | Purpose |
 |------|---------|
 | `presets.yml` | 66 filter shortcuts across 13 categories |
-| `presets_themes.yml` | 12 themed transformation presets |
+| `presets_themes.yml` | 13 themed transformation presets |
 | `config.yml` | Application configuration |
 | `Taskfile.yml` | Task runner commands |
