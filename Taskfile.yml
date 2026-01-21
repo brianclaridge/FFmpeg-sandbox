@@ -67,6 +67,7 @@ tasks:
       - docker compose down
       - GIT_HASH={{.GIT_HASH}} GIT_DATE={{.GIT_DATE}} docker compose build
       - docker compose up -d
+      - python scripts/wait-and-open.py
 
   reset:
     desc: clean and restart the application

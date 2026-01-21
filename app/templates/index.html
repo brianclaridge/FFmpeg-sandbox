@@ -82,6 +82,13 @@
                     <span class="htmx-indicator">Extracting...</span>
                     <span class="btn-text">Extract MP3</span>
                 </button>
+                <button type="submit" class="btn-secondary btn-extract"
+                        hx-post="/transcript"
+                        hx-target="#preview-area"
+                        hx-swap="innerHTML">
+                    <span class="htmx-indicator">Extracting...</span>
+                    <span class="btn-text">Extract Transcript</span>
+                </button>
             </div>
         </section>
 

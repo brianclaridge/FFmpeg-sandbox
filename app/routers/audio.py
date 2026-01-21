@@ -376,9 +376,58 @@ async def extract(
         )
 
 
+@router.post("/transcript", response_class=HTMLResponse)
+async def extract_transcript(
+    request: Request,
+    input_file: str = Form(...),
+):
+    """Extract transcript/captions from video."""
+    from app.services.transcript import extract_transcript as do_extract_transcript
+
+    input_path = INPUT_DIR / input_file
+
+    if not input_path.exists():
+        raise HTTPException(status_code=404, detail="Input file not found")
+
+    try:
+        result = do_extract_transcript(input_file)
+
+        if result.success:
+            return templates.TemplateResponse(
+                "partials/transcript_preview.html",
+                {
+                    "request": request,
+                    "success": True,
+                    "output_file": result.output_path.name if result.output_path else "",
+                    "transcript_text": result.text,
+                    "source_type": result.source_type,
+                    "subtitle_type": result.subtitle_type,
+                },
+            )
+        else:
+            return templates.TemplateResponse(
+                "partials/transcript_preview.html",
+                {
+                    "request": request,
+                    "success": False,
+                    "error": result.error,
+                },
+            )
+    except Exception as e:
+        logger.exception("Transcript extraction failed")
+        return templates.TemplateResponse(
+            "partials/transcript_preview.html",
+            {
+                "request": request,
+                "success": False,
+                "error": str(e),
+            },
+        )
+
+
 @router.get("/preview/{filename}")
 async def preview_file(filename: str):
-    """Serve processed audio or video file."""
+    """Serve processed audio, video, or text file."""
     file_path = OUTPUT_DIR / filename
 
     if not file_path.exists():
@@ -391,6 +440,7 @@ async def preview_file(filename: str):
         ".mp4": "video/mp4",
         ".webm": "video/webm",
         ".mkv": "video/x-matroska",
+        ".txt": "text/plain; charset=utf-8",
     }
     media_type = media_types.get(ext, "application/octet-stream")
 

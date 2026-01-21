@@ -46,6 +46,12 @@ from app.services.processor import (
     process_video_with_filters,
 )
 
+# Transcript extraction
+from app.services.transcript import (
+    extract_transcript,
+    TranscriptResult,
+)
+
 __all__ = [
     # Metadata
     "format_duration_ms",
@@ -75,4 +81,7 @@ __all__ = [
     "process_audio",
     "process_audio_with_filters",
     "process_video_with_filters",
+    # Transcript
+    "extract_transcript",
+    "TranscriptResult",
 ]

@@ -1,0 +1,32 @@
+{% if success %}
+<div class="preview-success">
+    <p>Transcript extracted!</p>
+    <div class="transcript-info">
+        <span class="transcript-source">
+            {% if source_type == "url" %}
+            <i class="fas fa-globe"></i> Fetched from source URL
+            {% else %}
+            <i class="fas fa-file-video"></i> Extracted from embedded subtitles
+            {% endif %}
+        </span>
+        {% if subtitle_type and subtitle_type != "embedded" %}
+        <span class="transcript-type">
+            ({{ "Manual captions" if subtitle_type == "manual" else "Auto-generated captions" }})
+        </span>
+        {% endif %}
+    </div>
+    <div class="transcript-preview">
+        <pre class="transcript-text">{{ transcript_text[:2000] }}{% if transcript_text|length > 2000 %}...{% endif %}</pre>
+    </div>
+    <div class="preview-actions">
+        <a href="/preview/{{ output_file }}" download="{{ output_file }}" class="btn-secondary">
+            <i class="fas fa-download"></i> Download Transcript
+        </a>
+    </div>
+</div>
+{% else %}
+<div class="preview-error">
+    <p>Transcript extraction failed</p>
+    <pre>{{ error }}</pre>
+</div>
+{% endif %}

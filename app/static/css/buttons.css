@@ -70,9 +70,13 @@
     color: var(--error);
 }
 
-/* Extract Button - secondary style but full width like primary */
-.btn-extract {
-    width: 100%;
+/* Extract Buttons - equal width in process-row */
+.process-row .btn-extract {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     padding: 1rem;
     font-size: 1rem;
     font-weight: bold;
