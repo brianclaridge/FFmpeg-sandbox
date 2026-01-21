@@ -453,13 +453,24 @@ var ClipRangeController = (function() {
     function updateVideoPreview() {
         if (!currentFilename || !previewVideo || !isVideoFile) return;
         var startTime = startInput.value;
-        var endTime = endInput.value;
-        var previewUrl = '/clip-video-preview?' +
-            'filename=' + encodeURIComponent(currentFilename) +
-            '&start=' + encodeURIComponent(startTime) +
-            '&end=' + encodeURIComponent(endTime);
-        previewVideo.src = previewUrl;
-        previewVideo.load();
+        // Use full input file for Range request support (enables seeking)
+        var previewUrl = '/input/' + encodeURIComponent(currentFilename);
+        var startSeconds = timestampToMs(startTime) / 1000;
+
+        // Only reload if source changed
+        if (!previewVideo.src.endsWith(encodeURIComponent(currentFilename))) {
+            previewVideo.src = previewUrl;
+            previewVideo.load();
+        }
+
+        // Seek to start time when ready
+        if (previewVideo.readyState >= 1) {
+            previewVideo.currentTime = startSeconds;
+        } else {
+            previewVideo.onloadedmetadata = function() {
+                previewVideo.currentTime = startSeconds;
+            };
+        }
         previewVideo.play().catch(function(e) {
             console.log('Video autoplay blocked:', e);
         });
@@ -564,14 +575,18 @@ var ClipRangeController = (function() {
     function showVideoPreview() {
         if (!videoContainer || !currentFilename || !isVideoFile) return;
         var startTime = startInput.value;
-        var endTime = endInput.value;
-        var previewUrl = '/clip-video-preview?' +
-            'filename=' + encodeURIComponent(currentFilename) +
-            '&start=' + encodeURIComponent(startTime) +
-            '&end=' + encodeURIComponent(endTime);
+        // Use full input file for Range request support (enables seeking)
+        var previewUrl = '/input/' + encodeURIComponent(currentFilename);
+        var startSeconds = timestampToMs(startTime) / 1000;
+
         previewVideo.src = previewUrl;
         previewVideo.load();
         videoContainer.style.display = 'block';
+
+        // Seek to start time when ready
+        previewVideo.onloadedmetadata = function() {
+            previewVideo.currentTime = startSeconds;
+        };
         previewVideo.play().catch(function(e) {
             console.log('Video autoplay blocked:', e);
         });
