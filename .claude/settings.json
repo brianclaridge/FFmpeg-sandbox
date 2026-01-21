@@ -6,6 +6,7 @@
   "respectGitignore": false,
   "showTurnDuration": true,
   "terminalProgressBarEnabled": false,
+  "companyAnnouncements": ["Welcome to ffmpeg-sandbox!"],
   "env": {
     "DISABLE_TELEMETRY": "1",
     "DISABLE_NON_ESSENTIAL_MODEL_CALLS": "1",
