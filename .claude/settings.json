@@ -1,0 +1,49 @@
+{
+  "model": "Opus",
+  "alwaysThinkingEnabled": true,
+  "includeCoAuthoredBy": false,
+  "cleanupPeriodDays": 1,
+  "respectGitignore": false,
+  "showTurnDuration": true,
+  "terminalProgressBarEnabled": false,
+  "env": {
+    "DISABLE_TELEMETRY": "1",
+    "DISABLE_NON_ESSENTIAL_MODEL_CALLS": "1",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+    "CLAUDE_CODE_DISABLE_TERMINAL_TITLE": "1",
+    "MAX_THINKING_TOKENS": "31999"
+  },
+  "permissions": {
+    "allow": [
+      "Bash",
+      "Bash(tree:*)",
+      "Bash(grep:*)",
+      "Bash(task:*)",
+      "Bash(claude:*)",
+      "Bash(dir:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push)",
+      "Bash(git push:*)",
+      "Bash(git remote add:*)",
+      "Write",
+      "Edit",
+      "WebFetch",
+      "WebSearch",
+      "ExitPlanMode",
+      "KillShell",
+      "Skill",
+      "mcp__context7__*",
+      "mcp__playwright__*",
+      "WebFetch(domain:docs.anthropic.com)",
+      "WebFetch(domain:docs.claude.com)"
+    ],
+    "deny": [],
+    "ask": ["Bash(rm:*)"],
+    "defaultMode": "plan",
+    "additionalDirectories": []
+  },
+  "enabledPlugins": {},
+  "outputStyle": "engineer",
+  "plansDirectory": ".claude/plans"
+}

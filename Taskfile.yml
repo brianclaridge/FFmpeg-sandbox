@@ -1,10 +1,4 @@
-version: '3'
-
-includes:
-  claude:
-    taskfile: .claude
-    optional: true
-    flatten: true
+version: "3"
 
 vars:
   PROJECT: ffmpeg-sandbox
@@ -18,23 +12,18 @@ vars:
     sh: git log -1 --format=%cd --date=format:%Y.%m.%d 2>/dev/null || echo ""
 
 tasks:
-  # ============================================
-  # Default Task
-  # ============================================
-
   default:
-    desc: Show available tasks
+    desc: List available tasks
     cmds:
       - task --list
-
-  # ============================================
-  # Claude Tasks
-  # ============================================
+    silent: true
 
   claude:
+    desc: Launch Claude Code
     cmds:
-      - claude --chrome --ide --model opus
-
+      - claude --allow-dangerously-skip-permissions --chrome --ide --model Opus
+    interactive: true
+    silent: true
 
   # ============================================
   # Docker Tasks
@@ -226,7 +215,7 @@ tasks:
   image:gen:
     desc: Generate image via ChatGPT (interactive Claude session)
     vars:
-      PROMPT: '{{.CLI_ARGS}}'
+      PROMPT: "{{.CLI_ARGS}}"
       TIMESTAMP:
         sh: pwsh -NoProfile -Command "(Get-Date).ToString('yyyyMMdd_HHmmss')"
     interactive: true
@@ -237,7 +226,7 @@ tasks:
   image:gen:cmd:
     desc: Print claude command for image generation (copy and run manually)
     vars:
-      PROMPT: '{{.CLI_ARGS}}'
+      PROMPT: "{{.CLI_ARGS}}"
       TIMESTAMP:
         sh: pwsh -NoProfile -Command "(Get-Date).ToString('yyyyMMdd_HHmmss')"
     cmds:
