@@ -67,7 +67,7 @@ tasks:
       - docker compose down
       - GIT_HASH={{.GIT_HASH}} GIT_DATE={{.GIT_DATE}} docker compose build
       - docker compose up -d
-      - python scripts/wait-and-open.py
+      - uv run python scripts/wait-and-open.py
 
   reset:
     desc: clean and restart the application
@@ -109,53 +109,53 @@ tasks:
       - uv run pytest tests/ --cov=app --cov-report=term-missing
 
   # ============================================
-  # Cleanup Tasks (Windows-compatible via PowerShell)
+  # Cleanup Tasks (via scripts/clean.py)
   # ============================================
 
   clean:output:
-    desc: Remove all processed audio files
+    desc: Remove all processed audio/video files
     cmds:
-      - pwsh -Command "Remove-Item -Path '{{.OUTPUT_DIR}}/*.mp3','{{.OUTPUT_DIR}}/*.mp4','{{.OUTPUT_DIR}}/*.webm','{{.OUTPUT_DIR}}/*.mkv' -Force -ErrorAction SilentlyContinue; Write-Host 'Cleaned output directory'"
+      - uv run python scripts/clean.py output
 
   clean:logs:
     desc: Remove all log files
     cmds:
-      - pwsh -Command "Remove-Item -Path '{{.LOGS_DIR}}/*.log' -Force -ErrorAction SilentlyContinue; Write-Host 'Cleaned logs directory'"
+      - uv run python scripts/clean.py logs
 
   clean:history:
     desc: Remove processing history
     cmds:
-      - pwsh -Command "Remove-Item -Path '{{.DATA_DIR}}/history.json' -Force -ErrorAction SilentlyContinue; Write-Host 'Cleared processing history'"
+      - uv run python scripts/clean.py history
 
   clean:metadata:
     desc: Remove per-file metadata configs
     cmds:
-      - pwsh -Command "Remove-Item -Path '{{.INPUT_DIR}}/*.yml' -Force -ErrorAction SilentlyContinue; Write-Host 'Cleaned per-file metadata'"
+      - uv run python scripts/clean.py metadata
+
+  clean:downloads:
+    desc: Remove downloaded video files from input
+    cmds:
+      - uv run python scripts/clean.py downloads
 
   clean:all:
-    desc: Remove all generated files (output, logs, history, metadata)
+    desc: Purge entire .data directory and recreate structure
     cmds:
-      - task: clean:downloads
-      - task: clean:output
-      - task: clean:logs
-      - task: clean:history
-      - task: clean:metadata
+      - uv run python scripts/clean.py all
 
   clean:docker:
     desc: Remove Docker containers, images, and volumes
     cmds:
       - docker compose down -v --rmi local
-      - pwsh -Command "Write-Host 'Cleaned Docker resources'"
 
   clean:venv:
     desc: Remove Python virtual environment
     cmds:
-      - pwsh -Command "Remove-Item -Path '.venv' -Recurse -Force -ErrorAction SilentlyContinue; Write-Host 'Removed .venv directory'"
+      - uv run python scripts/clean.py venv
 
   clean:pycache:
     desc: Remove Python cache files
     cmds:
-      - pwsh -Command "Get-ChildItem -Path . -Recurse -Directory -Filter '__pycache__' -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue; Get-ChildItem -Path . -Recurse -Filter '*.pyc' -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue; Write-Host 'Cleaned Python cache'"
+      - uv run python scripts/clean.py pycache
 
   nuke:
     desc: Full cleanup (all generated files + Docker + venv)
