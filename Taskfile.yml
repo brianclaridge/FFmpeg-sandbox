@@ -67,7 +67,7 @@ tasks:
       - docker compose down
       - GIT_HASH={{.GIT_HASH}} GIT_DATE={{.GIT_DATE}} docker compose build
       - docker compose up -d
-      - uv run python scripts/wait-and-open.py
+      - uv run scripts/wait-and-open.py
 
   reset:
     desc: clean and restart the application
@@ -115,32 +115,32 @@ tasks:
   clean:output:
     desc: Remove all processed audio/video files
     cmds:
-      - uv run python scripts/clean.py output
+      - uv run scripts/clean.py output
 
   clean:logs:
     desc: Remove all log files
     cmds:
-      - uv run python scripts/clean.py logs
+      - uv run scripts/clean.py logs
 
   clean:history:
     desc: Remove processing history
     cmds:
-      - uv run python scripts/clean.py history
+      - uv run scripts/clean.py history
 
   clean:metadata:
     desc: Remove per-file metadata configs
     cmds:
-      - uv run python scripts/clean.py metadata
+      - uv run scripts/clean.py metadata
 
   clean:downloads:
     desc: Remove downloaded video files from input
     cmds:
-      - uv run python scripts/clean.py downloads
+      - uv run scripts/clean.py downloads
 
   clean:all:
     desc: Purge entire .data directory and recreate structure
     cmds:
-      - uv run python scripts/clean.py all
+      - uv run scripts/clean.py all
 
   clean:docker:
     desc: Remove Docker containers, images, and volumes
@@ -150,12 +150,12 @@ tasks:
   clean:venv:
     desc: Remove Python virtual environment
     cmds:
-      - uv run python scripts/clean.py venv
+      - uv run scripts/clean.py venv
 
   clean:pycache:
     desc: Remove Python cache files
     cmds:
-      - uv run python scripts/clean.py pycache
+      - uv run scripts/clean.py pycache
 
   nuke:
     desc: Full cleanup (all generated files + Docker + venv)
