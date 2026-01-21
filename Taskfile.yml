@@ -21,7 +21,7 @@ tasks:
   claude:
     desc: Launch Claude Code
     cmds:
-      - claude --allow-dangerously-skip-permissions --chrome --ide --model Opus
+      - claude --chrome --ide --model Opus
     interactive: true
     silent: true
 
