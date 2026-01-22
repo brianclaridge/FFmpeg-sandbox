@@ -4,4 +4,6 @@
 
 See [CLAUDE.md](CLAUDE.md) for documentation.
 
-~[screenshot](images/screenshot.png)
+![screen1](images/screen1.png)
+
+![screen2](images/screen2.png)
