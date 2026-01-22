@@ -380,8 +380,10 @@ async def extract(
 async def extract_transcript(
     request: Request,
     input_file: str = Form(...),
+    start_time: str = Form("00:00:00.000"),
+    end_time: str = Form(None),
 ):
-    """Extract transcript/captions from video."""
+    """Extract transcript/captions from video, optionally filtered to clip range."""
     from app.services.transcript import extract_transcript as do_extract_transcript
 
     input_path = INPUT_DIR / input_file
@@ -393,6 +395,23 @@ async def extract_transcript(
         result = do_extract_transcript(input_file)
 
         if result.success:
+            # Filter cues to clip range if end_time is provided
+            filtered_cues = result.cues
+            clip_start = None
+            clip_end = None
+
+            if result.cues and end_time:
+                start_ms = _parse_time_to_ms(start_time)
+                end_ms = _parse_time_to_ms(end_time)
+                filtered_cues = [
+                    c
+                    for c in result.cues
+                    if c.start_seconds * 1000 >= start_ms
+                    and c.start_seconds * 1000 < end_ms
+                ]
+                clip_start = start_time
+                clip_end = end_time
+
             return templates.TemplateResponse(
                 "partials/transcript_preview.html",
                 {
@@ -400,9 +419,11 @@ async def extract_transcript(
                     "success": True,
                     "output_file": result.output_path.name if result.output_path else "",
                     "transcript_text": result.text,
-                    "cues": result.cues,
+                    "cues": filtered_cues,
                     "source_type": result.source_type,
                     "subtitle_type": result.subtitle_type,
+                    "clip_start": clip_start,
+                    "clip_end": clip_end,
                 },
             )
         else:

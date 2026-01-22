@@ -15,6 +15,25 @@
         </span>
         {% endif %}
     </div>
+    {% if clip_start and clip_end %}
+    <div class="transcript-range-indicator">
+        <i class="fas fa-cut"></i> Showing {{ clip_start }} - {{ clip_end }}
+    </div>
+    {% endif %}
+    <div class="transcript-offset-control">
+        <span class="offset-label"><i class="fas fa-clock"></i> Offset:</span>
+        <button type="button" class="btn-offset-step" onclick="adjustOffset(-0.5)" title="Decrease offset">
+            <i class="fas fa-minus"></i>
+        </button>
+        <input type="range" id="timestamp-offset" min="-30" max="30" step="0.5" value="0">
+        <button type="button" class="btn-offset-step" onclick="adjustOffset(0.5)" title="Increase offset">
+            <i class="fas fa-plus"></i>
+        </button>
+        <span id="offset-display">+0.0s</span>
+        <button type="button" class="btn-reset-offset" onclick="resetTimestampOffset()" title="Reset to zero">
+            <i class="fas fa-undo"></i>
+        </button>
+    </div>
     <div class="transcript-preview">
         {% if cues %}
         <div class="transcript-cues">
@@ -50,12 +69,71 @@
             video.load();
         }
     }
+
+    // Initialize offset slider from sessionStorage
+    var offsetKey = 'timestampOffset_' + (filename || 'default');
+    var savedOffset = sessionStorage.getItem(offsetKey);
+    var slider = document.getElementById('timestamp-offset');
+    var display = document.getElementById('offset-display');
+
+    if (slider && display) {
+        if (savedOffset !== null) {
+            slider.value = savedOffset;
+            updateOffsetDisplay(parseFloat(savedOffset));
+        }
+
+        slider.addEventListener('input', function() {
+            var offset = parseFloat(this.value);
+            updateOffsetDisplay(offset);
+            sessionStorage.setItem(offsetKey, offset.toString());
+        });
+    }
+
+    function updateOffsetDisplay(offset) {
+        var sign = offset >= 0 ? '+' : '';
+        display.textContent = sign + offset.toFixed(1) + 's';
+    }
 })();
+
+function getTimestampOffset() {
+    var slider = document.getElementById('timestamp-offset');
+    return slider ? parseFloat(slider.value) : 0;
+}
+
+function adjustOffset(delta) {
+    var slider = document.getElementById('timestamp-offset');
+    var display = document.getElementById('offset-display');
+    var filename = window.currentFilename;
+    var offsetKey = 'timestampOffset_' + (filename || 'default');
+
+    if (slider && display) {
+        var newValue = Math.max(-30, Math.min(30, parseFloat(slider.value) + delta));
+        slider.value = newValue;
+        var sign = newValue >= 0 ? '+' : '';
+        display.textContent = sign + newValue.toFixed(1) + 's';
+        sessionStorage.setItem(offsetKey, newValue.toString());
+    }
+}
+
+function resetTimestampOffset() {
+    var slider = document.getElementById('timestamp-offset');
+    var display = document.getElementById('offset-display');
+    var filename = window.currentFilename;
+    var offsetKey = 'timestampOffset_' + (filename || 'default');
+
+    if (slider && display) {
+        slider.value = 0;
+        display.textContent = '+0.0s';
+        sessionStorage.setItem(offsetKey, '0');
+    }
+}
 
 function seekVideo(seconds) {
     var video = document.getElementById('clip-preview-video');
     if (video) {
-        video.currentTime = seconds;
+        var offset = getTimestampOffset();
+        var targetTime = Math.max(0, seconds + offset);
+        video.currentTime = targetTime;
         video.play();
     }
 }
