@@ -226,7 +226,50 @@ class SubtitleParser:
                     text=text,
                 ))
 
+        # Remove progressive/incremental duplicates from auto-captions
+        cues = SubtitleParser._dedupe_progressive_cues(cues)
         return cues
+
+    @staticmethod
+    def _dedupe_progressive_cues(
+        cues: list[TranscriptCue], min_duration_ms: int = 50
+    ) -> list[TranscriptCue]:
+        """Remove progressive/incremental cues that are subsets of adjacent cues.
+
+        YouTube auto-captions produce short-duration "snapshot" cues where:
+        - Duration is ≤ min_duration_ms (default 50ms)
+        - Text is a prefix/subset of adjacent cue's text
+
+        These are removed, keeping only the fuller versions.
+        """
+        if not cues or len(cues) < 2:
+            return cues
+
+        result = []
+        i = 0
+
+        while i < len(cues):
+            cue = cues[i]
+            duration_ms = (cue.end_seconds - cue.start_seconds) * 1000
+
+            # Check if this is a short-duration cue
+            if duration_ms <= min_duration_ms:
+                cue_text = cue.text.strip()
+
+                # Check if text is subset of previous cue
+                if result and cue_text in result[-1].text:
+                    i += 1
+                    continue
+
+                # Check if text is subset of next cue
+                if i + 1 < len(cues) and cue_text in cues[i + 1].text:
+                    i += 1
+                    continue
+
+            result.append(cue)
+            i += 1
+
+        return result
 
     @staticmethod
     def to_plain_text(sub: str) -> str:
